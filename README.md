@@ -1,9 +1,6 @@
 # townhallbackend
 Backend Django server using DRF
 
-superuser access
-username: townhall
-pw: townhall 
 
 Following the set up of
 https://medium.com/swlh/build-your-first-rest-api-with-django-rest-framework-e394e39a482c
@@ -19,6 +16,12 @@ https://pip.pypa.io/en/stable/installation/
 Step2
 Then once you have it installed, run the following command
 `pip install django`
+
+Step2.5
+Run the following command to make superuser
+`python manage.py createsuperuser`
+username: townhall
+pw: townhall 
 
 Step3: run migrations
 To run migrations:
