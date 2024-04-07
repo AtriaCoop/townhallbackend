@@ -22,6 +22,7 @@ Run the following command to make superuser, ensure you have `cd townhall` and g
 `python manage.py createsuperuser`
 username: townhall
 pw: townhall 
+if it asks for email, just type your persona email 
 
 Step3: run migrations
 To run migrations:
