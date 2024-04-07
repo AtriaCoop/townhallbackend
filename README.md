@@ -23,6 +23,7 @@ Run the following command to make superuser, ensure you have `cd townhall` and g
 username: townhall
 pw: townhall 
 if it asks for email, just type your persona email 
+if you dont see the password youre writing being typed out, THAT IS OK, the text you are writing when setting your password is purposefully invisible, just don't make any typos! 
 
 Step3: run migrations
 To run migrations:
