@@ -14,7 +14,7 @@ https://www.python.org/downloads/
 https://pip.pypa.io/en/stable/installation/
 
 Step2
-Then once you have it installed, run the following command
+Then once you have it installed, run the following command in your Terminal (in vscode click "New Terminal" on the top tabs)
 `pip install django`
 
 Step2.5
