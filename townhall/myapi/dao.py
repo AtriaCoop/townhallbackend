@@ -4,4 +4,8 @@ from .models import Volunteer
 class VolunteerDao:
 
     def get_volunteer(id: int):
-        return Volunteer.objects.get(id=id)
+        try:
+            volunteer = Volunteer.objects.get(id=id)
+            return volunteer
+        except Volunteer.DoesNotExist:
+            return None
