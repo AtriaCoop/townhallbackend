@@ -15,9 +15,14 @@ https://pip.pypa.io/en/stable/installation/
 
 Step2
 Then once you have it installed, run the following command in your Terminal (in vscode click "New Terminal" on the top tabs)
-`pip install django`
+`pip install django` then `pip install djangorestframework`
 
-Step2.5
+Step2.5: run migrations
+To run migrations:
+`python manage.py migrate`
+![alt text](image.png)
+
+Step3
 Run the following command to make superuser, ensure you have `cd townhall` and gone in the townhall subdirectory
 `python manage.py createsuperuser`
 username: townhall
@@ -25,10 +30,7 @@ pw: townhall
 if it asks for email, just type your persona email 
 if you dont see the password youre writing being typed out, THAT IS OK, the text you are writing when setting your password is purposefully invisible, just don't make any typos! 
 
-Step3: run migrations
-To run migrations:
-`python manage.py migrate`
-![alt text](image.png)
+
 
 Step4: run the server
 To run the server: 
