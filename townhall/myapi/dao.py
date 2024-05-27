@@ -1,4 +1,5 @@
 from .models import Volunteer
+from .types import CreateVolunteerData
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
@@ -9,3 +10,11 @@ class VolunteerDao:
             return volunteer
         except Volunteer.DoesNotExist:
             return None
+    
+    def create_volunteer(create_volunteer_data: CreateVolunteerData):
+        Volunteer.objects.create(
+            name=create_volunteer_data.name,
+            gender=create_volunteer_data.gender,
+            age=create_volunteer_data.age,
+            email=create_volunteer_data.email,
+        )
