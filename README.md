@@ -42,5 +42,8 @@ To check if your server is running, navigate to http://localhost:8000/admin/ or 
 
 Read the linked medium article or ping Ansel if there are any questions. 
 
+To run tests from the `tests.py` file, run the command `python manage.py tests` 
+This will run all tests in the file and show how many succeeded or failed
+
 If at any point you have migrations that need to be applied, run the following
 `python manage.py migrate`

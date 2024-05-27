@@ -4,7 +4,7 @@ from .types import CreateVolunteerData
 
 class VolunteerDao:
 
-    def get_volunteer(id: int):
+    def get_volunteer(id: int) -> Volunteer:
         try:
             volunteer = Volunteer.objects.get(id=id)
             return volunteer
