@@ -14,3 +14,6 @@ class TownhallTestCase(TestCase):
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.age == 11
+
+    def test_dummy_test(self):
+        pass
