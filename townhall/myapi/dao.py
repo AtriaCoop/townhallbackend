@@ -13,7 +13,8 @@ class VolunteerDao:
     
     def create_volunteer(create_volunteer_data: CreateVolunteerData):
         Volunteer.objects.create(
-            name=create_volunteer_data.name,
+            first_name=create_volunteer_data.first_name,
+            last_name=create_volunteer_data.last_name,
             gender=create_volunteer_data.gender,
             age=create_volunteer_data.age,
             email=create_volunteer_data.email,
