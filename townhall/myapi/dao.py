@@ -13,9 +13,16 @@ class VolunteerDao:
     
     def create_volunteer(create_volunteer_data: CreateVolunteerData):
         Volunteer.objects.create(
-            first_name=create_volunteer_data.first_name,
-            last_name=create_volunteer_data.last_name,
+            name=create_volunteer_data.name,
             gender=create_volunteer_data.gender,
             age=create_volunteer_data.age,
             email=create_volunteer_data.email,
         )
+
+    def delete_volunteer(volunteer_id: int) -> Volunteer:
+        try:
+            volunteer = Volunteer.objects.get(id=volunteer_id)
+            volunteer.delete()
+            return volunteer
+        except Volunteer.DoesNotExist:
+            return None
