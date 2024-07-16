@@ -8,6 +8,7 @@ class CreateVolunteerData:
     age: int
     email: str
 
+@dataclass
 class CreateOpportunityData:
     name: str
     time: datetime
