@@ -6,4 +6,5 @@ from .models import Volunteer
 from .models import Opportunity
 
 
-admin.site.register(Volunteer, Opportunity)
+admin.site.register(Volunteer)
+admin.site.register(Opportunity)
