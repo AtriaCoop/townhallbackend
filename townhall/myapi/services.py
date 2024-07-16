@@ -3,7 +3,6 @@ from .dao import OpportunityDao as opportunity_dao
 from .types import CreateVolunteerData
 from .types import CreateOpportunityData
 from .models import Volunteer
-from .models import Opportunity
 
 class VolunteerServices:
     def get_volunteer(id: int) -> Volunteer:

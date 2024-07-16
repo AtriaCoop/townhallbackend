@@ -1,9 +1,6 @@
 from django.test import TestCase
 from myapi import models as townhall_models
 from myapi import services as townhall_services
-from myapi.models import Opportunity
-from myapi.services import OpportunityServices
-from myapi.types import CreateOpportunityData
 from datetime import datetime
 from django.utils import timezone
 
