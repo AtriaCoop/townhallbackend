@@ -14,6 +14,16 @@ class Volunteer(models.Model):
     )
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
-
     def __str__(self):
         return self.first_name
+    
+
+    
+class Opportunity(models.Model):
+    name = models.CharField(max_length=100)
+    time = models.DateTimeField()
+    description = models.TextField()
+    location = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
