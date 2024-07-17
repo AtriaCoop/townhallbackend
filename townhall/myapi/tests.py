@@ -11,6 +11,9 @@ class TownhallTestCase(TestCase):
         townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", age=11, email="zamorak.red@gmail.com")
         townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", age=77, email="guthix_green@hotmail.ca")
 
+        townhall_models.Opportunity.objects.create(id=1, name="Food bank", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver food", location="Vancouver")
+        townhall_models.Opportunity.objects.create(id=2, name="Hygiene", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver clothes", location="East Vancouver")
+
     def test_get_volunteer(self):
         volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
@@ -19,8 +22,15 @@ class TownhallTestCase(TestCase):
         assert volunteer_1.email == "zamorak.red@gmail.com"
 
     def test_create_opportunity(self):
-        townhall_models.Opportunity.objects.create(id=1, name="test", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="test", location="test")
-        townhall_models.Opportunity.objects.create(id=2, name="test", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="test", location="test")
+        townhall_models.Opportunity.objects.create(id=3, name="Community Clean Up", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Clean up the neighborhood", location="West Vancouver")
+
+    def test_get_opportunity(self):
+        opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
+        assert opportunity.name == "Food bank"
+        assert opportunity.time == timezone.make_aware(datetime(2024, 7, 20, 10, 0))
+        assert opportunity.description == "Deliver food"
+        assert opportunity.location == "Vancouver"
+        
 
     def test_dummy_test(self):
         pass
