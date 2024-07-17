@@ -8,14 +8,15 @@ from django.utils import timezone
 
 class TownhallTestCase(TestCase):
     def setUp(self):
-        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", age=11)
-        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", age=77)
+        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", age=11, email="zamorak.red@gmail.com")
+        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", age=77, email="guthix_green@hotmail.ca")
 
     def test_get_volunteer(self):
         volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.age == 11
+        assert volunteer_1.email == "zamorak.red@gmail.com"
 
     def test_create_opportunity(self):
         townhall_models.Opportunity.objects.create(id=1, name="test", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="test", location="test")
