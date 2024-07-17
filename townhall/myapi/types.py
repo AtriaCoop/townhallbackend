@@ -3,7 +3,8 @@ from datetime import datetime
 
 @dataclass
 class CreateVolunteerData:
-    name: str
+    first_name: str
+    last_name: str
     gender: str
     age: int
     email: str
