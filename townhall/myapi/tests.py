@@ -1,6 +1,8 @@
 from django.test import TestCase
 from myapi import models as townhall_models
 from myapi import services as townhall_services
+from datetime import datetime
+from django.utils import timezone
 
 # Run test class with "python manage.py test"
 
@@ -14,6 +16,10 @@ class TownhallTestCase(TestCase):
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.age == 11
+
+    def test_create_opportunity(self):
+        townhall_models.Opportunity.objects.create(id=1, name="test", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="test", location="test")
+        townhall_models.Opportunity.objects.create(id=2, name="test", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="test", location="test")
 
     def test_dummy_test(self):
         pass
