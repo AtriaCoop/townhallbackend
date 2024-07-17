@@ -24,6 +24,13 @@ class VolunteerDao:
 
 class OpportunityDao:
 
+    def get_opportunity(id: int) -> Opportunity:
+        try:
+            opportunity = Opportunity.objects.get(id=id)
+            return opportunity
+        except Opportunity.DoesNotExist:
+            return None
+
     def create_opportunity(create_opportunity_data: CreateOpportunityData):
         Opportunity.objects.create(
             name=create_opportunity_data.name,
