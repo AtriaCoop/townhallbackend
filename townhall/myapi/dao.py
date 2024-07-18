@@ -22,7 +22,6 @@ class VolunteerDao:
             email=create_volunteer_data.email,
         )
 
-tow-7-dao-delete-volunteer-info
     def delete_volunteer(volunteer_id: int) -> Volunteer:
         try:
             Volunteer.objects.get(id=volunteer_id).delete()
