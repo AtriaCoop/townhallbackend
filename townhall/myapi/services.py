@@ -12,6 +12,9 @@ class VolunteerServices:
     def create_volunteer(create_volunteer_data: CreateVolunteerData) -> None:
         return volunteer_dao.create_volunteer(create_volunteer_data=create_volunteer_data)
     
+    def delete_volunteer(id: int) -> None:
+        volunteer_dao.delete_volunteer(volunteer_id=id)
+        
 class OpportunityServices:
 
     def get_opportunity(id: int) -> Opportunity:

@@ -21,6 +21,13 @@ class TownhallTestCase(TestCase):
         assert volunteer_1.age == 11
         assert volunteer_1.email == "zamorak.red@gmail.com"
 
+    def test_delete_volunteer(self):
+        townhall_services.VolunteerServices.delete_volunteer(id=1)
+        assert townhall_services.VolunteerServices.get_volunteer(id=1) == None
+
+
+
+
     def test_create_opportunity(self):
         townhall_models.Opportunity.objects.create(id=3, name="Community Clean Up", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Clean up the neighborhood", location="West Vancouver")
 
