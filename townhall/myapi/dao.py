@@ -24,13 +24,16 @@ class VolunteerDao:
         )
 
     def update_volunteer(update_volunteer_data: UpdateVolunteerData):
-        Volunteer.objects.update(
-        first_name=update_volunteer_data.first_name,
-        last_name=update_volunteer_data.last_name,
-        gender=update_volunteer_data.gender,
-        age=update_volunteer_data.age,
-        email=update_volunteer_data.email,
-    )
+        try:
+            volunteer = Volunteer.objects.get(id=update_volunteer_data.id)
+            volunteer.first_name = update_volunteer_data.first_name
+            volunteer.last_name = update_volunteer_data.last_name
+            volunteer.gender = update_volunteer_data.gender
+            volunteer.age = update_volunteer_data.age
+            volunteer.email = update_volunteer_data.email
+            volunteer.save()
+        except Volunteer.DoesNotExist:
+            pass
 
     def delete_volunteer(volunteer_id: int) -> Volunteer:
         try:

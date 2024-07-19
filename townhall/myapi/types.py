@@ -11,6 +11,7 @@ class CreateVolunteerData:
 
 @dataclass
 class UpdateVolunteerData:
+    id: int
     first_name: str
     last_name: str
     gender: str
