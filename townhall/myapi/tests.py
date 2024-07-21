@@ -22,8 +22,16 @@ class TownhallTestCase(TestCase):
         assert volunteer_1.email == "zamorak.red@gmail.com"
 
     def test_delete_volunteer(self):
+        # Step 1
+        volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
+        assert volunteer_1.first_name == "Zamorak"
+        assert volunteer_1.last_name == "Red"
+        assert volunteer_1.age == 11
+        assert volunteer_1.email == "zamorak.red@gmail.com"
+
+        # Step 2
         townhall_services.VolunteerServices.delete_volunteer(id=1)
-        assert townhall_services.VolunteerServices.get_volunteer(id=1) == None
+        assert townhall_services.VolunteerServices.get_volunteer(id=1) is None
 
 
 
