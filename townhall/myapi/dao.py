@@ -22,11 +22,11 @@ class VolunteerDao:
             email=create_volunteer_data.email,
         )
 
-    def delete_volunteer(volunteer_id: int) -> Volunteer:
+    def delete_volunteer(volunteer_id: int):
         try:
             Volunteer.objects.get(id=volunteer_id).delete()
         except Volunteer.DoesNotExist:
-            return None
+            pass
          
 class OpportunityDao:
 
