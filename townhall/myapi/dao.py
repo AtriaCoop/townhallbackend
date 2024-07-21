@@ -44,3 +44,9 @@ class OpportunityDao:
             description=create_opportunity_data.description,
             location=create_opportunity_data.location
         )
+
+    def delete_opportunity(volunteer_id: int):
+        try:
+            Opportunity.objects.get(id=volunteer_id).delete()
+        except Opportunity.DoesNotExist:
+            return None
