@@ -1,6 +1,7 @@
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
 from .types import CreateVolunteerData
+from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
 from .models import Volunteer
 from .models import Opportunity
@@ -12,9 +13,12 @@ class VolunteerServices:
     def create_volunteer(create_volunteer_data: CreateVolunteerData) -> None:
         return volunteer_dao.create_volunteer(create_volunteer_data=create_volunteer_data)
     
+    def update_volunteer(update_volunteer_data: UpdateVolunteerData) -> None:
+        return volunteer_dao.update_volunteer(update_volunteer_data=update_volunteer_data)
+    
     def delete_volunteer(id: int) -> None:
         volunteer_dao.delete_volunteer(volunteer_id=id)
-        
+
 class OpportunityServices:
 
     def get_opportunity(id: int) -> Opportunity:
