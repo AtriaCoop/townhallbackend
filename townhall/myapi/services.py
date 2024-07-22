@@ -24,4 +24,4 @@ class OpportunityServices:
         return opportunity_dao.create_opportunity(create_opportunity_data=create_opportunity_data)
     
     def delete_opportunity(id: int) -> None:
-        opportunity_dao.delete_opportunity(volunteer_id=id)
+        opportunity_dao.delete_opportunity(opportunity_id=id)
