@@ -23,6 +23,12 @@ class VolunteerDao:
             email=create_volunteer_data.email,
         )
 
+    def delete_volunteer(volunteer_id: int):
+        try:
+            Volunteer.objects.get(id=volunteer_id).delete()
+        except Volunteer.DoesNotExist:
+            pass
+
     def update_volunteer(update_volunteer_data: UpdateVolunteerData):
         try:
             volunteer = Volunteer.objects.get(id=update_volunteer_data.id)
@@ -34,12 +40,6 @@ class VolunteerDao:
             volunteer.save()
         except Volunteer.DoesNotExist:
             pass
-
-    def delete_volunteer(volunteer_id: int) -> Volunteer:
-        try:
-            Volunteer.objects.get(id=volunteer_id).delete()
-        except Volunteer.DoesNotExist:
-            return None
          
 class OpportunityDao:
 
@@ -57,3 +57,9 @@ class OpportunityDao:
             description=create_opportunity_data.description,
             location=create_opportunity_data.location
         )
+
+    def delete_opportunity(volunteer_id: int):
+        try:
+            Opportunity.objects.get(id=volunteer_id).delete()
+        except Opportunity.DoesNotExist:
+            pass
