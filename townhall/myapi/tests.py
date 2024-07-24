@@ -14,6 +14,9 @@ class TownhallTestCase(TestCase):
         townhall_models.Opportunity.objects.create(id=1, name="Food bank", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver food", location="Vancouver")
         townhall_models.Opportunity.objects.create(id=2, name="Hygiene", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver clothes", location="East Vancouver")
 
+
+# VOLUNTEERS
+
     def test_get_volunteer(self):
         volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
@@ -62,6 +65,7 @@ class TownhallTestCase(TestCase):
 
 
 
+# OPPORTUNITIES
 
     def test_create_opportunity(self):
         townhall_models.Opportunity.objects.create(id=3, name="Community Clean Up", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Clean up the neighborhood", location="West Vancouver")
@@ -72,6 +76,31 @@ class TownhallTestCase(TestCase):
         assert opportunity.time == timezone.make_aware(datetime(2024, 7, 20, 10, 0))
         assert opportunity.description == "Deliver food"
         assert opportunity.location == "Vancouver"
+
+    def test_filtered_opportunity_name(self):
+        filtered_opportunity_data = townhall_services.FilteredOpportunityData(name="Food")
+        opportunities = townhall_services.OpportunityServices.filtered_opportunity(filtered_opportunity_data)
+
+        for o in opportunities:
+            print(f"Opportunity: {o.name}, Time: {o.time}, Location: {o.location}")
+
+        assert len(opportunities) > 0
+
+        for opportunity in opportunities:
+            assert "food" in opportunity.name.lower() # Should be case insensitive but for test i have to use lower()
+
+    def test_filtered_opportunity_time(self):
+        start_time = timezone.make_aware(datetime(2024, 7, 20, 0, 0))
+        end_time = timezone.make_aware(datetime(2024, 7, 20, 23, 59))
+        filtered_opportunity_data = townhall_services.FilteredOpportunityData(start_time=start_time, end_time=end_time)
+        opportunities = townhall_services.OpportunityServices.filtered_opportunity(filtered_opportunity_data)
+        
+        for o in opportunities:
+            print(f"Opportunity: {o.name}, Time: {o.time}, Location: {o.location}")
+
+        assert len(opportunities) == 2
+        assert any(o.name == "Hygiene" for o in opportunities)
+        assert any(o.name == "Food bank" for o in opportunities)
         
 
     def test_dummy_test(self):

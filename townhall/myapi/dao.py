@@ -3,6 +3,7 @@ from .models import Opportunity
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import FilteredOpportunityData
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
@@ -57,6 +58,19 @@ class OpportunityDao:
             description=create_opportunity_data.description,
             location=create_opportunity_data.location
         )
+
+    def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData):
+        filters = {}
+        if filtered_opportunity_data.name:
+            filters['name__icontains'] = filtered_opportunity_data.name
+        elif filtered_opportunity_data.start_time:
+            filters['time__gte'] = filtered_opportunity_data.start_time
+        elif filtered_opportunity_data.end_time:
+            filters['time__lte'] = filtered_opportunity_data.end_time
+        if filtered_opportunity_data.location:
+            filters['location__icontains'] = filtered_opportunity_data.location
+
+        return Opportunity.objects.filter(**filters)
 
     def delete_opportunity(volunteer_id: int):
         try:

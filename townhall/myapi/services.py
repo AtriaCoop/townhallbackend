@@ -3,6 +3,7 @@ from .dao import OpportunityDao as opportunity_dao
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import FilteredOpportunityData
 from .models import Volunteer
 from .models import Opportunity
 
@@ -26,3 +27,6 @@ class OpportunityServices:
     
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
         return opportunity_dao.create_opportunity(create_opportunity_data=create_opportunity_data)
+    
+    def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData):
+        return opportunity_dao.filtered_opportunity(filtered_opportunity_data=filtered_opportunity_data)
