@@ -63,9 +63,9 @@ class OpportunityDao:
         filters = {}
         if filtered_opportunity_data.name:
             filters['name__icontains'] = filtered_opportunity_data.name
-        elif filtered_opportunity_data.start_time:
+        if filtered_opportunity_data.start_time:
             filters['time__gte'] = filtered_opportunity_data.start_time
-        elif filtered_opportunity_data.end_time:
+        if filtered_opportunity_data.end_time:
             filters['time__lte'] = filtered_opportunity_data.end_time
         if filtered_opportunity_data.location:
             filters['location__icontains'] = filtered_opportunity_data.location

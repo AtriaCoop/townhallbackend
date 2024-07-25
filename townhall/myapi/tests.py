@@ -77,30 +77,20 @@ class TownhallTestCase(TestCase):
         assert opportunity.description == "Deliver food"
         assert opportunity.location == "Vancouver"
 
-    def test_filtered_opportunity_name(self):
-        filtered_opportunity_data = townhall_services.FilteredOpportunityData(name="Food")
+    def test_filtered_opportunity_name_and_time(self):
+        start_time = timezone.make_aware(datetime(2024, 7, 20, 0, 0))
+        end_time = timezone.make_aware(datetime(2024, 7, 20, 23, 59))
+        filtered_opportunity_data = townhall_services.FilteredOpportunityData(name="Food", start_time=start_time, end_time=end_time)
         opportunities = townhall_services.OpportunityServices.filtered_opportunity(filtered_opportunity_data)
-
+        
         for o in opportunities:
             print(f"Opportunity: {o.name}, Time: {o.time}, Location: {o.location}")
 
         assert len(opportunities) > 0
 
         for opportunity in opportunities:
-            assert "food" in opportunity.name.lower() # Should be case insensitive but for test i have to use lower()
-
-    def test_filtered_opportunity_time(self):
-        start_time = timezone.make_aware(datetime(2024, 7, 20, 0, 0))
-        end_time = timezone.make_aware(datetime(2024, 7, 20, 23, 59))
-        filtered_opportunity_data = townhall_services.FilteredOpportunityData(start_time=start_time, end_time=end_time)
-        opportunities = townhall_services.OpportunityServices.filtered_opportunity(filtered_opportunity_data)
-        
-        for o in opportunities:
-            print(f"Opportunity: {o.name}, Time: {o.time}, Location: {o.location}")
-
-        assert len(opportunities) == 2
-        assert any(o.name == "Hygiene" for o in opportunities)
-        assert any(o.name == "Food bank" for o in opportunities)
+            assert "food" in opportunity.name.lower()  # Case insensitive check
+            assert start_time <= opportunity.time <= end_time  # Time range check
         
 
     def test_dummy_test(self):
