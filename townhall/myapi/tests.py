@@ -13,6 +13,7 @@ class TownhallTestCase(TestCase):
 
         townhall_models.Opportunity.objects.create(id=1, name="Food bank", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver food", location="Vancouver")
         townhall_models.Opportunity.objects.create(id=2, name="Hygiene", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver clothes", location="East Vancouver")
+        townhall_models.Opportunity.objects.create(id=3, name="Community Clean Up", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Clean up the neighborhood", location="West Vancouver")
 
 
 # VOLUNTEERS
@@ -67,9 +68,6 @@ class TownhallTestCase(TestCase):
 
 # OPPORTUNITIES
 
-    def test_create_opportunity(self):
-        townhall_models.Opportunity.objects.create(id=3, name="Community Clean Up", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Clean up the neighborhood", location="West Vancouver")
-
     def test_get_opportunity(self):
         opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
         assert opportunity.name == "Food bank"
@@ -86,7 +84,8 @@ class TownhallTestCase(TestCase):
         for o in opportunities:
             print(f"Opportunity: {o.name}, Time: {o.time}, Location: {o.location}")
 
-        assert len(opportunities) > 0
+        # Assert that exactly only one opportunity is returned
+        assert len(opportunities) == 1
 
         for opportunity in opportunities:
             assert "food" in opportunity.name.lower()  # Case insensitive check

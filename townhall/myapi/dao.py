@@ -60,6 +60,7 @@ class OpportunityDao:
         )
 
     def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData):
+        '''Method to filter opportunities based on various fields.'''
         filters = {}
         if filtered_opportunity_data.name:
             filters['name__icontains'] = filtered_opportunity_data.name
