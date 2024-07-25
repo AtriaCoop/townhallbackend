@@ -72,7 +72,19 @@ class TownhallTestCase(TestCase):
         assert opportunity.time == timezone.make_aware(datetime(2024, 7, 20, 10, 0))
         assert opportunity.description == "Deliver food"
         assert opportunity.location == "Vancouver"
-        
+
+    def test_delete_opportunity(self):
+        # Step 1
+        test_opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
+        assert test_opportunity.name == "Food bank"
+        assert test_opportunity.time == timezone.make_aware(datetime(2024, 7, 20, 10, 0))
+        assert test_opportunity.description == "Deliver food"
+        assert test_opportunity.location == "Vancouver"
+
+        # Step 2
+        townhall_services.OpportunityServices.delete_opportunity(id=1)
+        assert townhall_services.OpportunityServices.get_opportunity(id=1) is None
+
 
     def test_dummy_test(self):
         pass
