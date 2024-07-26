@@ -66,9 +66,3 @@ class OpportunityDao:
             Opportunity.objects.get(id=volunteer_id).delete()
         except Opportunity.DoesNotExist:
             pass
-
-
-class OrganizationDao:
-
-
-    

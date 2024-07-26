@@ -31,8 +31,3 @@ class OpportunityServices:
     
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
         return opportunity_dao.create_opportunity(create_opportunity_data=create_opportunity_data)
-    
-class OrganizationServices:
-
-
-
