@@ -1,6 +1,5 @@
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
-from .dao import OrganizationDao as organization_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
