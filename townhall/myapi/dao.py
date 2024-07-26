@@ -1,8 +1,11 @@
 from .models import Volunteer
 from .models import Opportunity
+from .models import Organization
+
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import CreateOrganizationData
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
@@ -63,3 +66,9 @@ class OpportunityDao:
             Opportunity.objects.get(id=volunteer_id).delete()
         except Opportunity.DoesNotExist:
             pass
+
+
+class OrganizationDao:
+
+
+    
