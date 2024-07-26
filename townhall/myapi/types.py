@@ -24,3 +24,10 @@ class CreateOpportunityData:
     time: datetime
     description: str
     location: str
+
+@dataclass
+class CreateOrganizationData:
+    name: str
+    location: str
+    descrition: str
+    email: str
