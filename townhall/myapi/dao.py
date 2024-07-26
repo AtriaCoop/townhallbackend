@@ -60,7 +60,12 @@ class OpportunityDao:
         )
 
     def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData):
-        '''Method to filter opportunities based on various fields.'''
+        '''Method to filter opportunities based on various fields.
+        Args:
+            The data object containing the criteria for filtering opportunities.
+        Returns:
+            A queryset of opportunities that match the filtering criteria.
+        '''
         filters = {}
         if filtered_opportunity_data.name:
             filters['name__icontains'] = filtered_opportunity_data.name
@@ -73,8 +78,8 @@ class OpportunityDao:
 
         return Opportunity.objects.filter(**filters)
 
-    def delete_opportunity(volunteer_id: int):
+    def delete_opportunity(opportunity_id: int):
         try:
-            Opportunity.objects.get(id=volunteer_id).delete()
+            Opportunity.objects.get(id=opportunity_id).delete()
         except Opportunity.DoesNotExist:
             pass

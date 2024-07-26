@@ -30,3 +30,6 @@ class OpportunityServices:
     
     def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData):
         return opportunity_dao.filtered_opportunity(filtered_opportunity_data=filtered_opportunity_data)
+    
+    def delete_opportunity(id: int) -> None:
+        opportunity_dao.delete_opportunity(opportunity_id=id)
