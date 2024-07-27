@@ -1,11 +1,15 @@
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
+
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import CreateOrganizationData
 from .types import FilteredOpportunityData
+
 from .models import Volunteer
 from .models import Opportunity
+from .models import Organization
 
 class VolunteerServices:
     def get_volunteer(id: int) -> Volunteer:

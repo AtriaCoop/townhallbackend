@@ -17,13 +17,22 @@ class Volunteer(models.Model):
     def __str__(self):
         return self.first_name
     
-
     
 class Opportunity(models.Model):
     name = models.CharField(max_length=100)
     time = models.DateTimeField()
     description = models.TextField()
     location = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+    
+
+class Organization(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+    description = models.TextField()
+    email = models.CharField(max_length=254)
 
     def __str__(self):
         return self.name

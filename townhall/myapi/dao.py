@@ -1,8 +1,11 @@
 from .models import Volunteer
 from .models import Opportunity
+from .models import Organization
+
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import CreateOrganizationData
 from .types import FilteredOpportunityData
 # Follows layered architecture pattern of views -> services -> dao
 
