@@ -86,3 +86,11 @@ class OpportunityDao:
             Opportunity.objects.get(id=opportunity_id).delete()
         except Opportunity.DoesNotExist:
             pass
+
+class OrganizationDao:
+    def get_organization(id: int) -> Organization:
+        try:
+            organization = Organization.objects.get(id=id)
+            return organization
+        except Organization.DoesNotExist:
+            return None
