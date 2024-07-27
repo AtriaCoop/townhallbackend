@@ -1,3 +1,4 @@
+from typing import Optional
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -31,3 +32,10 @@ class CreateOrganizationData:
     location: str
     descrition: str
     email: str
+
+@dataclass
+class FilteredOpportunityData:
+    name: Optional[str] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    location: Optional[str] = None
