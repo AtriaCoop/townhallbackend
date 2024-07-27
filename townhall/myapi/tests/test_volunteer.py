@@ -7,7 +7,7 @@ from myapi import services as townhall_services
 # Testing ALL tests "python manage.py test myapi.tests"
 # Testing ONLY volunteer "python manage.py test myapi.tests.test_volunteer"
 
-class TownhallTestCase(TestCase):
+class TestVolunteerModel(TestCase):
     def setUp(self):
         townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", age=11, email="zamorak.red@gmail.com")
         townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", age=77, email="guthix_green@hotmail.ca")

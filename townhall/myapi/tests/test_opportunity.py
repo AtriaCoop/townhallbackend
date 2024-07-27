@@ -9,7 +9,7 @@ from django.utils import timezone
 # Testing ALL tests "python manage.py test myapi.tests"
 # Testing ONLY opportunity "python manage.py test myapi.tests.test_opportunity"
 
-class TownhallTestCase(TestCase):
+class TestOpportunityModel(TestCase):
     def setUp(self):
         townhall_models.Opportunity.objects.create(id=1, name="Food bank", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver food", location="Vancouver")
         townhall_models.Opportunity.objects.create(id=2, name="Hygiene", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver clothes", location="East Vancouver")
