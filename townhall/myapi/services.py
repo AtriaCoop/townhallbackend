@@ -21,9 +21,11 @@ class VolunteerServices:
         volunteer_dao.delete_volunteer(volunteer_id=id)
 
 class OpportunityServices:
-
     def get_opportunity(id: int) -> Opportunity:
-        return opportunity_dao.get_opportunity(id=id)
+        print(f"Fetching opportunity with ID: {id}")
+        opportunity = opportunity_dao.get_opportunity(id=id)
+        print(f"Fetched opportunity: {opportunity}")
+        return opportunity
     
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
         return opportunity_dao.create_opportunity(create_opportunity_data=create_opportunity_data)

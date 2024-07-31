@@ -7,14 +7,32 @@ from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.response import Response
 from .services import VolunteerServices as volunteer_services
+from .services import OpportunityServices as opportunity_services
+from .serializers import OpportunitySerializer, VolunteerSerializer
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
 
+    @action(detail=False, methods=['get'], url_path='get_volunteer')
     def get_volunteer(self, request):
         volunteer_id = self.request.query_params.get('id')
 
         volunteer_obj = volunteer_services.get_volunteer(id=volunteer_id)
         if not volunteer_obj:
             return Response({"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND) 
-        return Response(dataclasses.asdict(volunteer_obj), status=status.HTTP_200_OK)
+        
+        serializer = VolunteerSerializer(volunteer_obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class OpportunityViewSet(viewsets.ModelViewSet):
+    
+    @action(detail=False, methods=['get'], url_path='get_opportunity')
+    def get_opportunity(self, request):
+        opportunity_id = self.request.query_params.get('id')
+
+        opportunity_obj = opportunity_services.get_opportunity(id=opportunity_id)
+        if not opportunity_obj:
+            return Response({"error": "Opportunity not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OpportunitySerializer(opportunity_obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
