@@ -88,7 +88,7 @@ class OpportunityDao:
         except Opportunity.DoesNotExist:
             pass
 
-    def update_opportunity(update_opportunity_data: UpdateOpportunityData):
+    def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
         try:
             opportunity = Opportunity.objects.get(id=update_opportunity_data.id)
             opportunity.name = update_opportunity_data.name
