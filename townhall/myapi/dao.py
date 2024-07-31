@@ -5,7 +5,9 @@ from .models import Organization
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import UpdateOpportunityData
 from .types import CreateOrganizationData
+from .types import UpdateOrganizationData
 from .types import FilteredOpportunityData
 
 import typing
@@ -89,10 +91,48 @@ class OpportunityDao:
         except Opportunity.DoesNotExist:
             pass
 
+    def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
+        try:
+            opportunity = Opportunity.objects.get(id=update_opportunity_data.id)
+            opportunity.name = update_opportunity_data.name
+            opportunity.time = update_opportunity_data.time
+            opportunity.description = update_opportunity_data.description
+            opportunity.location = update_opportunity_data.location
+            opportunity.save()
+        except Opportunity.DoesNotExist:
+            pass
+
+          
 class OrganizationDao:
+    def create_organization(create_organization_data: CreateOrganizationData):
+        Organization.objects.create(
+            name = create_organization_data.name,
+            location = create_organization_data.location,
+            description = create_organization_data.description,
+            email = create_organization_data.email
+        )
+        
     def get_organization(id: int) -> typing.Optional[Organization]:
         try:
             organization = Organization.objects.get(id=id)
             return organization
         except Organization.DoesNotExist:
             return None
+
+    def delete_organization(organization_id: int) -> None:
+        try:
+            Organization.objects.get(id=organization_id).delete()
+        except Organization.DoesNotExist:
+            pass
+
+    def update_organization(update_organization_data: UpdateOrganizationData):
+        try:
+            organization = Organization.objects.get(id=update_organization_data.id)
+            organization.name = update_organization_data.name
+            organization.location = update_organization_data.location
+            organization.description = update_organization_data.description
+            organization.email = update_organization_data.email
+            organization.save()
+        except Organization.DoesNotExist:
+            pass
+
