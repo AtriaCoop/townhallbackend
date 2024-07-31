@@ -7,6 +7,8 @@ from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
 from .types import CreateOrganizationData
 from .types import FilteredOpportunityData
+
+import typing
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
@@ -88,7 +90,7 @@ class OpportunityDao:
             pass
 
 class OrganizationDao:
-    def get_organization(id: int) -> Organization:
+    def get_organization(id: int) -> typing.Optional[Organization]:
         try:
             organization = Organization.objects.get(id=id)
             return organization
