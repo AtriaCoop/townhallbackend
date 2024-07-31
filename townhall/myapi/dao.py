@@ -5,6 +5,7 @@ from .models import Organization
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import UpdateOpportunityData
 from .types import CreateOrganizationData
 from .types import FilteredOpportunityData
 # Follows layered architecture pattern of views -> services -> dao
@@ -92,4 +93,15 @@ class OrganizationDao:
         try:
             Organization.objects.get(id=organization_id).delete()
         except Organization.DoesNotExist:
+            pass
+
+    def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
+        try:
+            opportunity = Opportunity.objects.get(id=update_opportunity_data.id)
+            opportunity.name = update_opportunity_data.name
+            opportunity.time = update_opportunity_data.time
+            opportunity.description = update_opportunity_data.description
+            opportunity.location = update_opportunity_data.location
+            opportunity.save()
+        except Opportunity.DoesNotExist:
             pass
