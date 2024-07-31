@@ -38,7 +38,7 @@ class UpdateOpportunityData:
 class CreateOrganizationData:
     name: str
     location: str
-    descrition: str
+    description: str
     email: str
 
 @dataclass
