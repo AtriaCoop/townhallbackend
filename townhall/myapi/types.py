@@ -27,10 +27,18 @@ class CreateOpportunityData:
     location: str
 
 @dataclass
+class UpdateOpportunityData:
+    id: int
+    name: str
+    time: datetime
+    description: str
+    location: str
+
+@dataclass
 class CreateOrganizationData:
     name: str
     location: str
-    descrition: str
+    description: str
     email: str
 
 @dataclass
