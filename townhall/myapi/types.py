@@ -42,6 +42,14 @@ class CreateOrganizationData:
     email: str
 
 @dataclass
+class UpdateOrganizationData:
+    id: int
+    name: str
+    location: str
+    description: str
+    email: str
+
+@dataclass
 class FilteredOpportunityData:
     name: Optional[str] = None
     start_time: Optional[datetime] = None
