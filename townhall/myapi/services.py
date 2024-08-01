@@ -11,8 +11,11 @@ from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 
+import typing
+from django.db.models.query import QuerySet
+
 class VolunteerServices:
-    def get_volunteer(id: int) -> Volunteer:
+    def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         return volunteer_dao.get_volunteer(id=id)
     
     def create_volunteer(create_volunteer_data: CreateVolunteerData) -> None:
@@ -26,13 +29,13 @@ class VolunteerServices:
 
 class OpportunityServices:
 
-    def get_opportunity(id: int) -> Opportunity:
+    def get_opportunity(id: int) -> typing.Optional[Opportunity]:
         return opportunity_dao.get_opportunity(id=id)
     
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
         return opportunity_dao.create_opportunity(create_opportunity_data=create_opportunity_data)
     
-    def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData):
+    def filtered_opportunity(filtered_opportunity_data: FilteredOpportunityData) -> QuerySet[Opportunity]:
         return opportunity_dao.filtered_opportunity(filtered_opportunity_data=filtered_opportunity_data)
     
     def delete_opportunity(id: int) -> None:
