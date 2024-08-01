@@ -36,3 +36,12 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         
         serializer = OpportunitySerializer(opportunity_obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'], url_path='get_opportunity_all')
+    def get_opportunity_all(self,request):
+        opportunities = opportunity_services.get_opportunity_all()
+        if not opportunities:
+            return Response({"error": "Opportunities not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OpportunitySerializer(opportunities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

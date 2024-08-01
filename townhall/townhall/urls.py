@@ -23,5 +23,6 @@ from myapi.views import OpportunityViewSet
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('volunteer/', VolunteerViewSet.as_view({'get': 'get_volunteer'})),
-    path('opportunity/', OpportunityViewSet.as_view({'get': 'get_opportunity'}))
+    path('opportunity/', OpportunityViewSet.as_view({'get': 'get_opportunity'})),
+    path('opportunities/', OpportunityViewSet.as_view({'get': 'get_opportunity_all'})),
 ]

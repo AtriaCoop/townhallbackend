@@ -1,3 +1,4 @@
+from typing import List
 from .models import Volunteer
 from .models import Opportunity
 from .types import CreateVolunteerData
@@ -50,6 +51,9 @@ class OpportunityDao:
             return opportunity
         except Opportunity.DoesNotExist:
             return None
+        
+    def get_opportunity_all() -> List[Opportunity]:
+        return Opportunity.objects.all()
 
     def create_opportunity(create_opportunity_data: CreateOpportunityData):
         Opportunity.objects.create(
