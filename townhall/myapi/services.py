@@ -4,6 +4,7 @@ from .dao import OpportunityDao as opportunity_dao
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
+from .types import UpdateOpportunityData
 from .types import CreateOrganizationData
 from .types import FilteredOpportunityData
 
@@ -37,3 +38,6 @@ class OpportunityServices:
     
     def delete_opportunity(id: int) -> None:
         opportunity_dao.delete_opportunity(opportunity_id=id)
+
+    def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
+        return opportunity_dao.update_opportunity(update_opportunity_data=update_opportunity_data)
