@@ -30,7 +30,7 @@ class OpportunityServices:
     
     def get_opportunity_all() -> List[Opportunity]:
         print("Fetching opportunities")
-        opportunities = Opportunity.objects.all()
+        opportunities = opportunity_dao.get_opportunity_all()
         print(f"Fetched opportunities{opportunities}")
         return opportunities
     
