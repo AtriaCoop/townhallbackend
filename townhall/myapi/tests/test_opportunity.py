@@ -50,3 +50,28 @@ class TestOpportunityModel(TestCase):
         # Step 2
         townhall_services.OpportunityServices.delete_opportunity(id=1)
         assert townhall_services.OpportunityServices.get_opportunity(id=1) is None
+
+    def test_update_opportunity(self):
+        # Step 1
+        opportunity_before_update = townhall_services.OpportunityServices.get_opportunity(id=3)
+        assert opportunity_before_update.name == "Community Clean Up"
+        assert opportunity_before_update.time == timezone.make_aware(datetime(2024, 7, 20, 10, 0))
+        assert opportunity_before_update.description == "Clean up the neighborhood"
+        assert opportunity_before_update.location == "West Vancouver"
+        
+        # Step 2
+        update_opportunity_data = townhall_services.UpdateOpportunityData(
+            id = 3,
+            name = "Community Gardening",
+            time = timezone.make_aware(datetime(2024, 8, 15, 2, 0)),
+            description = "Planting some flowers in the community center",
+            location = "Richmond"
+        )
+        townhall_services.OpportunityServices.update_opportunity(update_opportunity_data)
+
+        # Step 3
+        updated_opportunity = townhall_services.OpportunityServices.get_opportunity(id=3)
+        assert updated_opportunity.name == "Community Gardening"
+        assert updated_opportunity.time == timezone.make_aware(datetime(2024, 8, 15, 2, 0))
+        assert updated_opportunity.description == "Planting some flowers in the community center"
+        assert updated_opportunity.location == "Richmond"
