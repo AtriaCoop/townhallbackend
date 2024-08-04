@@ -4,11 +4,14 @@ from .models import Organization
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
+from .types import FilteredOpportunityData
+
 from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
-from .types import FilteredOpportunityData
+from .types import FilteredOrganizationData
 
 import types
 import typing

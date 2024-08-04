@@ -1,12 +1,17 @@
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
+from .dao import Organization as organization_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
-from .types import CreateOrganizationData
 from .types import FilteredOpportunityData
+
+from .types import CreateOrganizationData
+from .types import UpdateOrganizationData
+from .types import FilteredOrganizationData
 
 from .models import Volunteer
 from .models import Opportunity
