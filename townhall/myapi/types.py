@@ -35,6 +35,13 @@ class UpdateOpportunityData:
     location: str
 
 @dataclass
+class FilteredOpportunityData:
+    name: Optional[str] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    location: Optional[str] = None
+
+@dataclass
 class CreateOrganizationData:
     name: str
     location: str
@@ -50,8 +57,8 @@ class UpdateOrganizationData:
     email: str
 
 @dataclass
-class FilteredOpportunityData:
+class FilteredOrganizationData:
     name: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
     location: Optional[str] = None
+
+
