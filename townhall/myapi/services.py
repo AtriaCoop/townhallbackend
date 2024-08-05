@@ -41,3 +41,12 @@ class OpportunityServices:
 
     def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
         return opportunity_dao.update_opportunity(update_opportunity_data=update_opportunity_data)
+    
+    def add_volunteer_to_opportunity(opportunity_id: int, volunteer_id: int) -> None:
+        opportunity_dao.add_volunteer_to_opportunity(opportunity_id=opportunity_id, volunteer_id=volunteer_id)
+
+    def remove_volunteer_from_opportunity(opportunity_id: int, volunteer_id: int) -> None:
+        opportunity_dao.remove_volunteer_from_opportunity(opportunity_id=opportunity_id, volunteer_id=volunteer_id)
+
+    def remove_all_volunteers_from_opportunity(opportunity_id: int) -> None:
+        opportunity_dao.remove_all_volunteers_from_opportunity(opportunity_id=opportunity_id)
