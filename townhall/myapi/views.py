@@ -13,8 +13,8 @@ from .serializers import OpportunitySerializer, VolunteerSerializer
 
 class VolunteerViewSet(viewsets.ModelViewSet):
 
-    @action(detail=False, methods=['get'], url_path='get_volunteer')
-    def get_volunteer(self, request):
+    @action(detail=False, methods=['get'], url_path='volunteer')
+    def handle_volunteer_request(self, request):
         volunteer_id = self.request.query_params.get('id')
 
         volunteer_obj = volunteer_services.get_volunteer(id=volunteer_id)
@@ -26,8 +26,8 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     
-    @action(detail=False, methods=['get'], url_path='get_opportunity')
-    def get_opportunity(self, request):
+    @action(detail=False, methods=['get'], url_path='opportunity')
+    def handle_opportunity_request(self, request):
         opportunity_id = self.request.query_params.get('id')
 
         opportunity_obj = opportunity_services.get_opportunity(id=opportunity_id)
