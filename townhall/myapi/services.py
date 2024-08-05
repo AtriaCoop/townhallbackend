@@ -41,4 +41,5 @@ class OpportunityServices:
         return opportunity_dao.filtered_opportunity(filtered_opportunity_data=filtered_opportunity_data)
     
     def delete_opportunity(id: int) -> None:
+        print(f"Deleting opportunity with ID: {id}")
         opportunity_dao.delete_opportunity(opportunity_id=id)
