@@ -10,8 +10,10 @@ from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOpportunityData
 
+import types
 import typing
 from django.db.models.query import QuerySet
+
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
@@ -91,7 +93,7 @@ class OpportunityDao:
             Opportunity.objects.get(id=opportunity_id).delete()
         except Opportunity.DoesNotExist:
             pass
-          
+
     def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
         try:
             opportunity = Opportunity.objects.get(id=update_opportunity_data.id)
@@ -103,6 +105,7 @@ class OpportunityDao:
         except Opportunity.DoesNotExist:
             pass
 
+          
 class OrganizationDao:
     def create_organization(create_organization_data: CreateOrganizationData) -> None:
         Organization.objects.create(
@@ -111,6 +114,13 @@ class OrganizationDao:
             description = create_organization_data.description,
             email = create_organization_data.email
         )
+        
+    def get_organization(id: int) -> typing.Optional[Organization]:
+        try:
+            organization = Organization.objects.get(id=id)
+            return organization
+        except Organization.DoesNotExist:
+            return None
 
     def delete_organization(organization_id: int) -> None:
         try:
@@ -128,3 +138,13 @@ class OrganizationDao:
             organization.save()
         except Organization.DoesNotExist:
             pass
+
+    def filtered_organization(filtered_organization_data: FilteredOrganizationData) -> QuerySet[Organization]:
+        filters = {}
+
+        if filtered_organization_data.name:
+            filters['name__icontains'] = filtered_organization_data.name
+        if filtered_organization_data.location:
+            filters['location__icontains'] = filtered_organization_data.location
+        
+        return Organization.objects.filter(**filters)
