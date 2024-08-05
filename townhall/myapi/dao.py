@@ -13,7 +13,6 @@ from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
-import types
 import typing
 from django.db.models.query import QuerySet
 
