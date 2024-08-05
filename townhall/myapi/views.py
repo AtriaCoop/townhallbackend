@@ -48,7 +48,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['delete'], url_path='opportunity')
-    def handle_delete_opportunity(self, request):
+    def handle_opportunity_delete(self, request):
         opportunity_id = self.request.query_params.get('id')
         
         opportunity_services.delete_opportunity(id=opportunity_id)
