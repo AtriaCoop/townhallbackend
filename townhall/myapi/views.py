@@ -28,26 +28,27 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'], url_path='opportunity')
     def handle_opportunity_request(self, request):
-        opportunity_id = self.request.query_params.get('id')
-
-        opportunity_obj = opportunity_services.get_opportunity(id=opportunity_id)
-        if not opportunity_obj:
-            return Response({"error": "Opportunity not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = OpportunitySerializer(opportunity_obj)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            opportunity_id = self.request.query_params.get('id')
+            if opportunity_id:
+                # Fetching opportunity by ID
+                opportunity_obj = opportunity_services.get_opportunity(id=opportunity_id)
+                if not opportunity_obj:
+                    return Response({"error": "Opportunity not found"}, status=status.HTTP_404_NOT_FOUND)
+                
+                serializer = OpportunitySerializer(opportunity_obj)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            else:
+                # Fetching ALL opportunities
+                opportunities = opportunity_services.get_opportunity_all()
+                if not opportunities:
+                    return Response({"No opportunities found"}, status=status.HTTP_404_NOT_FOUND)
+                
+                serializer = OpportunitySerializer(opportunities, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @action(detail=False, methods=['get'], url_path='get_opportunity_all')
-    def get_opportunity_all(self,request):
-        opportunities = opportunity_services.get_opportunity_all()
-        if not opportunities:
-            return Response({"error": "Opportunities not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = OpportunitySerializer(opportunities, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    @action(detail=False, methods=['delete'], url_path='delete_opportunity')
-    def delete_opportunity(self, request):
+    @action(detail=False, methods=['delete'], url_path='opportunity')
+    def handle_delete_opportunity(self, request):
         opportunity_id = self.request.query_params.get('id')
         
         opportunity_services.delete_opportunity(id=opportunity_id)
