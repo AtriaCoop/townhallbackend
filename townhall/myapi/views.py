@@ -65,15 +65,13 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         if not opportunity_id:
             return Response({"error": "ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = OpportunitySerializer(data=request.data)
+        opportunity_obj = opportunity_services.get_opportunity(id=int(opportunity_id))
+        if not opportunity_obj:
+            return Response({"error": "Opportunity not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OpportunitySerializer(opportunity_obj, data=request.data, partial=True)
         if serializer.is_valid():
-            update_data = UpdateOpportunityData(
-                id=int(opportunity_id),
-                name=serializer.validated_data['name'],
-                time=serializer.validated_data['time'],
-                description=serializer.validated_data['description'],
-                location=serializer.validated_data['location']
-            )
-
-            opportunity_services.update_opportunity(id=int(opportunity_id), update_opportunity_data=update_data)
+            serializer.save()
             return Response({"message": "Opportunity updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
