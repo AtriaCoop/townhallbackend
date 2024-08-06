@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path
 
 from myapi.views import VolunteerViewSet
+from myapi.views import OpportunityViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('volunteer/', VolunteerViewSet.as_view({'get': 'get_volunteer'}))
+    path('volunteer/', VolunteerViewSet.as_view({'get': 'handle_volunteer_request'})),
+    path('opportunity/', OpportunityViewSet.as_view({'get': 'handle_opportunity_request', 'delete': 'handle_opportunity_delete'})),
 ]
