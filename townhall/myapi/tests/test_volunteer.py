@@ -9,32 +9,31 @@ from myapi import services as townhall_services
 
 class TestVolunteerModel(TestCase):
     def setUp(self):
-        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", age=11, email="zamorak.red@gmail.com")
-        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", age=77, email="guthix_green@hotmail.ca")
+        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M")
+        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F")
 
     def test_get_volunteer(self):
         volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
-        assert volunteer_1.age == 11
         assert volunteer_1.email == "zamorak.red@gmail.com"
+        assert volunteer_1.gender == "M"
 
     def test_update_volunteer(self):
         # Step 1: Getting the volunteer and make sure it exists
         volunteer_before_update = townhall_services.VolunteerServices.get_volunteer(id=2)
         assert volunteer_before_update.first_name == "Guthix"
         assert volunteer_before_update.last_name == "Green"
-        assert volunteer_before_update.age == 77
         assert volunteer_before_update.email == "guthix_green@hotmail.ca"
+        assert volunteer_before_update.gender == "F"
         
         # Step 2: Update
         update_volunteer_data = townhall_services.UpdateVolunteerData(
             id=2,
             first_name="Saradomin",
             last_name="Blue",
-            gender="Male",
-            age=12,
-            email="saradomin.blue@gmail.com"
+            email="saradomin.blue@gmail.com",
+            gender="M"
         )
         townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
 
@@ -43,16 +42,16 @@ class TestVolunteerModel(TestCase):
         updated_volunteer = townhall_services.VolunteerServices.get_volunteer(id=2)
         assert updated_volunteer.first_name == "Saradomin"
         assert updated_volunteer.last_name == "Blue"
-        assert updated_volunteer.age == 12
         assert updated_volunteer.email == "saradomin.blue@gmail.com"
+        assert updated_volunteer.gender == "M"
 
     def test_delete_volunteer(self):
         # Step 1
         volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
-        assert volunteer_1.age == 11
         assert volunteer_1.email == "zamorak.red@gmail.com"
+        assert volunteer_1.gender == "M"
 
         # Step 2
         townhall_services.VolunteerServices.delete_volunteer(id=1)

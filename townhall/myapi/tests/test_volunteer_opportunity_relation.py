@@ -11,9 +11,9 @@ from django.utils import timezone
 
 class TestVolunteerOpportunityModel(TestCase):
     def setUp(self):
-        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", age=11, email="zamorak.red@gmail.com")
-        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", age=77, email="guthix_green@hotmail.ca")
-        townhall_models.Volunteer.objects.create(id=3, first_name="Harvey", last_name="Spector", age=35, email="harveyspector@outlook.com")
+        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", gender="M", email="zamorak.red@gmail.com")
+        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", gender="F", email="guthix_green@hotmail.ca")
+        townhall_models.Volunteer.objects.create(id=3, first_name="Harvey", last_name="Spector", gender="M", email="harveyspector@outlook.com")
 
         townhall_models.Opportunity.objects.create(id=1, name="Food bank", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver food", location="Vancouver")
         townhall_models.Opportunity.objects.create(id=2, name="Hygiene", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver clothes", location="East Vancouver")

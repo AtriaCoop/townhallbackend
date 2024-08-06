@@ -7,7 +7,6 @@ class CreateVolunteerData:
     first_name: str
     last_name: str
     gender: str
-    age: int
     email: str
 
 @dataclass
@@ -16,7 +15,6 @@ class UpdateVolunteerData:
     first_name: str
     last_name: str
     gender: str
-    age: int
     email: str
 
 @dataclass

@@ -1,4 +1,3 @@
-from typing import List
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
 from .dao import Organization as organization_dao
@@ -42,7 +41,7 @@ class OpportunityServices:
         print(f"Fetched opportunity: {opportunity}")
         return opportunity
     
-    def get_opportunity_all() -> List[Opportunity]:
+    def get_opportunity_all() -> typing.List[Opportunity]:
         print("Fetching opportunities")
         opportunities = opportunity_dao.get_opportunity_all()
         print(f"Fetched opportunities{opportunities}")
