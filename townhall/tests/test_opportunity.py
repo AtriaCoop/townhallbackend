@@ -67,7 +67,7 @@ class TestOpportunityModel(TestCase):
             description = "Planting some flowers in the community center",
             location = "Richmond"
         )
-        townhall_services.OpportunityServices.update_opportunity(update_opportunity_data)
+        townhall_services.OpportunityServices.update_opportunity(id=3, update_opportunity_data=update_opportunity_data)
 
         # Step 3
         updated_opportunity = townhall_services.OpportunityServices.get_opportunity(id=3)
