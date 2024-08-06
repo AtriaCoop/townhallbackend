@@ -23,6 +23,7 @@ class Opportunity(models.Model):
     time = models.DateTimeField()
     description = models.TextField()
     location = models.CharField(max_length=100)
+    volunteers = models.ManyToManyField(Volunteer, related_name='volunteers', blank=True)
 
     def __str__(self):
         return self.name

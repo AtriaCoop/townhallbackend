@@ -9,6 +9,7 @@ from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
 from .types import FilteredOpportunityData
+from .types import FilteredOrganizationData
 
 from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
@@ -109,6 +110,32 @@ class OpportunityDao:
             opportunity.location = update_opportunity_data.location
             opportunity.save()
         except Opportunity.DoesNotExist:
+            pass
+
+    def add_volunteer_to_opportunity(opportunity_id: int, volunteer_id: int) -> None:
+        try:
+            opportunity = Opportunity.objects.get(id=opportunity_id)
+            volunteer = Volunteer.objects.get(id=volunteer_id)
+            opportunity.volunteers.add(volunteer)
+            opportunity.save()
+        except (Opportunity.DoesNotExist, Volunteer.DoesNotExist):
+            pass
+
+    def remove_volunteer_from_opportunity(opportunity_id: int, volunteer_id: int) -> None:
+        try:
+            opportunity = Opportunity.objects.get(id=opportunity_id)
+            volunteer = Volunteer.objects.get(id=volunteer_id)
+            opportunity.volunteers.remove(volunteer)
+            opportunity.save()
+        except (Opportunity.DoesNotExist, Volunteer.DoesNotExist):
+            pass
+
+    def remove_all_volunteers_from_opportunity(opportunity_id: int) -> None:
+        try:
+            opportunity = Opportunity.objects.get(id=opportunity_id)
+            opportunity.volunteers.clear()
+            opportunity.save()
+        except (Opportunity.DoesNotExist, Volunteer.DoesNotExist):
             pass
 
           
