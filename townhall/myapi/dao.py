@@ -5,13 +5,15 @@ from .models import Organization
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
-from .types import CreateOrganizationData
-from .types import UpdateOrganizationData
 from .types import FilteredOpportunityData
 
-import types
+from .types import CreateOrganizationData
+from .types import UpdateOrganizationData
+from .types import FilteredOrganizationData
+
 import typing
 from django.db.models.query import QuerySet
 
