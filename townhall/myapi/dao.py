@@ -1,4 +1,3 @@
-from typing import List
 from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
@@ -9,7 +8,6 @@ from .types import UpdateVolunteerData
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
 from .types import FilteredOpportunityData
-from .types import FilteredOrganizationData
 
 from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
@@ -34,7 +32,6 @@ class VolunteerDao:
             first_name=create_volunteer_data.first_name,
             last_name=create_volunteer_data.last_name,
             gender=create_volunteer_data.gender,
-            age=create_volunteer_data.age,
             email=create_volunteer_data.email,
         )
 
@@ -50,7 +47,6 @@ class VolunteerDao:
             volunteer.first_name = update_volunteer_data.first_name
             volunteer.last_name = update_volunteer_data.last_name
             volunteer.gender = update_volunteer_data.gender
-            volunteer.age = update_volunteer_data.age
             volunteer.email = update_volunteer_data.email
             volunteer.save()
         except Volunteer.DoesNotExist:
@@ -65,7 +61,7 @@ class OpportunityDao:
         except Opportunity.DoesNotExist:
             return None
         
-    def get_opportunity_all() -> List[Opportunity]:
+    def get_opportunity_all() -> typing.List[Opportunity]:
         return Opportunity.objects.all()
 
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
