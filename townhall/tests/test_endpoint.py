@@ -82,7 +82,6 @@ class TestEndpointVolunteer:
             id = 1,
             first_name = "John",
             last_name = "Doe",
-            age = 1,
             email = "Johndoe@townhall.com",
         )
 
@@ -94,5 +93,4 @@ class TestEndpointVolunteer:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['first_name'] == "John"
         assert response.data['last_name'] == "Doe"
-        assert response.data['age'] == 1
         assert response.data['email'] == "Johndoe@townhall.com"
