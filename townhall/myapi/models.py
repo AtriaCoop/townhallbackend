@@ -51,11 +51,11 @@ class Post(models.Model):
     
 
 class Comment(models.Model):
-    comment_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.comment_id
+        return self.id
