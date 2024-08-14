@@ -31,8 +31,9 @@ class Opportunity(models.Model):
 class Organization(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
-    description = models.TextField()
     email = models.CharField(max_length=254)
+    phone_number = models.CharField(max_length=100)
+    website = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name

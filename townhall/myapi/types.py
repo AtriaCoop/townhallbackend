@@ -43,16 +43,18 @@ class FilteredOpportunityData:
 class CreateOrganizationData:
     name: str
     location: str
-    description: str
     email: str
+    phone_number: str
+    website: str
 
 @dataclass
 class UpdateOrganizationData:
     id: int
     name: str
     location: str
-    description: str
     email: str
+    phone_number: str
+    website: str
 
 @dataclass
 class FilteredOrganizationData:
