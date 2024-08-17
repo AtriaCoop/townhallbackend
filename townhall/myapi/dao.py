@@ -66,9 +66,10 @@ class OpportunityDao:
 
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
         Opportunity.objects.create(
-            name=create_opportunity_data.name,
-            time=create_opportunity_data.time,
+            title=create_opportunity_data.title,
             description=create_opportunity_data.description,
+            start_time=create_opportunity_data.start_time,
+            end_time=create_opportunity_data.end_time,
             location=create_opportunity_data.location
         )
 
@@ -80,12 +81,16 @@ class OpportunityDao:
             A queryset of opportunities that match the filtering criteria.
         '''
         filters = {}
-        if filtered_opportunity_data.name:
-            filters['name__icontains'] = filtered_opportunity_data.name
-        if filtered_opportunity_data.start_time:
-            filters['time__gte'] = filtered_opportunity_data.start_time
-        if filtered_opportunity_data.end_time:
-            filters['time__lte'] = filtered_opportunity_data.end_time
+        if filtered_opportunity_data.title:
+            filters['title__icontains'] = filtered_opportunity_data.title
+        if filtered_opportunity_data.starting_start_time:
+            filters['start_time__gte'] = filtered_opportunity_data.starting_start_time
+        if filtered_opportunity_data.starting_end_time:
+            filters['start_time__lte'] = filtered_opportunity_data.starting_end_time
+        if filtered_opportunity_data.ending_start_time:
+            filters['end_time__gte'] = filtered_opportunity_data.ending_start_time
+        if filtered_opportunity_data.ending_end_time:
+            filters['end_time__lte'] = filtered_opportunity_data.ending_end_time
         if filtered_opportunity_data.location:
             filters['location__icontains'] = filtered_opportunity_data.location
 
@@ -100,9 +105,10 @@ class OpportunityDao:
     def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
         try:
             opportunity = Opportunity.objects.get(id=update_opportunity_data.id)
-            opportunity.name = update_opportunity_data.name
-            opportunity.time = update_opportunity_data.time
+            opportunity.title = update_opportunity_data.title
             opportunity.description = update_opportunity_data.description
+            opportunity.start_time = update_opportunity_data.start_time
+            opportunity.end_time = update_opportunity_data.end_time
             opportunity.location = update_opportunity_data.location
             opportunity.save()
         except Opportunity.DoesNotExist:

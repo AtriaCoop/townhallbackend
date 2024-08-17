@@ -18,14 +18,15 @@ class Volunteer(models.Model):
     
     
 class Opportunity(models.Model):
-    name = models.CharField(max_length=100)
-    time = models.DateTimeField()
+    title = models.CharField(max_length=100)
     description = models.TextField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
     location = models.CharField(max_length=100)
     volunteers = models.ManyToManyField(Volunteer, related_name='volunteers', blank=True)
 
     def __str__(self):
-        return self.name
+        return self.title
     
 
 class Organization(models.Model):
