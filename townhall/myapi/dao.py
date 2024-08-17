@@ -19,6 +19,13 @@ from django.db.models.query import QuerySet
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
+    
+    def get_volunteers_all() -> typing.List[Volunteer]:
+        try:
+            Volunteers = Volunteer.objects.all()
+            return list(Volunteers)
+        except Exception as e:
+            return []
 
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         try:
