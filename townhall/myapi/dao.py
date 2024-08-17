@@ -21,11 +21,7 @@ from django.db.models.query import QuerySet
 class VolunteerDao:
     
     def get_volunteers_all() -> typing.List[Volunteer]:
-        try:
-            Volunteers = Volunteer.objects.all()
-            return list(Volunteers)
-        except Exception as e:
-            return []
+        return Volunteer.objects.all()
 
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         try:
