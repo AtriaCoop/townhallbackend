@@ -12,6 +12,7 @@ from myapi.types import UpdateOpportunityData
 from .services import VolunteerServices as volunteer_services
 from .services import OpportunityServices as opportunity_services
 from .serializers import OpportunitySerializer, VolunteerSerializer
+from .types import UpdateVolunteerData
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
@@ -56,22 +57,15 @@ class VolunteerViewSet(viewsets.ModelViewSet):
     def update_volunteer(self, request, pk=None):
         
         # Use the helper method to fetch the volunteer
-        volunteer_obj, error_response = self.get_volunteer_object(pk)
-        if error_response:
-            return error_response
+        volunteer_obj = volunteer_services.get_volunteer(id=pk)
+        if not volunteer_obj:
+            return Response({"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = VolunteerSerializer(volunteer_obj, data=request.data, partial=False)
         if serializer.is_valid():
-            # Perform the update using the service layer
-            volunteer_services.update_volunteer(
-                volunteer_services.UpdateVolunteerData(
-                    id=pk,
-                    first_name=serializer.validated_data['first_name'],
-                    last_name=serializer.validated_data['last_name'],
-                    email=serializer.validated_data['email'],
-                    gender=serializer.validated_data['gender'],
-                )
-            )
+            
+            serializer.save()
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
