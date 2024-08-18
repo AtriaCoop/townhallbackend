@@ -16,15 +16,23 @@ from .serializers import OpportunitySerializer, VolunteerSerializer
 
 class VolunteerViewSet(viewsets.ModelViewSet):
 
+    # Helper method to fetch a volunteer by ID and handle the case where the volunteer is not found
+    def get_volunteer_object(self, pk):
+
+        volunteer = volunteer_services.get_volunteer(id=pk)
+        if not volunteer:
+            return None, Response({"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND)
+        return volunteer, None
+
     # GET Volunteer
     @action(detail=False, methods=['get'], url_path='volunteer')
     def handle_volunteer_request(self, request):
         volunteer_id = self.request.query_params.get('id')
 
-        volunteer_obj = volunteer_services.get_volunteer(id=volunteer_id)
-        if not volunteer_obj:
-            return Response({"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND) 
-        
+        volunteer_obj, error_response = self.get_volunteer_object(volunteer_id)
+        if error_response:
+            return error_response
+
         serializer = VolunteerSerializer(volunteer_obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -42,6 +50,31 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
         volunteer_services.delete_volunteer(id=volunteer_id)
         return Response({"message": "Volunteer deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+    # Update a Volunteer by ID
+    @action(detail=True, methods=['put'], url_path='update')
+    def update_volunteer(self, request, pk=None):
+        
+        # Use the helper method to fetch the volunteer
+        volunteer_obj, error_response = self.get_volunteer_object(pk)
+        if error_response:
+            return error_response
+        
+        serializer = VolunteerSerializer(volunteer_obj, data=request.data, partial=False)
+        if serializer.is_valid():
+            # Perform the update using the service layer
+            volunteer_services.update_volunteer(
+                volunteer_services.UpdateVolunteerData(
+                    id=pk,
+                    first_name=serializer.validated_data['first_name'],
+                    last_name=serializer.validated_data['last_name'],
+                    email=serializer.validated_data['email'],
+                    gender=serializer.validated_data['gender'],
+                )
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     
