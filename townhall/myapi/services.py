@@ -1,6 +1,6 @@
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
-from .dao import Organization as organization_dao
+from .dao import OrganizationDao as organization_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -21,6 +21,7 @@ import typing
 from django.db.models.query import QuerySet
 
 class VolunteerServices:
+
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         return volunteer_dao.get_volunteer(id=id)
     
@@ -68,4 +69,22 @@ class OpportunityServices:
 
     def remove_all_volunteers_from_opportunity(opportunity_id: int) -> None:
         opportunity_dao.remove_all_volunteers_from_opportunity(opportunity_id=opportunity_id)
+
+
+class OrganizationServices:
+
+    def get_organization(id: int) -> typing.Optional[Organization]:
+        return organization_dao.get_organization(id=id)
+    
+    def create_organization(create_organization_data: CreateOrganizationData) -> None:
+        organization_dao.create_organization(create_organization_data=create_organization_data)
+    
+    def update_organization(update_organization_data: UpdateOrganizationData) -> None:
+        organization_dao.update_organization(update_organization_data=update_organization_data)
+    
+    def delete_organization(id: int) -> None:
+        organization_dao.delete_organization(organization_id=id)
+
+    def filtered_organization(filtered_organization_data: FilteredOrganizationData) -> QuerySet[Organization]:
+        return organization_dao.filtered_organization(filtered_organization_data=filtered_organization_data)
         
