@@ -1,0 +1,22 @@
+[
+  {
+      "model": "myapi.volunteer",
+      "pk": 1,
+      "fields": {
+          "first_name": "Zamorak",
+          "last_name": "Red",
+          "email": "zamorak.red@gmail.com",
+          "gender": "M"
+      }
+  },
+  {
+      "model": "myapi.volunteer",
+      "pk": 2,
+      "fields": {
+          "first_name": "Guthix",
+          "last_name": "Green",
+          "email": "guthix_green@hotmail.ca",
+          "gender": "F"
+      }
+  }
+]
