@@ -1,73 +1,108 @@
 from django.test import TestCase
+from django.core.management import call_command
+from unittest.mock import patch
 from myapi import models as townhall_models
-from myapi import services as townhall_services
 
 # VOLUNTEER
 
 # Testing ALL tests "python manage.py test myapi.tests"
 # Testing ONLY volunteer "python manage.py test myapi.tests.test_volunteer"
 
+@patch('myapi.services.VolunteerServices')
 class TestVolunteerModel(TestCase):
-    def setUp(self):
-        townhall_models.Volunteer.objects.create(id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M")
-        townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F")
+    fixtures = ['volunteer_fixture.json']
 
-    def test_get_volunteer(self):
-        volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
+    def setUp(self):
+        # Load the fixture data
+        call_command('loaddata', 'volunteer_fixture.json')
+
+    def test_get_volunteer(self, MockVolunteerServices):
+        # Mocking the get_volunteer method
+        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+            id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
+        )
+
+        volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.email == "zamorak.red@gmail.com"
         assert volunteer_1.gender == "M"
 
-    def test_update_volunteer(self):
+    def test_update_volunteer(self, MockVolunteerServices):
+        # Mocking the get_volunteer method before update
+        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+            id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F"
+        )
+
         # Step 1: Getting the volunteer and make sure it exists
-        volunteer_before_update = townhall_services.VolunteerServices.get_volunteer(id=2)
+        volunteer_before_update = MockVolunteerServices.get_volunteer(id=2)
         assert volunteer_before_update.first_name == "Guthix"
         assert volunteer_before_update.last_name == "Green"
         assert volunteer_before_update.email == "guthix_green@hotmail.ca"
         assert volunteer_before_update.gender == "F"
         
         # Step 2: Update
-        update_volunteer_data = townhall_services.UpdateVolunteerData(
+        update_volunteer_data = townhall_models.Volunteer(
             id=2,
             first_name="Saradomin",
             last_name="Blue",
             email="saradomin.blue@gmail.com",
             gender="M"
         )
-        townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+        MockVolunteerServices.update_volunteer.return_value = None
+        MockVolunteerServices.update_volunteer(update_volunteer_data)
 
         # Step 3: Fetching volunteer and making sure the update was successful
+
+        # Mocking the get_volunteer method after update
+        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+            id=2, first_name="Saradomin", last_name="Blue", email="saradomin.blue@gmail.com", gender="M"
+        )
         # Additional test : Delete step 2 and try to GET volunteer_before_update information and it should pass
-        updated_volunteer = townhall_services.VolunteerServices.get_volunteer(id=2)
+        updated_volunteer = MockVolunteerServices.get_volunteer(id=2)
         assert updated_volunteer.first_name == "Saradomin"
         assert updated_volunteer.last_name == "Blue"
         assert updated_volunteer.email == "saradomin.blue@gmail.com"
         assert updated_volunteer.gender == "M"
 
-    def test_delete_volunteer(self):
+    def test_delete_volunteer(self, MockVolunteerServices):
+        # Mocking the get_volunteer method before delete
+        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+            id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
+        )
+
         # Step 1
-        volunteer_1 = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.email == "zamorak.red@gmail.com"
         assert volunteer_1.gender == "M"
 
-        # Step 2
-        townhall_services.VolunteerServices.delete_volunteer(id=1)
-        assert townhall_services.VolunteerServices.get_volunteer(id=1) is None
+        # Mocking the delete_volunteer method
+        MockVolunteerServices.delete_volunteer.return_value = None
+        MockVolunteerServices.delete_volunteer(id=1)
 
-    # Retrieving all volunteers
-    def test_get_all_volunteers(self):
-        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
+        # Mocking the get_volunteer method after delete
+        MockVolunteerServices.get_volunteer.return_value = None
+        assert MockVolunteerServices.get_volunteer(id=1) is None
+
+        # Retrieving all volunteers
+    def test_get_all_volunteers(self, MockVolunteerServices):
+        # Mocking the get_volunteers_all method
+        MockVolunteerServices.get_volunteers_all.return_value = [
+            townhall_models.Volunteer(id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"),
+            townhall_models.Volunteer(id=2, first_name="Guthix", last_name="Green", email="guthix.green@hotmail.ca", gender="F")
+        ]
+
+        volunteers = MockVolunteerServices.get_volunteers_all()
         assert len(volunteers) == 2, "There should be two volunteers"
         assert volunteers[0].first_name == "Zamorak"
         assert volunteers[1].first_name == "Guthix"
 
     # Retrieving all volunteers when there are none
-    def test_get_all_volunteers_empty(self):
-        # Clear all volunteers
-        townhall_models.Volunteer.objects.all().delete()
-
-        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
-        assert len(volunteers) == 0, "There should be no volunteers"
+    def test_get_all_volunteers_empty(self, MockVolunteerServices):
+        
+        # Mocking the get_volunteers_all method for an empty result
+        MockVolunteerServices.get_volunteers_all.return_value = []
+        volunteers = MockVolunteerServices.get_volunteers_all()
+        assert len(volunteers) == 0
