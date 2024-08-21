@@ -19,6 +19,9 @@ from django.db.models.query import QuerySet
 # Follows layered architecture pattern of views -> services -> dao
 
 class VolunteerDao:
+    
+    def get_volunteers_all() -> typing.List[Volunteer]:
+        return Volunteer.objects.all()
 
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         try:
@@ -140,8 +143,9 @@ class OrganizationDao:
         Organization.objects.create(
             name = create_organization_data.name,
             location = create_organization_data.location,
-            description = create_organization_data.description,
-            email = create_organization_data.email
+            email = create_organization_data.email,
+            phone_number = create_organization_data.phone_number,
+            website = create_organization_data.website
         )
         
     def get_organization(id: int) -> typing.Optional[Organization]:
@@ -162,8 +166,9 @@ class OrganizationDao:
             organization = Organization.objects.get(id=update_organization_data.id)
             organization.name = update_organization_data.name
             organization.location = update_organization_data.location
-            organization.description = update_organization_data.description
             organization.email = update_organization_data.email
+            organization.phone_number = update_organization_data.phone_number
+            organization.website = update_organization_data.website
             organization.save()
         except Organization.DoesNotExist:
             pass

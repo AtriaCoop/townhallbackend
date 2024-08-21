@@ -21,6 +21,10 @@ import typing
 from django.db.models.query import QuerySet
 
 class VolunteerServices:
+    
+    def get_volunteers_all() -> typing.List[Volunteer]:
+        return volunteer_dao.get_volunteers_all()
+
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         return volunteer_dao.get_volunteer(id=id)
     
