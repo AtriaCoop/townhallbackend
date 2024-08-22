@@ -15,6 +15,7 @@ from .serializers import OpportunitySerializer, VolunteerSerializer
 
 class VolunteerViewSet(viewsets.ModelViewSet):
 
+    # GET Volunteer
     @action(detail=False, methods=['get'], url_path='volunteer')
     def handle_volunteer_request(self, request):
         volunteer_id = self.request.query_params.get('id')
@@ -25,6 +26,14 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         
         serializer = VolunteerSerializer(volunteer_obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # DELETE Volunteer
+    @action(detail=False, methods=['delete'], url_path='volunteer')
+    def handle_volunteer_delete(self, request):
+        volunteer_id = self.request.query_params.get('id')
+
+        volunteer_services.delete_volunteer(id=volunteer_id)
+        return Response({"message": "Volunteer deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     
