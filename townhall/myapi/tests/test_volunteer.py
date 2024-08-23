@@ -13,41 +13,35 @@ class TestVolunteerModel(TestCase):
     fixtures = ['volunteer_fixture.json']
 
     def setUp(self):
-        # Load the fixture data
+        # Load the fixture data to set up initial state
         call_command('loaddata', 'volunteer_fixture.json')
         
-
     def test_get_volunteer(self, MockVolunteerServices):
-        # Mocking the get_volunteer method
+        # Arrange: Set up the mock return value for the get_volunteer method
         mock_volunteer = townhall_models.Volunteer(
             id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
         )
         MockVolunteerServices.get_volunteer.return_value = mock_volunteer
 
+        # Act: Call the get_volunteer method with a specific ID
         volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
 
+        # Assert: Verify the returned volunteer has the expected attributes
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.email == "zamorak.red@gmail.com"
         assert volunteer_1.gender == "M"
+        # Assert: Ensure the get_volunteer method was called exactly once with the correct ID
         MockVolunteerServices.get_volunteer.assert_called_once_with(id=1)
 
     def test_update_volunteer(self, MockVolunteerServices):
-        # Mocking the get_volunteer method before update
+         # Arrange: Set up the mock return value before the update
         mock_volunteer_before_update = townhall_models.Volunteer(
             id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F"
         )
         MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
 
-        # Step 1: Getting the volunteer and make sure it exists
-        volunteer_before_update = MockVolunteerServices.get_volunteer(id=2)
-        assert volunteer_before_update.first_name == "Guthix"
-        assert volunteer_before_update.last_name == "Green"
-        assert volunteer_before_update.email == "guthix_green@hotmail.ca"
-        assert volunteer_before_update.gender == "F"
-        MockVolunteerServices.get_volunteer.assert_called_once_with(id=2)
-        
-        # Step 2: Update
+        # Arrange: Prepare the data for the update operation
         update_volunteer_data = townhall_models.Volunteer(
             id=2,
             first_name="Saradomin",
@@ -56,69 +50,86 @@ class TestVolunteerModel(TestCase):
             gender="M"
         )
         MockVolunteerServices.update_volunteer.return_value = None
+
+        # Act: Perform the update operation and then retrieve the updated volunteer
+        volunteer_before_update = MockVolunteerServices.get_volunteer(id=2)
         MockVolunteerServices.update_volunteer(update_volunteer_data)
 
-        # Assertions
-        MockVolunteerServices.update_volunteer.assert_called_once_with(update_volunteer_data)
-
-        # Step 3: Fetching volunteer and making sure the update was successful
-
-        # Mocking the get_volunteer method after update
+        # Mock the volunteer after update
         MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
             id=2, first_name="Saradomin", last_name="Blue", email="saradomin.blue@gmail.com", gender="M"
         )
-        # Additional test : Delete step 2 and try to GET volunteer_before_update information and it should pass
         updated_volunteer = MockVolunteerServices.get_volunteer(id=2)
+
+        # Assert: Check that the initial volunteer's details were as expected
+        assert volunteer_before_update.first_name == "Guthix"
+        assert volunteer_before_update.last_name == "Green"
+        assert volunteer_before_update.email == "guthix_green@hotmail.ca"
+        assert volunteer_before_update.gender == "F"
+        MockVolunteerServices.get_volunteer.assert_called_with(id=2)
+
+        # Assert: Verify that the update operation was called with the correct data
+        MockVolunteerServices.update_volunteer.assert_called_once_with(update_volunteer_data)
+
+        # Assert: Verify the volunteer's details were updated correctly
         assert updated_volunteer.first_name == "Saradomin"
         assert updated_volunteer.last_name == "Blue"
         assert updated_volunteer.email == "saradomin.blue@gmail.com"
         assert updated_volunteer.gender == "M"
-        MockVolunteerServices.get_volunteer.assert_called_with(id=2)
 
     def test_delete_volunteer(self, MockVolunteerServices):
-        # Mocking the get_volunteer method before delete
+        # Arrange: Set up the mock return value before deletion
         mock_volunteer = townhall_models.Volunteer(
             id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
         )
         MockVolunteerServices.get_volunteer.return_value = mock_volunteer
 
-        # Step 1
+        # Act: Retrieve the volunteer and then delete it
         volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
+        MockVolunteerServices.delete_volunteer(id=1)
+        MockVolunteerServices.get_volunteer.return_value = None
+
+        # Act: Attempt to retrieve the volunteer after deletion
+        volunteer_after_deletion = MockVolunteerServices.get_volunteer(id=1)
+
+        # Assert: Verify the volunteer's initial details were correct
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.email == "zamorak.red@gmail.com"
         assert volunteer_1.gender == "M"
+
+        # Assert: Ensure the volunteer was deleted successfully
         MockVolunteerServices.get_volunteer.assert_called_once_with(id=1)
 
-        # Mocking the delete_volunteer method
-        MockVolunteerServices.delete_volunteer.return_value = None
-        MockVolunteerServices.delete_volunteer(id=1)
+        # Assert: Check that the volunteer no longer exists after deletion
         MockVolunteerServices.delete_volunteer.assert_called_once_with(id=1)
+        assert volunteer_after_deletion is None
 
-        # Mocking the get_volunteer method after delete
-        MockVolunteerServices.get_volunteer.return_value = None
-        assert MockVolunteerServices.get_volunteer(id=1) is None
-        MockVolunteerServices.get_volunteer.assert_called_with(id=1)
-
-        # Retrieving all volunteers
     def test_get_all_volunteers(self, MockVolunteerServices):
-        # Mocking the get_volunteers_all method
+        # Arrange: Mock the return value for getting all volunteers
         MockVolunteerServices.get_volunteers_all.return_value = [
             townhall_models.Volunteer(id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"),
             townhall_models.Volunteer(id=2, first_name="Guthix", last_name="Green", email="guthix.green@hotmail.ca", gender="F")
         ]
 
+        # Act: Retrieve all volunteers
         volunteers = MockVolunteerServices.get_volunteers_all()
-        assert len(volunteers) == 2, "There should be two volunteers"
+
+        # Assert: Verify the correct number of volunteers is returned
+        assert len(volunteers) == 2
         assert volunteers[0].first_name == "Zamorak"
         assert volunteers[1].first_name == "Guthix"
+        # Assert: Ensure the get_volunteers_all method was called exactly once
         MockVolunteerServices.get_volunteers_all.assert_called_once()
 
-    # Retrieving all volunteers when there are none
     def test_get_all_volunteers_empty(self, MockVolunteerServices):
-        
-        # Mocking the get_volunteers_all method for an empty result
+        # Arrange: Mock the return value for getting all volunteers to be an empty list
         MockVolunteerServices.get_volunteers_all.return_value = []
+
+        # Act: Retrieve all volunteers when none exist
         volunteers = MockVolunteerServices.get_volunteers_all()
+
+        # Assert: Verify that no volunteers are returned
         assert len(volunteers) == 0
+        # Assert: Ensure the get_volunteers_all method was called exactly once
         MockVolunteerServices.get_volunteers_all.assert_called_once()
