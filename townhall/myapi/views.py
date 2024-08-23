@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.shortcuts import render
 import dataclasses
 
@@ -32,6 +33,13 @@ class VolunteerViewSet(viewsets.ModelViewSet):
     def handle_volunteer_delete(self, request):
         volunteer_id = self.request.query_params.get('id')
 
+        if not volunteer_id:
+            raise ValidationError("The 'id' query parameter is required.")
+
+        volunteer_obj = volunteer_services.get_volunteer(id=volunteer_id)
+        if not volunteer_obj:
+            return Response({"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND)
+
         volunteer_services.delete_volunteer(id=volunteer_id)
         return Response({"message": "Volunteer deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
@@ -63,6 +71,13 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['delete'], url_path='opportunity')
     def handle_opportunity_delete(self, request):
         opportunity_id = self.request.query_params.get('id')
+
+        if not opportunity_id:
+            raise ValidationError("The 'id' query parameter is required.")
+
+        opportunity_obj = opportunity_services.get_opportunity(id=opportunity_id)
+        if not opportunity_obj:
+            return Response({"error": "Opportunity not found"}, status=status.HTTP_404_NOT_FOUND)
         
         opportunity_services.delete_opportunity(id=opportunity_id)
         return Response({"message": "Opportunity deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
