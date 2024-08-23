@@ -33,9 +33,10 @@ class TestVolunteerModel(TestCase):
 
     def test_update_volunteer(self, MockVolunteerServices):
         # Mocking the get_volunteer method before update
-        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+        mock_volunteer_before_update = townhall_models.Volunteer(
             id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F"
         )
+        MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
 
         # Step 1: Getting the volunteer and make sure it exists
         volunteer_before_update = MockVolunteerServices.get_volunteer(id=2)
@@ -43,6 +44,7 @@ class TestVolunteerModel(TestCase):
         assert volunteer_before_update.last_name == "Green"
         assert volunteer_before_update.email == "guthix_green@hotmail.ca"
         assert volunteer_before_update.gender == "F"
+        MockVolunteerServices.get_volunteer.assert_called_once_with(id=2)
         
         # Step 2: Update
         update_volunteer_data = townhall_models.Volunteer(
@@ -54,6 +56,9 @@ class TestVolunteerModel(TestCase):
         )
         MockVolunteerServices.update_volunteer.return_value = None
         MockVolunteerServices.update_volunteer(update_volunteer_data)
+
+        # Assertions
+        MockVolunteerServices.update_volunteer.assert_called_once_with(update_volunteer_data)
 
         # Step 3: Fetching volunteer and making sure the update was successful
 
