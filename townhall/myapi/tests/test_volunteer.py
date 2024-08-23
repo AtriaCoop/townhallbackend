@@ -111,6 +111,7 @@ class TestVolunteerModel(TestCase):
         assert len(volunteers) == 2, "There should be two volunteers"
         assert volunteers[0].first_name == "Zamorak"
         assert volunteers[1].first_name == "Guthix"
+        MockVolunteerServices.get_volunteers_all.assert_called_once()
 
     # Retrieving all volunteers when there are none
     def test_get_all_volunteers_empty(self, MockVolunteerServices):
@@ -119,3 +120,4 @@ class TestVolunteerModel(TestCase):
         MockVolunteerServices.get_volunteers_all.return_value = []
         volunteers = MockVolunteerServices.get_volunteers_all()
         assert len(volunteers) == 0
+        MockVolunteerServices.get_volunteers_all.assert_called_once()
