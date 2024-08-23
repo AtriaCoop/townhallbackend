@@ -12,9 +12,10 @@ from myapi import models as townhall_models
 class TestVolunteerModel(TestCase):
     fixtures = ['volunteer_fixture.json']
 
-    def setUp(self, MockVolunteerServices):
+    def setUp(self):
         # Load the fixture data
         call_command('loaddata', 'volunteer_fixture.json')
+        
 
     def test_get_volunteer(self, MockVolunteerServices):
         # Mocking the get_volunteer method
