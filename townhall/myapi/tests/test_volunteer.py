@@ -72,12 +72,14 @@ class TestVolunteerModel(TestCase):
         assert updated_volunteer.last_name == "Blue"
         assert updated_volunteer.email == "saradomin.blue@gmail.com"
         assert updated_volunteer.gender == "M"
+        MockVolunteerServices.get_volunteer.assert_called_with(id=2)
 
     def test_delete_volunteer(self, MockVolunteerServices):
         # Mocking the get_volunteer method before delete
-        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+        mock_volunteer = townhall_models.Volunteer(
             id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
         )
+        MockVolunteerServices.get_volunteer.return_value = mock_volunteer
 
         # Step 1
         volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
@@ -85,14 +87,17 @@ class TestVolunteerModel(TestCase):
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.email == "zamorak.red@gmail.com"
         assert volunteer_1.gender == "M"
+        MockVolunteerServices.get_volunteer.assert_called_once_with(id=1)
 
         # Mocking the delete_volunteer method
         MockVolunteerServices.delete_volunteer.return_value = None
         MockVolunteerServices.delete_volunteer(id=1)
+        MockVolunteerServices.delete_volunteer.assert_called_once_with(id=1)
 
         # Mocking the get_volunteer method after delete
         MockVolunteerServices.get_volunteer.return_value = None
         assert MockVolunteerServices.get_volunteer(id=1) is None
+        MockVolunteerServices.get_volunteer.assert_called_with(id=1)
 
         # Retrieving all volunteers
     def test_get_all_volunteers(self, MockVolunteerServices):
