@@ -56,3 +56,18 @@ class TestVolunteerModel(TestCase):
         # Step 2
         townhall_services.VolunteerServices.delete_volunteer(id=1)
         assert townhall_services.VolunteerServices.get_volunteer(id=1) is None
+
+    # Retrieving all volunteers
+    def test_get_all_volunteers(self):
+        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
+        assert len(volunteers) == 2, "There should be two volunteers"
+        assert volunteers[0].first_name == "Zamorak"
+        assert volunteers[1].first_name == "Guthix"
+
+    # Retrieving all volunteers when there are none
+    def test_get_all_volunteers_empty(self):
+        # Clear all volunteers
+        townhall_models.Volunteer.objects.all().delete()
+
+        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
+        assert len(volunteers) == 0, "There should be no volunteers"

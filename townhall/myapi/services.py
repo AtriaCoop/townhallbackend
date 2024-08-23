@@ -21,6 +21,10 @@ import typing
 from django.db.models.query import QuerySet
 
 class VolunteerServices:
+    
+    def get_volunteers_all() -> typing.List[Volunteer]:
+        return volunteer_dao.get_volunteers_all()
+
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         return volunteer_dao.get_volunteer(id=id)
     
@@ -57,8 +61,8 @@ class OpportunityServices:
         print(f"Deleting opportunity with ID: {id}")
         opportunity_dao.delete_opportunity(opportunity_id=id)
 
-    def update_opportunity(update_opportunity_data: UpdateOpportunityData) -> None:
-        opportunity_dao.update_opportunity(update_opportunity_data=update_opportunity_data)
+    def update_opportunity(id: int, update_opportunity_data: UpdateOpportunityData) -> None:
+        opportunity_dao.update_opportunity(id=id, update_opportunity_data=update_opportunity_data)
     
     def add_volunteer_to_opportunity(opportunity_id: int, volunteer_id: int) -> None:
         opportunity_dao.add_volunteer_to_opportunity(opportunity_id=opportunity_id, volunteer_id=volunteer_id)
