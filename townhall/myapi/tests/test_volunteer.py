@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.management import call_command
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from myapi import models as townhall_models
 
 # VOLUNTEER
@@ -12,21 +12,24 @@ from myapi import models as townhall_models
 class TestVolunteerModel(TestCase):
     fixtures = ['volunteer_fixture.json']
 
-    def setUp(self):
+    def setUp(self, MockVolunteerServices):
         # Load the fixture data
         call_command('loaddata', 'volunteer_fixture.json')
 
     def test_get_volunteer(self, MockVolunteerServices):
         # Mocking the get_volunteer method
-        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+        mock_volunteer = townhall_models.Volunteer(
             id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
         )
+        MockVolunteerServices.get_volunteer.return_value = mock_volunteer
 
         volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
+
         assert volunteer_1.first_name == "Zamorak"
         assert volunteer_1.last_name == "Red"
         assert volunteer_1.email == "zamorak.red@gmail.com"
         assert volunteer_1.gender == "M"
+        MockVolunteerServices.get_volunteer.assert_called_once_with(id=1)
 
     def test_update_volunteer(self, MockVolunteerServices):
         # Mocking the get_volunteer method before update
