@@ -22,6 +22,6 @@ from myapi.views import OpportunityViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('volunteer/', VolunteerViewSet.as_view({'get': 'handle_volunteer_request'})),
-    path('opportunity/', OpportunityViewSet.as_view({'get': 'handle_opportunity_request', 'delete': 'handle_opportunity_delete'})),
+    path('volunteer/', VolunteerViewSet.as_view({'get': 'handle_volunteer_request', 'delete': 'handle_volunteer_delete'})),
+    path('opportunity/', OpportunityViewSet.as_view({'get': 'handle_opportunity_request', 'delete': 'handle_opportunity_delete', 'put': 'handle_opportunity_update'})),
 ]
