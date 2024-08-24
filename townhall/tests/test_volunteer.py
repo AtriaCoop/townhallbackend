@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.core.management import call_command
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+from django.urls import reverse
+from rest_framework import status
 from myapi import models as townhall_models
 
 # VOLUNTEER
@@ -133,3 +135,56 @@ class TestVolunteerModel(TestCase):
         assert len(volunteers) == 0
         # Assert: Ensure the get_volunteers_all method was called exactly once
         MockVolunteerServices.get_volunteers_all.assert_called_once()
+        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
+        assert len(volunteers) == 0, "There should be no volunteers"
+
+    def test_update_volunteer_success(self):
+        # Arrange: Set up the data for a successful update
+        # This is the new data that we want to update the volunteer with.
+        updated_data = {
+            "first_name": "Saradomin",
+            "last_name": "Blue",
+            "email": "saradomin.blue@gmail.com",
+            "gender": "M"
+        }
+
+        # Create an instance of the APIClient, which allows us to simulate HTTP requests.
+        client = APIClient()
+
+        # Act: Perform the PUT request to update the volunteer
+        response = client.put(
+            reverse('update_volunteer', kwargs={'pk': 2}),
+            updated_data,
+            format='json',  # Indicating that the data is in JSON format
+            content_type='application/json'  # Setting the content type to application/json
+        )
+
+        # Assert: Verify that the response is as expected
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['first_name'] == "Saradomin"
+        assert response.data['last_name'] == "Blue"
+        assert response.data['email'] == "saradomin.blue@gmail.com"
+        assert response.data['gender'] == "M"
+
+    def test_update_volunteer_invalid_data(self):
+        # Arrange: Set up the data for an invalid update
+        invalid_data = {
+            "first_name": "",
+            "last_name": "Blue",
+            "email": "not-an-email",
+            "gender": "X"
+        }
+
+        # Create an instance of the APIClient, which allows us to simulate HTTP requests.
+        client = APIClient()
+
+        # Act: Perform the PUT request with invalid data
+        response = client.put(
+            reverse('update_volunteer', kwargs={'pk': 2}),
+            invalid_data,
+            format='json',  # Indicating that the data is in JSON format
+            content_type='application/json'  # Setting the content type to application/json
+        )
+
+        # Assert: Verify that the response is as expected
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
