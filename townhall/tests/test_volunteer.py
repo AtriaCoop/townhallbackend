@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.management import call_command
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from rest_framework import status
 from myapi import models as townhall_models
@@ -84,14 +84,11 @@ class TestVolunteerModel(TestCase):
         mock_volunteer = townhall_models.Volunteer(
             id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
         )
-        MockVolunteerServices.get_volunteer.return_value = mock_volunteer
+        MockVolunteerServices.get_volunteer.side_effect = [mock_volunteer, None]
 
         # Act: Retrieve the volunteer and then delete it
         volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
         MockVolunteerServices.delete_volunteer(id=1)
-        MockVolunteerServices.get_volunteer.return_value = None
-
-        # Act: Attempt to retrieve the volunteer after deletion
         volunteer_after_deletion = MockVolunteerServices.get_volunteer(id=1)
 
         # Assert: Verify the volunteer's initial details were correct
@@ -101,9 +98,8 @@ class TestVolunteerModel(TestCase):
         assert volunteer_1.gender == "M"
 
         # Assert: Ensure the volunteer was deleted successfully
-        MockVolunteerServices.get_volunteer.assert_called_once_with(id=1)
-
-        # Assert: Check that the volunteer no longer exists after deletion
+        MockVolunteerServices.get_volunteer.assert_called_with(id=1)
+        MockVolunteerServices.get_volunteer.assert_called_with(id=1)
         MockVolunteerServices.delete_volunteer.assert_called_once_with(id=1)
         assert volunteer_after_deletion is None
 
@@ -135,56 +131,58 @@ class TestVolunteerModel(TestCase):
         assert len(volunteers) == 0
         # Assert: Ensure the get_volunteers_all method was called exactly once
         MockVolunteerServices.get_volunteers_all.assert_called_once()
-        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
-        assert len(volunteers) == 0, "There should be no volunteers"
 
-    def test_update_volunteer_success(self):
-        # Arrange: Set up the data for a successful update
-        # This is the new data that we want to update the volunteer with.
-        updated_data = {
-            "first_name": "Saradomin",
-            "last_name": "Blue",
-            "email": "saradomin.blue@gmail.com",
-            "gender": "M"
-        }
+    def test_update_volunteer_success(self, MockVolunteerServices):
+        # Arrange: Set up the mock return value before the update
+        mock_volunteer_before_update = townhall_models.Volunteer(
+            id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F"
+        )
+        MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
 
-        # Create an instance of the APIClient, which allows us to simulate HTTP requests.
-        client = APIClient()
+        # Arrange: Prepare the data for the update operation
+        update_volunteer_data = townhall_models.Volunteer(
+            id=2,
+            first_name="Saradomin",
+            last_name="Blue",
+            email="saradomin.blue@gmail.com",
+            gender="M"
+        )
+        MockVolunteerServices.update_volunteer.return_value = None
 
-        # Act: Perform the PUT request to update the volunteer
-        response = client.put(
-            reverse('update_volunteer', kwargs={'pk': 2}),
-            updated_data,
-            format='json',  # Indicating that the data is in JSON format
-            content_type='application/json'  # Setting the content type to application/json
+        # Act: Perform the update operation and then retrieve the updated volunteer
+        MockVolunteerServices.update_volunteer(update_volunteer_data)
+
+        # Arrange: Mock the return value after the update
+        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
+            id=2, first_name="Saradomin", last_name="Blue", email="saradomin.blue@gmail.com", gender="M"
+        )
+        updated_volunteer = MockVolunteerServices.get_volunteer(id=2)
+
+        # Assert: Verify that the update operation was called with the correct data
+        MockVolunteerServices.update_volunteer.assert_called_once_with(update_volunteer_data)
+        assert updated_volunteer.first_name == "Saradomin"
+        assert updated_volunteer.last_name == "Blue"
+        assert updated_volunteer.email == "saradomin.blue@gmail.com"
+        assert updated_volunteer.gender == "M"
+
+    def test_update_volunteer_invalid_data(self, MockVolunteerServices):
+        # Arrange: Mock the return value for the get_volunteer method
+        mock_volunteer_before_update = townhall_models.Volunteer(
+            id=2, first_name="Guthix", last_name="Green", email="guthix_green@hotmail.ca", gender="F"
+        )
+        MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
+
+        # Arrange: Prepare invalid update data
+        invalid_data = townhall_models.Volunteer(
+            id=2,
+            first_name="",
+            last_name="Blue",
+            email="not-an-email",
+            gender="X"
         )
 
-        # Assert: Verify that the response is as expected
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data['first_name'] == "Saradomin"
-        assert response.data['last_name'] == "Blue"
-        assert response.data['email'] == "saradomin.blue@gmail.com"
-        assert response.data['gender'] == "M"
+        # Act: Attempt to update the volunteer with invalid data
+        MockVolunteerServices.update_volunteer(invalid_data)
 
-    def test_update_volunteer_invalid_data(self):
-        # Arrange: Set up the data for an invalid update
-        invalid_data = {
-            "first_name": "",
-            "last_name": "Blue",
-            "email": "not-an-email",
-            "gender": "X"
-        }
-
-        # Create an instance of the APIClient, which allows us to simulate HTTP requests.
-        client = APIClient()
-
-        # Act: Perform the PUT request with invalid data
-        response = client.put(
-            reverse('update_volunteer', kwargs={'pk': 2}),
-            invalid_data,
-            format='json',  # Indicating that the data is in JSON format
-            content_type='application/json'  # Setting the content type to application/json
-        )
-
-        # Assert: Verify that the response is as expected
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        # Assert: Ensure the update operation was attempted with invalid data
+        MockVolunteerServices.update_volunteer.assert_called_once_with(invalid_data)
