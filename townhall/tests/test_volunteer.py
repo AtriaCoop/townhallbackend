@@ -1,4 +1,7 @@
 from django.test import TestCase
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
 from myapi import models as townhall_models
 from myapi import services as townhall_services
 
@@ -71,3 +74,45 @@ class TestVolunteerModel(TestCase):
 
         volunteers = townhall_services.VolunteerServices.get_volunteers_all()
         assert len(volunteers) == 0, "There should be no volunteers"
+
+    # Tests for the PUT Endpoint
+
+    # Test successfully updating a volunteer's information via PUT.
+    def test_update_volunteer_success(self):
+        
+        updated_data = {
+            "first_name": "Saradomin",
+            "last_name": "Blue",
+            "email": "saradomin.blue@gmail.com",
+            "gender": "M"
+        }
+        response = self.client.put(
+            reverse('update_volunteer', kwargs={'pk': 2}),
+            updated_data,
+            format='json',
+            content_type='application/json'
+        )
+
+        # Print the response status code and data for debugging
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['first_name'] == "Saradomin"
+        assert response.data['last_name'] == "Blue"
+        assert response.data['email'] == "saradomin.blue@gmail.com"
+        assert response.data['gender'] == "M"
+
+    def test_update_volunteer_invalid_data(self):
+        # Test updating a volunteer with invalid data via PUT.
+        invalid_data = {
+            "first_name": "",
+            "last_name": "Blue",
+            "email": "not-an-email",
+            "gender": "X"
+        }
+        response = self.client.put(
+            reverse('update_volunteer', kwargs={'pk': 2}),
+            invalid_data,
+            format='json',
+            content_type='application/json'
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
