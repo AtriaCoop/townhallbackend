@@ -75,6 +75,9 @@ class OpportunityServices:
         
 class OrganizationServices:
 
+    def get_organization(id: int) -> typing.Optional[Organization]:
+        return organization_dao.get_organization(id=id)
+    
     def create_organization(create_organization_data: CreateOrganizationData) -> None:
         organization_dao.create_organization(create_organization_data=create_organization_data)
     
