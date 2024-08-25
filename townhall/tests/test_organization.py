@@ -12,6 +12,14 @@ class TestOrganizationModel(TestCase):
         townhall_models.Organization.objects.create(id=1, name="Goodwill", location="Victoria", email="goodwill@gmail.com", phone_number="778-123-4567", website="goodwill.ca")
         townhall_models.Organization.objects.create(id=2, name="Salvation Army", location="Richmond", email="salvationarmy@hotmail.ca", phone_number="604-987-6543", website="salvationarmy.com")
 
+    def test_get_organization(self):
+        organization = townhall_services.OrganizationServices.get_organization(id=1)
+        assert organization.name == "Goodwill"
+        assert organization.location == "Victoria"
+        assert organization.email == "goodwill@gmail.com"
+        assert organization.phone_number == "778-123-4567"
+        assert organization.website == "goodwill.ca"
+
     def test_update_organization(self):
         organization_before_update = townhall_services.OrganizationServices.get_organization(id=2)
         assert organization_before_update.name == "Salvation Army"
