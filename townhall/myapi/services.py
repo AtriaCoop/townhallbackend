@@ -73,3 +73,10 @@ class OpportunityServices:
     def remove_all_volunteers_from_opportunity(opportunity_id: int) -> None:
         opportunity_dao.remove_all_volunteers_from_opportunity(opportunity_id=opportunity_id)
         
+class OrganizationServices:
+
+    def create_organization(create_organization_data: CreateOrganizationData) -> None:
+        organization_dao.create_organization(create_organization_data=create_organization_data)
+    
+    def update_organization(update_organization_data: UpdateOrganizationData) -> None:
+        organization_dao.update_organization(update_organization_data=update_organization_data)
