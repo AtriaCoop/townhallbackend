@@ -83,3 +83,9 @@ class OrganizationServices:
     
     def update_organization(update_organization_data: UpdateOrganizationData) -> None:
         organization_dao.update_organization(update_organization_data=update_organization_data)
+
+    def delete_organization(id: int) -> None:
+        organization_dao.delete_organization(organization_id=id)
+
+    def filtered_organization(filtered_organization_data: FilteredOrganizationData) -> QuerySet[Organization]:
+        return organization_dao.filtered_organization(filtered_organization_data=filtered_organization_data)
