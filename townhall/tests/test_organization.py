@@ -44,3 +44,30 @@ class TestOrganizationModel(TestCase):
         assert updated_organization.email == "salvationarmy2024@hotmail.ca"
         assert updated_organization.phone_number == "123-456-7890"
         assert updated_organization.website == "salvationarmy2024.com"
+
+    def test_delete_organization(self):
+        # Step 1
+        organization = townhall_services.OrganizationServices.get_organization(id=1)
+        assert organization.name == "Goodwill"
+        assert organization.location == "Victoria"
+        assert organization.email == "goodwill@gmail.com"
+        assert organization.phone_number == "778-123-4567"
+        assert organization.website == "goodwill.ca"
+
+        # Step 2
+        townhall_services.OrganizationServices.delete_organization(id=1)
+        assert townhall_services.OrganizationServices.get_organization(id=1) is None
+
+    def test_filtered_organization_name_and_location(self):
+        filtered_organization_data = townhall_services.FilteredOrganizationData(name="Goodwill", location="Victoria")
+        organizations = townhall_services.OrganizationServices.filtered_organization(filtered_organization_data)
+        
+        for o in organizations:
+            print(f"Organization: {o.name}, Location: {o.location}")
+
+        # Assert that exactly only one opportunity is returned
+        assert len(organizations) == 1
+
+        for organization in organizations:
+            assert "goodwill" in organization.name.lower()  # Case insensitive check
+            assert "victoria" in organization.location.lower()
