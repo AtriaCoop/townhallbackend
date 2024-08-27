@@ -1,22 +1,26 @@
 [
   {
-      "model": "myapi.volunteer",
-      "pk": 1,
-      "fields": {
-          "first_name": "Zamorak",
-          "last_name": "Red",
-          "email": "zamorak.red@gmail.com",
-          "gender": "M"
-      }
+    "model": "myapi.volunteer",
+    "pk": 1,
+    "fields": {
+      "first_name": "Zamorak",
+      "last_name": "Red",
+      "email": "zamorak.red@gmail.com",
+      "gender": "M",
+      "password": "pbkdf2_sha256$320000$eERGy7Egdf2$Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI=",
+      "is_active": true
+    }
   },
   {
-      "model": "myapi.volunteer",
-      "pk": 2,
-      "fields": {
-          "first_name": "Guthix",
-          "last_name": "Green",
-          "email": "guthix_green@hotmail.ca",
-          "gender": "F"
-      }
+    "model": "myapi.volunteer",
+    "pk": 2,
+    "fields": {
+      "first_name": "Guthix",
+      "last_name": "Green",
+      "email": "guthix_green@hotmail.ca",
+      "gender": "F",
+      "password": "pbkdf2_sha256$320000$S8FQgC2gUp5O$CRavRkUt3V3R0DpVznUAdxvMlbmroMR92e6SB6jvFAo=",
+      "is_active": true
+    }
   }
 ]
