@@ -19,24 +19,28 @@ class UpdateVolunteerData:
 
 @dataclass
 class CreateOpportunityData:
-    name: str
-    time: datetime
+    title: str
     description: str
+    start_time: datetime
+    end_time: datetime
     location: str
 
 @dataclass
 class UpdateOpportunityData:
     id: int
-    name: str
-    time: datetime
+    title: str
     description: str
+    start_time: datetime
+    end_time: datetime
     location: str
 
 @dataclass
 class FilteredOpportunityData:
-    name: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    title: Optional[str] = None
+    starting_start_time: Optional[datetime] = None
+    starting_end_time: Optional[datetime] = None
+    ending_start_time: Optional[datetime] = None
+    ending_end_time: Optional[datetime] = None
     location: Optional[str] = None
 
 @dataclass
