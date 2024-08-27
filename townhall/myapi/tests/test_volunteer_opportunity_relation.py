@@ -15,9 +15,9 @@ class TestVolunteerOpportunityModel(TestCase):
         townhall_models.Volunteer.objects.create(id=2, first_name="Guthix", last_name="Green", gender="F", email="guthix_green@hotmail.ca")
         townhall_models.Volunteer.objects.create(id=3, first_name="Harvey", last_name="Spector", gender="M", email="harveyspector@outlook.com")
 
-        townhall_models.Opportunity.objects.create(id=1, name="Food bank", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver food", location="Vancouver")
-        townhall_models.Opportunity.objects.create(id=2, name="Hygiene", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Deliver clothes", location="East Vancouver")
-        townhall_models.Opportunity.objects.create(id=3, name="Community Clean Up", time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), description="Clean up the neighborhood", location="West Vancouver")
+        townhall_models.Opportunity.objects.create(id=1, title="Food bank", description="Deliver food", start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), end_time=timezone.make_aware(datetime(2024, 7, 20, 20, 30)), location="Vancouver")
+        townhall_models.Opportunity.objects.create(id=2, title="Hygiene", description="Deliver clothes", start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), end_time=timezone.make_aware(datetime(2024, 7, 20, 21, 45)), location="East Vancouver")
+        townhall_models.Opportunity.objects.create(id=3, title="Community Clean Up", description="Clean up the neighborhood", start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)), end_time=timezone.make_aware(datetime(2024, 7, 20, 21, 15)), location="West Vancouver")
 
     def test_add_volunteer_to_one_opportunity(self):
         opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
