@@ -15,6 +15,7 @@ from .types import FilteredOrganizationData
 
 import typing
 from django.db.models.query import QuerySet
+from django.contrib.auth.hashers import make_password
 
 # Follows layered architecture pattern of views -> services -> dao
 
@@ -36,6 +37,8 @@ class VolunteerDao:
             last_name=create_volunteer_data.last_name,
             gender=create_volunteer_data.gender,
             email=create_volunteer_data.email,
+            password=make_password(create_volunteer_data.password),  # Hashing the password before saving
+            is_active=True,
         )
 
     def delete_volunteer(volunteer_id: int) -> None:
@@ -51,6 +54,8 @@ class VolunteerDao:
             volunteer.last_name = update_volunteer_data.last_name
             volunteer.gender = update_volunteer_data.gender
             volunteer.email = update_volunteer_data.email
+            if update_volunteer_data.password:  # Check if password is provided for update
+                volunteer.password = make_password(update_volunteer_data.password)
             volunteer.save()
         except Volunteer.DoesNotExist:
             pass
