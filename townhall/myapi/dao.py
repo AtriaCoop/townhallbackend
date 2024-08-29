@@ -160,6 +160,9 @@ class OrganizationDao:
             return organization
         except Organization.DoesNotExist:
             return None
+        
+    def get_organization_all() -> typing.List[Organization]:
+        return Organization.objects.all()
 
     def delete_organization(organization_id: int) -> None:
         try:

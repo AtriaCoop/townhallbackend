@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from myapi.types import UpdateOpportunityData
 from .services import VolunteerServices as volunteer_services
 from .services import OpportunityServices as opportunity_services
-from .serializers import OpportunitySerializer, VolunteerSerializer
+from .services import OrganizationServices as organization_services
+from .serializers import OpportunitySerializer, VolunteerSerializer, OrganizationSerializer
 from .types import UpdateVolunteerData
 
 
@@ -124,5 +125,62 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Opportunity updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class OrganizationViewSet(viewsets.ModelViewSet):
+
+    # GET Organization
+    @action(detail=False, methods=['get'], url_path='organization')
+    def handle_organization_request(self, request):
+            organization_id = self.request.query_params.get('id')
+            if organization_id:
+                # Fetching organization by ID
+                organization_obj = organization_services.get_organization(id=organization_id)
+                if not organization_obj:
+                    return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+                
+                serializer = OrganizationSerializer(organization_obj)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            else:
+                # Fetching ALL organizations
+                organization = organization_services.get_organization_all(id)
+                if not organization:
+                    return Response({"No organizations found"}, status=status.HTTP_404_NOT_FOUND)
+                
+                serializer = OrganizationSerializer(organization, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # DELETE Organization
+    @action(detail=False, methods=['delete'], url_path='organization')
+    def handle_organization_delete(self, request):
+        organization_id = self.request.query_params.get('id')
+
+        if not organization_id:
+            raise ValidationError("The 'id' query parameter is required.")
+
+        organization_obj = organization_services.get_organization(id=organization_id)
+        if not organization_obj:
+            return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        organization_services.delete_organization(id=organization_id)
+        return Response({"message": "Organization deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
+    # UPDATE Organization
+    @action(detail=False, methods=['put'], url_path='organization')
+    def handle_organization_update(self, request):
+        organization_id = self.request.query_params.get('id')
+        if not organization_id:
+            return Response({"error": "ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        organization_obj = organization_services.get_organization(id=int(organization_id))
+        if not organization_obj:
+            return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OrganizationSerializer(organization_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Organization updated successfully"}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
