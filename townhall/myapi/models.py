@@ -46,6 +46,7 @@ class Post(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
+    image = models.ImageField(upload_to='post_images/', null=True, blank=True) 
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
