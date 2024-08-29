@@ -2,7 +2,6 @@ from django.test import TestCase
 from django.core.management import call_command
 from unittest.mock import patch, MagicMock
 from django.core.exceptions import ValidationError
-from django.contrib.auth.hashers import check_password
 from myapi import models as townhall_models
 
 # VOLUNTEER
@@ -187,7 +186,6 @@ class TestVolunteerModel(TestCase):
         # Assert: Ensure the update operation was attempted with invalid data
         MockVolunteerServices.update_volunteer.assert_called_once_with(invalid_data)
 
-    # New Tests for TOW-13 to TOW-16
     def test_authenticate_volunteer_success(self, MockVolunteerServices):
         # Arrange: Mock successful authentication
         mock_volunteer = townhall_models.Volunteer(
