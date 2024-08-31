@@ -16,8 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
 
 from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
@@ -28,7 +26,3 @@ urlpatterns = [
     path('volunteer/<int:pk>/update/', VolunteerViewSet.as_view({'put': 'update_volunteer'}), name='update_volunteer'),
     path('opportunity/', OpportunityViewSet.as_view({'get': 'handle_opportunity_request', 'delete': 'handle_opportunity_delete', 'put': 'handle_opportunity_update'})),
 ]
-
-# Serve media files during development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

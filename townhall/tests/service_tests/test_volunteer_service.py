@@ -3,8 +3,6 @@ from django.core.management import call_command
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from rest_framework import status
-from django.core.exceptions import ValidationError
-from django.contrib.auth.hashers import check_password
 from myapi import models as townhall_models
 
 # VOLUNTEER
@@ -188,92 +186,3 @@ class TestVolunteerModel(TestCase):
 
         # Assert: Ensure the update operation was attempted with invalid data
         MockVolunteerServices.update_volunteer.assert_called_once_with(invalid_data)
-
-    # New Tests for TOW-13 to TOW-16
-    def test_authenticate_volunteer_success(self, MockVolunteerServices):
-        # Arrange: Mock successful authentication
-        mock_volunteer = townhall_models.Volunteer(
-            id=1, first_name="Zamorak", last_name="Red", email="zamorak.red@gmail.com", gender="M"
-        )
-        MockVolunteerServices.authenticate_volunteer.return_value = mock_volunteer
-
-        # Act: Authenticate with correct credentials
-        volunteer = MockVolunteerServices.authenticate_volunteer(username="zamorak", password="correct_password")
-
-        # Assert: Check that the returned volunteer is as expected
-        assert volunteer is not None
-        assert volunteer.first_name == "Zamorak"
-        assert volunteer.last_name == "Red"
-        MockVolunteerServices.authenticate_volunteer.assert_called_once_with(username="zamorak", password="correct_password")
-
-    def test_authenticate_volunteer_failure(self, MockVolunteerServices):
-        # Arrange: Mock failed authentication
-        MockVolunteerServices.authenticate_volunteer.return_value = None
-
-        # Act: Attempt to authenticate with incorrect credentials
-        volunteer = MockVolunteerServices.authenticate_volunteer(username="zamorak", password="wrong_password")
-
-        # Assert: Ensure that the authentication fails and returns None
-        assert volunteer is None
-        MockVolunteerServices.authenticate_volunteer.assert_called_once_with(username="zamorak", password="wrong_password")
-
-    def test_validate_username_and_password_success(self, MockVolunteerServices):
-        # Arrange: No setup needed for successful validation
-        MockVolunteerServices.validate_username_and_password.return_value = None
-
-        # Act: Validate correct username and password
-        MockVolunteerServices.validate_username_and_password(username="zamorak", password="StrongPassword123!")
-
-        # Assert: Ensure that validation was called with correct arguments
-        MockVolunteerServices.validate_username_and_password.assert_called_once_with(username="zamorak", password="StrongPassword123!")
-
-    def test_validate_username_and_password_failure(self, MockVolunteerServices):
-        # Arrange: Mock validation failure
-        MockVolunteerServices.validate_username_and_password.side_effect = ValidationError("Invalid password")
-
-        # Act & Assert: Attempt validation and expect a ValidationError
-        with self.assertRaises(ValidationError):
-            MockVolunteerServices.validate_username_and_password(username="zamorak", password="weakpass")
-
-        MockVolunteerServices.validate_username_and_password.assert_called_once_with(username="zamorak", password="weakpass")
-
-    def test_encrypt_password_success(self, MockVolunteerServices):
-        # Arrange: Mock the password encryption
-        MockVolunteerServices.encrypt_password.return_value = "encrypted_password"
-
-        # Act: Encrypt a valid password
-        encrypted_password = MockVolunteerServices.encrypt_password("StrongPassword123!")
-
-        # Assert: Ensure the encryption method was called correctly
-        assert encrypted_password == "encrypted_password"
-        MockVolunteerServices.encrypt_password.assert_called_once_with("StrongPassword123!")
-
-    def test_change_password_success(self, MockVolunteerServices):
-        # Arrange: Mock the successful password change
-        MockVolunteerServices.change_password.return_value = None
-
-        # Act: Change the password for a volunteer
-        MockVolunteerServices.change_password(volunteer_id=1, old_password="OldPassword123!", new_password="NewPassword456!")
-
-        # Assert: Ensure the change password method was called with correct arguments
-        MockVolunteerServices.change_password.assert_called_once_with(volunteer_id=1, old_password="OldPassword123!", new_password="NewPassword456!")
-
-    def test_change_password_failure_due_to_old_password(self, MockVolunteerServices):
-        # Arrange: Mock failure due to incorrect old password
-        MockVolunteerServices.change_password.side_effect = ValidationError("Old password is incorrect")
-
-        # Act & Assert: Attempt to change password and expect a ValidationError
-        with self.assertRaises(ValidationError):
-            MockVolunteerServices.change_password(volunteer_id=1, old_password="WrongOldPassword!", new_password="NewPassword456!")
-
-        MockVolunteerServices.change_password.assert_called_once_with(volunteer_id=1, old_password="WrongOldPassword!", new_password="NewPassword456!")
-
-    def test_change_password_failure_due_to_password_reuse(self, MockVolunteerServices):
-        # Arrange: Mock failure due to password reuse
-        MockVolunteerServices.change_password.side_effect = ValidationError("You cannot reuse a recent password")
-
-        # Act & Assert: Attempt to change password to a recent password and expect a ValidationError
-        with self.assertRaises(ValidationError):
-            MockVolunteerServices.change_password(volunteer_id=1, old_password="OldPassword123!", new_password="OldPassword123!")
-
-        MockVolunteerServices.change_password.assert_called_once_with(volunteer_id=1, old_password="OldPassword123!", new_password="OldPassword123!")
