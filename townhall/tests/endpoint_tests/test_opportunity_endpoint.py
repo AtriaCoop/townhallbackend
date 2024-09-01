@@ -68,29 +68,3 @@ class TestEndpointOpportunity:
         # Verify the opportunity has been deleted by attempting to GET it again
         response = api_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND  # Ensure it's no longer available
-
-@pytest.mark.django_db 
-class TestEndpointVolunteer:
-
-    @pytest.fixture
-    def api_client(self):
-        return APIClient()
-
-    @pytest.fixture
-    def setup(self):
-        townhall_models.Volunteer.objects.create(
-            id = 1,
-            first_name = "John",
-            last_name = "Doe",
-            email = "Johndoe@townhall.com",
-        )
-
-    # GET Voluinteer
-    def test_get_volunteer(self, api_client, setup):
-        url = '/volunteer/?id=1'
-        response = api_client.get(url)
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data['first_name'] == "John"
-        assert response.data['last_name'] == "Doe"
-        assert response.data['email'] == "Johndoe@townhall.com"
