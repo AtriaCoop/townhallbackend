@@ -2,12 +2,14 @@ from typing import Optional
 from dataclasses import dataclass
 from datetime import datetime
 
+
 @dataclass
 class CreateVolunteerData:
     first_name: str
     last_name: str
     gender: str
     email: str
+
 
 @dataclass
 class UpdateVolunteerData:
@@ -17,6 +19,7 @@ class UpdateVolunteerData:
     gender: str
     email: str
 
+
 @dataclass
 class CreateOpportunityData:
     title: str
@@ -24,6 +27,7 @@ class CreateOpportunityData:
     start_time: datetime
     end_time: datetime
     location: str
+
 
 @dataclass
 class UpdateOpportunityData:
@@ -34,6 +38,7 @@ class UpdateOpportunityData:
     end_time: datetime
     location: str
 
+
 @dataclass
 class FilteredOpportunityData:
     title: Optional[str] = None
@@ -43,6 +48,7 @@ class FilteredOpportunityData:
     ending_end_time: Optional[datetime] = None
     location: Optional[str] = None
 
+
 @dataclass
 class CreateOrganizationData:
     name: str
@@ -50,6 +56,7 @@ class CreateOrganizationData:
     email: str
     phone_number: str
     website: str
+
 
 @dataclass
 class UpdateOrganizationData:
@@ -60,9 +67,8 @@ class UpdateOrganizationData:
     phone_number: str
     website: str
 
+
 @dataclass
 class FilteredOrganizationData:
     name: Optional[str] = None
     location: Optional[str] = None
-
-

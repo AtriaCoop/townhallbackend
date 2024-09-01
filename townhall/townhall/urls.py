@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
@@ -23,10 +24,28 @@ from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('volunteer/', VolunteerViewSet.as_view({'get': 'handle_volunteer_request', 'delete': 'handle_volunteer_delete'})),
-    path('volunteer/<int:pk>/update/', VolunteerViewSet.as_view({'put': 'update_volunteer'}), name='update_volunteer'),
-    path('opportunity/', OpportunityViewSet.as_view({'get': 'handle_opportunity_request', 'delete': 'handle_opportunity_delete', 'put': 'handle_opportunity_update'})),
+    path("admin/", admin.site.urls),
+    path(
+        "volunteer/",
+        VolunteerViewSet.as_view(
+            {"get": "handle_volunteer_request", "delete": "handle_volunteer_delete"}
+        ),
+    ),
+    path(
+        "volunteer/<int:pk>/update/",
+        VolunteerViewSet.as_view({"put": "update_volunteer"}),
+        name="update_volunteer",
+    ),
+    path(
+        "opportunity/",
+        OpportunityViewSet.as_view(
+            {
+                "get": "handle_opportunity_request",
+                "delete": "handle_opportunity_delete",
+                "put": "handle_opportunity_update",
+            }
+        ),
+    ),
 ]
 
 # Serve media files during development
