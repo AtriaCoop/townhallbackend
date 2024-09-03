@@ -22,6 +22,10 @@ To run migrations:
 `python manage.py migrate`
 ![alt text](image.png)
 
+Step2.6: setup pre-commit (linter checks before commiting to git)
+Run `pip install pre-commit`, then `pre-commit install`.
+Afterwards, `flake8` and `black` will be run every time before commiting.
+
 Step3
 Run the following command to make superuser, ensure you have `cd townhall` and gone in the townhall subdirectory
 `python manage.py createsuperuser`
