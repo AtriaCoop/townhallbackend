@@ -141,6 +141,20 @@ class OpportunityDao:
         except (Opportunity.DoesNotExist, Volunteer.DoesNotExist):
             pass
 
+    def get_all_opportunities_volunteers(opportunity_id: int) -> QuerySet[Volunteer]:
+        try:
+            opportunity = Opportunity.objects.get(id=opportunity_id)
+            return opportunity.volunteers.all()
+        except Opportunity.DoesNotExist:
+            pass
+
+    def get_all_volunteers_opportunities(volunteer_id: int) -> QuerySet[Opportunity]:
+        try:
+            volunteer = Volunteer.objects.get(id=volunteer_id)
+            return volunteer.opportunities.all()
+        except Volunteer.DoesNotExist:
+            pass
+
     def remove_volunteer_from_opportunity(
         opportunity_id: int, volunteer_id: int
     ) -> None:
@@ -157,7 +171,15 @@ class OpportunityDao:
             opportunity = Opportunity.objects.get(id=opportunity_id)
             opportunity.volunteers.clear()
             opportunity.save()
-        except (Opportunity.DoesNotExist, Volunteer.DoesNotExist):
+        except Opportunity.DoesNotExist:
+            pass
+
+    def remove_all_opportunities_from_volunteer(volunteer_id: int) -> None:
+        try:
+            volunteer = Volunteer.objects.get(id=volunteer_id)
+            volunteer.opportunities.clear()
+            volunteer.save()
+        except Volunteer.DoesNotExist:
             pass
 
 
