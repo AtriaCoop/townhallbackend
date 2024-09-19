@@ -38,7 +38,7 @@ class Opportunity(models.Model):
     end_time = models.DateTimeField()
     location = models.CharField(max_length=100)
     volunteers = models.ManyToManyField(
-        Volunteer, related_name="volunteers", blank=True
+        Volunteer, related_name="opportunities", blank=True
     )
 
     def __str__(self):
