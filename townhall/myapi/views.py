@@ -12,6 +12,12 @@ from .serializers import OpportunitySerializer, VolunteerSerializer
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
+    
+    # Define the get_queryset method to fetch all volunteers
+    # This method returns all volunteers for use with the ModelViewSet's built-in functionality.
+    def get_queryset(self):
+
+        return volunteer_services.get_volunteers_all()
 
     # Helper method to fetch volunteer by ID and handle case where volunteer not found
     def get_volunteer_object(self, pk):
@@ -22,6 +28,21 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                 {"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND
             )
         return volunteer, None
+    
+     # GET all volunteers
+    @action(detail=False, methods=["get"], url_path="volunteers")
+    def get_all_volunteers(self, request):
+        volunteers = volunteer_services.get_volunteers_all()
+
+        # If no volunteers exist, return an empty list
+        if not volunteers:
+            return Response([], status=status.HTTP_200_OK)
+        
+        print("Volunteers data:", volunteers)
+
+        # Serialize the list of volunteers
+        serializer = VolunteerSerializer(volunteers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # GET Volunteer
     @action(detail=False, methods=["get"], url_path="volunteer")

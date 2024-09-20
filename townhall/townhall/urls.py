@@ -31,6 +31,11 @@ urlpatterns = [
             {"get": "handle_volunteer_request", "delete": "handle_volunteer_delete"}
         ),
     ),
+     path("volunteers/",
+          VolunteerViewSet.as_view(
+              {'get': 'get_all_volunteers'}
+          )
+     ),
     path(
         "volunteer/<int:pk>/update/",
         VolunteerViewSet.as_view({"put": "update_volunteer"}),
