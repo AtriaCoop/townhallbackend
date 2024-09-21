@@ -306,7 +306,7 @@ class TestOpportunityModel(TestCase):
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 3)
 
         volunteers = (
-            townhall_services.OpportunityServices.get_all_opportunities_volunteers(1)
+            townhall_services.OpportunityServices.get_all_volunteers_of_a_opportunity(1)
         )
         assert len(volunteers) == 3
 
@@ -331,7 +331,9 @@ class TestOpportunityModel(TestCase):
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(3, 1)
 
         opportunities = (
-            townhall_services.OpportunityServices.get_all_volunteers_opportunities(1)
+            townhall_services.OpportunityServices.get_all_opportunities_of_a_volunteer(
+                1
+            )
         )
         assert len(opportunities) == 3
 

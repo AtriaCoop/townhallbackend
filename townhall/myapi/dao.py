@@ -141,14 +141,16 @@ class OpportunityDao:
         except (Opportunity.DoesNotExist, Volunteer.DoesNotExist):
             pass
 
-    def get_all_opportunities_volunteers(opportunity_id: int) -> QuerySet[Volunteer]:
+    def get_all_volunteers_of_a_opportunity(opportunity_id: int) -> QuerySet[Volunteer]:
         try:
             opportunity = Opportunity.objects.get(id=opportunity_id)
             return opportunity.volunteers.all()
         except Opportunity.DoesNotExist:
             pass
 
-    def get_all_volunteers_opportunities(volunteer_id: int) -> QuerySet[Opportunity]:
+    def get_all_opportunities_of_a_volunteer(
+        volunteer_id: int,
+    ) -> QuerySet[Opportunity]:
         try:
             volunteer = Volunteer.objects.get(id=volunteer_id)
             return volunteer.opportunities.all()
