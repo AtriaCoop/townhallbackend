@@ -248,6 +248,13 @@ class OrganizationServices:
 
     def get_organization(id: int) -> typing.Optional[Organization]:
         return organization_dao.get_organization(id=id)
+    
+    def get_organization_all(id: int) -> typing.List[Organization]:
+        print("Fetching organization")
+        organization = organization_dao.get_organization_all()
+        print(f"Fetched organization{organization}")
+        return organization
+    
 
     def create_organization(create_organization_data: CreateOrganizationData) -> None:
         organization_dao.create_organization(

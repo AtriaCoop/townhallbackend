@@ -17,8 +17,9 @@ class TestEndpointOpportunity:
     def setup(self):
         townhall_models.Opportunity.objects.create(
             id=1,
-            name="Sample Opportunity",
-            time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            title="Sample Opportunity",
+            start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            end_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             description="Sample description",
             location="Sample location",
         )
@@ -29,17 +30,19 @@ class TestEndpointOpportunity:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data[0]["name"] == "Sample Opportunity"
+        assert response.data[0]["title"] == "Sample Opportunity"
         assert response.data[0]["description"] == "Sample description"
         assert response.data[0]["location"] == "Sample location"
-        assert response.data[0]["time"] == "2024-07-20T10:00:00Z"
+        assert response.data[0]["start_time"] == "2024-07-20T10:00:00Z"
+        assert response.data[0]["end_time"] == "2024-07-20T10:00:00Z"
 
     # UPDATE Opportunity
     def test_put_opportunity(self, api_client, setup):
         url = "/opportunity/?id=1"
         update_data = {
-            "name": "Updated Opportunity",
-            "time": timezone.make_aware(datetime(2024, 8, 20, 12, 0)),
+            "title": "Updated Opportunity",
+            "start_time": timezone.make_aware(datetime(2024, 8, 20, 12, 0)),
+            "end_time": timezone.make_aware(datetime(2024, 8, 20, 12, 0)),
             "description": "Updated description",
             "location": "Updated location",
         }
@@ -48,10 +51,13 @@ class TestEndpointOpportunity:
         assert response.status_code == status.HTTP_200_OK
         # Confirm data has been updated
         updated_opportunity = townhall_models.Opportunity.objects.get(id=1)
-        assert updated_opportunity.name == "Updated Opportunity"
+        assert updated_opportunity.title == "Updated Opportunity"
         assert updated_opportunity.description == "Updated description"
         assert updated_opportunity.location == "Updated location"
-        assert updated_opportunity.time == timezone.make_aware(
+        assert updated_opportunity.start_time == timezone.make_aware(
+            datetime(2024, 8, 20, 12, 0)
+        )
+        assert updated_opportunity.end_time == timezone.make_aware(
             datetime(2024, 8, 20, 12, 0)
         )
 

@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 
 from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
+from myapi.views import OrganizationViewSet
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -48,6 +49,16 @@ urlpatterns = [
                 "get": "handle_opportunity_request",
                 "delete": "handle_opportunity_delete",
                 "put": "handle_opportunity_update",
+            }
+        ),
+    ),
+    path(
+        "organization/",
+        OrganizationViewSet.as_view(
+            {
+                "get": "handle_organization_request",
+                "delete": "handle_organization_delete",
+                "put": "handle_organization_update",
             }
         ),
     ),
