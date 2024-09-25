@@ -16,6 +16,7 @@ from .types import FilteredOrganizationData
 import typing
 from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
+from django.forms import ValidationError
 
 # Follows layered architecture pattern of views -> services -> dao
 
@@ -79,12 +80,20 @@ class OpportunityDao:
         return Opportunity.objects.all()
 
     def create_opportunity(create_opportunity_data: CreateOpportunityData) -> None:
+        try:
+            valid_organization = Organization.objects.get(
+                id=create_opportunity_data.organization_id
+            )
+        except Organization.DoesNotExist:
+            raise ValidationError("This organization does not exist.")
+
         Opportunity.objects.create(
             title=create_opportunity_data.title,
             description=create_opportunity_data.description,
             start_time=create_opportunity_data.start_time,
             end_time=create_opportunity_data.end_time,
             location=create_opportunity_data.location,
+            organization=valid_organization,
         )
 
     def filtered_opportunity(
@@ -109,6 +118,8 @@ class OpportunityDao:
             filters["end_time__lte"] = filtered_opportunity_data.ending_end_time
         if filtered_opportunity_data.location:
             filters["location__icontains"] = filtered_opportunity_data.location
+        if filtered_opportunity_data.organization_id:
+            filters["organization_id"] = filtered_opportunity_data.organization_id
 
         return Opportunity.objects.filter(**filters)
 
@@ -123,14 +134,20 @@ class OpportunityDao:
     ) -> None:
         try:
             opportunity = Opportunity.objects.get(id=id)
+            valid_organization = Organization.objects.get(
+                id=update_opportunity_data.organization_id
+            )
             opportunity.title = update_opportunity_data.title
             opportunity.description = update_opportunity_data.description
             opportunity.start_time = update_opportunity_data.start_time
             opportunity.end_time = update_opportunity_data.end_time
             opportunity.location = update_opportunity_data.location
+            opportunity.organization = valid_organization
             opportunity.save()
         except Opportunity.DoesNotExist:
             pass
+        except Organization.DoesNotExist:
+            raise ValidationError("This organization does not exist.")
 
     def add_volunteer_to_opportunity(opportunity_id: int, volunteer_id: int) -> None:
         try:

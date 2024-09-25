@@ -27,6 +27,7 @@ class CreateOpportunityData:
     start_time: datetime
     end_time: datetime
     location: str
+    organization_id: int
 
 
 @dataclass
@@ -37,6 +38,7 @@ class UpdateOpportunityData:
     start_time: datetime
     end_time: datetime
     location: str
+    organization_id: int
 
 
 @dataclass
@@ -47,6 +49,7 @@ class FilteredOpportunityData:
     ending_start_time: Optional[datetime] = None
     ending_end_time: Optional[datetime] = None
     location: Optional[str] = None
+    organization_id: Optional[int] = None
 
 
 @dataclass
