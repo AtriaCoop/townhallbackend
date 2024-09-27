@@ -231,6 +231,18 @@ class OpportunityServices:
             opportunity_id=opportunity_id, volunteer_id=volunteer_id
         )
 
+    def get_all_volunteers_of_a_opportunity(opportunity_id: int) -> QuerySet[Volunteer]:
+        return opportunity_dao.get_all_volunteers_of_a_opportunity(
+            opportunity_id=opportunity_id
+        )
+
+    def get_all_opportunities_of_a_volunteer(
+        volunteer_id: int,
+    ) -> QuerySet[Opportunity]:
+        return opportunity_dao.get_all_opportunities_of_a_volunteer(
+            volunteer_id=volunteer_id
+        )
+
     def remove_volunteer_from_opportunity(
         opportunity_id: int, volunteer_id: int
     ) -> None:
@@ -241,6 +253,11 @@ class OpportunityServices:
     def remove_all_volunteers_from_opportunity(opportunity_id: int) -> None:
         opportunity_dao.remove_all_volunteers_from_opportunity(
             opportunity_id=opportunity_id
+        )
+
+    def remove_all_opportunities_from_volunteer(volunteer_id: int) -> None:
+        opportunity_dao.remove_all_opportunities_from_volunteer(
+            volunteer_id=volunteer_id
         )
 
 

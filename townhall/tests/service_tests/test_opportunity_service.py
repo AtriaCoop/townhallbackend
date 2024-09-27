@@ -168,7 +168,7 @@ class TestOpportunityModel(TestCase):
         volunteers_before = opportunity.volunteers.all()
         assert len(volunteers_before) == 0
 
-        opportunities_before = volunteer.volunteers.all()
+        opportunities_before = volunteer.opportunities.all()
         assert len(opportunities_before) == 0
 
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
@@ -176,7 +176,7 @@ class TestOpportunityModel(TestCase):
         volunteers = opportunity.volunteers.all()
         assert len(volunteers) == 1
 
-        opportunities = volunteer.volunteers.all()
+        opportunities = volunteer.opportunities.all()
         assert len(opportunities) == 1
 
     def test_add_volunteer_to_many_opportunities(self):
@@ -192,7 +192,7 @@ class TestOpportunityModel(TestCase):
         volunteers3_before = opportunity3.volunteers.all()
         assert len(volunteers3_before) == 0
 
-        opportunities_before = volunteer.volunteers.all()
+        opportunities_before = volunteer.opportunities.all()
         assert len(opportunities_before) == 0
 
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
@@ -206,7 +206,7 @@ class TestOpportunityModel(TestCase):
         volunteers3 = opportunity3.volunteers.all()
         assert len(volunteers3) == 1
 
-        opportunities = volunteer.volunteers.all()
+        opportunities = volunteer.opportunities.all()
         assert len(opportunities) == 3
 
     def test_add_many_volunteers_to_one_opportunity(self):
@@ -218,11 +218,11 @@ class TestOpportunityModel(TestCase):
         volunteers_before = opportunity.volunteers.all()
         assert len(volunteers_before) == 0
 
-        opportunties1_before = volunteer1.volunteers.all()
+        opportunties1_before = volunteer1.opportunities.all()
         assert len(opportunties1_before) == 0
-        opportunties2_before = volunteer2.volunteers.all()
+        opportunties2_before = volunteer2.opportunities.all()
         assert len(opportunties2_before) == 0
-        opportunties3_before = volunteer3.volunteers.all()
+        opportunties3_before = volunteer3.opportunities.all()
         assert len(opportunties3_before) == 0
 
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
@@ -232,12 +232,110 @@ class TestOpportunityModel(TestCase):
         volunteers = opportunity.volunteers.all()
         assert len(volunteers) == 3
 
-        opportunties1 = volunteer1.volunteers.all()
+        opportunties1 = volunteer1.opportunities.all()
         assert len(opportunties1) == 1
-        opportunties2 = volunteer2.volunteers.all()
+        opportunties2 = volunteer2.opportunities.all()
         assert len(opportunties2) == 1
-        opportunties3 = volunteer3.volunteers.all()
+        opportunties3 = volunteer3.opportunities.all()
         assert len(opportunties3) == 1
+
+    def test_add_many_volunteers_to_many_opportunities(self):
+        opportunity1 = townhall_services.OpportunityServices.get_opportunity(id=1)
+        opportunity2 = townhall_services.OpportunityServices.get_opportunity(id=2)
+        opportunity3 = townhall_services.OpportunityServices.get_opportunity(id=3)
+
+        volunteer1 = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer2 = townhall_services.VolunteerServices.get_volunteer(id=2)
+        volunteer3 = townhall_services.VolunteerServices.get_volunteer(id=3)
+
+        opportunties1_before = volunteer1.opportunities.all()
+        assert len(opportunties1_before) == 0
+        opportunties2_before = volunteer2.opportunities.all()
+        assert len(opportunties2_before) == 0
+        opportunties3_before = volunteer3.opportunities.all()
+        assert len(opportunties3_before) == 0
+
+        volunteers1_before = opportunity1.volunteers.all()
+        assert len(volunteers1_before) == 0
+        volunteers2_before = opportunity2.volunteers.all()
+        assert len(volunteers2_before) == 0
+        volunteers3_before = opportunity3.volunteers.all()
+        assert len(volunteers3_before) == 0
+
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 2)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 3)
+
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(2, 1)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(2, 2)
+
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(3, 1)
+
+        opportunties1 = volunteer1.opportunities.all()
+        assert len(opportunties1) == 3
+        opportunties2 = volunteer2.opportunities.all()
+        assert len(opportunties2) == 2
+        opportunties3 = volunteer3.opportunities.all()
+        assert len(opportunties3) == 1
+
+        volunteers1 = opportunity1.volunteers.all()
+        assert len(volunteers1) == 3
+        volunteers2 = opportunity2.volunteers.all()
+        assert len(volunteers2) == 2
+        volunteers3 = opportunity3.volunteers.all()
+        assert len(volunteers3) == 1
+
+    def test_get_all_volunteers_from_opportunity(self):
+        opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
+        volunteer1 = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer2 = townhall_services.VolunteerServices.get_volunteer(id=2)
+        volunteer3 = townhall_services.VolunteerServices.get_volunteer(id=3)
+
+        volunteers_before = opportunity.volunteers.all()
+        assert len(volunteers_before) == 0
+
+        opportunties1_before = volunteer1.opportunities.all()
+        assert len(opportunties1_before) == 0
+        opportunties2_before = volunteer2.opportunities.all()
+        assert len(opportunties2_before) == 0
+        opportunties3_before = volunteer3.opportunities.all()
+        assert len(opportunties3_before) == 0
+
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 2)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 3)
+
+        volunteers = (
+            townhall_services.OpportunityServices.get_all_volunteers_of_a_opportunity(1)
+        )
+        assert len(volunteers) == 3
+
+    def test_get_all_opportunities_from_volunteer(self):
+        opportunity1 = townhall_services.OpportunityServices.get_opportunity(id=1)
+        opportunity2 = townhall_services.OpportunityServices.get_opportunity(id=2)
+        opportunity3 = townhall_services.OpportunityServices.get_opportunity(id=3)
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+
+        volunteers1_before = opportunity1.volunteers.all()
+        assert len(volunteers1_before) == 0
+        volunteers2_before = opportunity2.volunteers.all()
+        assert len(volunteers2_before) == 0
+        volunteers3_before = opportunity3.volunteers.all()
+        assert len(volunteers3_before) == 0
+
+        opportunities_before = volunteer.opportunities.all()
+        assert len(opportunities_before) == 0
+
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(2, 1)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(3, 1)
+
+        opportunities = (
+            townhall_services.OpportunityServices.get_all_opportunities_of_a_volunteer(
+                1
+            )
+        )
+        assert len(opportunities) == 3
 
     def test_remove_one_volunteer(self):
         opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
@@ -247,9 +345,9 @@ class TestOpportunityModel(TestCase):
         volunteers_before = opportunity.volunteers.all()
         assert len(volunteers_before) == 0
 
-        opportunties1_before = volunteer1.volunteers.all()
+        opportunties1_before = volunteer1.opportunities.all()
         assert len(opportunties1_before) == 0
-        opportunties2_before = volunteer2.volunteers.all()
+        opportunties2_before = volunteer2.opportunities.all()
         assert len(opportunties2_before) == 0
 
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
@@ -258,9 +356,9 @@ class TestOpportunityModel(TestCase):
         volunteers = opportunity.volunteers.all()
         assert len(volunteers) == 2
 
-        opportunties1 = volunteer1.volunteers.all()
+        opportunties1 = volunteer1.opportunities.all()
         assert len(opportunties1) == 1
-        opportunties2 = volunteer2.volunteers.all()
+        opportunties2 = volunteer2.opportunities.all()
         assert len(opportunties2) == 1
 
         townhall_services.OpportunityServices.remove_volunteer_from_opportunity(1, 1)
@@ -268,12 +366,12 @@ class TestOpportunityModel(TestCase):
         volunteers_after = opportunity.volunteers.all()
         assert len(volunteers_after) == 1
 
-        opportunties1_after = volunteer1.volunteers.all()
+        opportunties1_after = volunteer1.opportunities.all()
         assert len(opportunties1_after) == 0
-        opportunties2_after = volunteer2.volunteers.all()
+        opportunties2_after = volunteer2.opportunities.all()
         assert len(opportunties2_after) == 1
 
-    def test_remove_all_volunteers(self):
+    def test_remove_all_volunteers_from_opportunity(self):
         opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
         volunteer1 = townhall_services.VolunteerServices.get_volunteer(id=1)
         volunteer2 = townhall_services.VolunteerServices.get_volunteer(id=2)
@@ -281,9 +379,9 @@ class TestOpportunityModel(TestCase):
         volunteers_before = opportunity.volunteers.all()
         assert len(volunteers_before) == 0
 
-        opportuntities1_before = volunteer1.volunteers.all()
+        opportuntities1_before = volunteer1.opportunities.all()
         assert len(opportuntities1_before) == 0
-        opportuntities2_before = volunteer2.volunteers.all()
+        opportuntities2_before = volunteer2.opportunities.all()
         assert len(opportuntities2_before) == 0
 
         townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
@@ -292,9 +390,9 @@ class TestOpportunityModel(TestCase):
         volunteers = opportunity.volunteers.all()
         assert len(volunteers) == 2
 
-        opportuntities1 = volunteer1.volunteers.all()
+        opportuntities1 = volunteer1.opportunities.all()
         assert len(opportuntities1) == 1
-        opportuntities2 = volunteer2.volunteers.all()
+        opportuntities2 = volunteer2.opportunities.all()
         assert len(opportuntities2) == 1
 
         townhall_services.OpportunityServices.remove_all_volunteers_from_opportunity(1)
@@ -302,7 +400,41 @@ class TestOpportunityModel(TestCase):
         volunteer_after = opportunity.volunteers.all()
         assert len(volunteer_after) == 0
 
-        opportuntities1_after = volunteer1.volunteers.all()
+        opportuntities1_after = volunteer1.opportunities.all()
         assert len(opportuntities1_after) == 0
-        opportuntities2_after = volunteer2.volunteers.all()
+        opportuntities2_after = volunteer2.opportunities.all()
         assert len(opportuntities2_after) == 0
+
+    def test_remove_all_opportunities_from_volunteer(self):
+        opportunity1 = townhall_services.OpportunityServices.get_opportunity(id=1)
+        opportunity2 = townhall_services.OpportunityServices.get_opportunity(id=2)
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+
+        opportunities_before = volunteer.opportunities.all()
+        assert len(opportunities_before) == 0
+
+        volunteers1_before = opportunity1.volunteers.all()
+        assert len(volunteers1_before) == 0
+        volunteers2_before = opportunity2.volunteers.all()
+        assert len(volunteers2_before) == 0
+
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(1, 1)
+        townhall_services.OpportunityServices.add_volunteer_to_opportunity(2, 1)
+
+        opportunities = volunteer.opportunities.all()
+        assert len(opportunities) == 2
+
+        volunteers1 = opportunity1.volunteers.all()
+        assert len(volunteers1) == 1
+        volunteers2 = opportunity2.volunteers.all()
+        assert len(volunteers2) == 1
+
+        townhall_services.OpportunityServices.remove_all_opportunities_from_volunteer(1)
+
+        opportunities_after = volunteer.opportunities.all()
+        assert len(opportunities_after) == 0
+
+        volunteers1_after = opportunity1.volunteers.all()
+        assert len(volunteers1_after) == 0
+        volunteers2_after = opportunity2.volunteers.all()
+        assert len(volunteers2_after) == 0
