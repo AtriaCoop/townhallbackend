@@ -37,6 +37,7 @@ class Opportunity(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     location = models.CharField(max_length=100)
+    organization = models.ForeignKey("Organization", on_delete=models.CASCADE)
     volunteers = models.ManyToManyField(
         Volunteer, related_name="opportunities", blank=True
     )

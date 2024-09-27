@@ -12,6 +12,17 @@ from django.utils import timezone
 
 class TestOpportunityModel(TestCase):
     def setUp(self):
+        townhall_models.Organization.objects.create(
+            id=1,
+            name="Goodwill",
+            location="Victoria",
+            email="goodwill@gmail.com",
+            phone_number="778-123-4567",
+            website="goodwill.ca",
+        )
+
+        test_organization = townhall_models.Organization.objects.get(id=1)
+
         townhall_models.Opportunity.objects.create(
             id=1,
             title="Food bank",
@@ -19,6 +30,7 @@ class TestOpportunityModel(TestCase):
             start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             end_time=timezone.make_aware(datetime(2024, 7, 20, 20, 30)),
             location="Vancouver",
+            organization=test_organization,
         )
         townhall_models.Opportunity.objects.create(
             id=2,
@@ -27,6 +39,7 @@ class TestOpportunityModel(TestCase):
             start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             end_time=timezone.make_aware(datetime(2024, 7, 20, 21, 45)),
             location="East Vancouver",
+            organization=test_organization,
         )
         townhall_models.Opportunity.objects.create(
             id=3,
@@ -35,6 +48,7 @@ class TestOpportunityModel(TestCase):
             start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             end_time=timezone.make_aware(datetime(2024, 7, 20, 21, 15)),
             location="West Vancouver",
+            organization=test_organization,
         )
 
         townhall_models.Volunteer.objects.create(
@@ -70,14 +84,16 @@ class TestOpportunityModel(TestCase):
             datetime(2024, 7, 20, 20, 30)
         )
         assert opportunity.location == "Vancouver"
+        assert opportunity.organization.id == 1
 
-    def test_filtered_opportunity_name_and_time(self):
+    def test_filtered_opportunity_name_time_organization(self):
         starting_start_time = timezone.make_aware(datetime(2024, 7, 20, 0, 0))
         starting_end_time = timezone.make_aware(datetime(2024, 7, 20, 23, 59))
         filtered_opportunity_data = townhall_services.FilteredOpportunityData(
             title="Food",
             starting_start_time=starting_start_time,
             starting_end_time=starting_end_time,
+            organization_id=1,
         )
         opportunities = townhall_services.OpportunityServices.filtered_opportunity(
             filtered_opportunity_data
@@ -98,6 +114,7 @@ class TestOpportunityModel(TestCase):
             assert (
                 starting_start_time <= opportunity.start_time <= starting_end_time
             )  # Time range check
+            assert opportunity.organization.id == 1
 
     def test_delete_opportunity(self):
         # Step 1
@@ -111,6 +128,7 @@ class TestOpportunityModel(TestCase):
             datetime(2024, 7, 20, 20, 30)
         )
         assert opportunity.location == "Vancouver"
+        assert opportunity.organization.id == 1
 
         # Step 2
         townhall_services.OpportunityServices.delete_opportunity(id=1)
@@ -130,6 +148,7 @@ class TestOpportunityModel(TestCase):
             datetime(2024, 7, 20, 21, 15)
         )
         assert opportunity_before_update.location == "West Vancouver"
+        assert opportunity_before_update.organization.id == 1
 
         # Step 2
         update_opportunity_data = townhall_services.UpdateOpportunityData(
@@ -139,6 +158,7 @@ class TestOpportunityModel(TestCase):
             start_time=timezone.make_aware(datetime(2024, 8, 15, 2, 0)),
             end_time=timezone.make_aware(datetime(2024, 8, 15, 10, 30)),
             location="Richmond",
+            organization_id=1,
         )
         townhall_services.OpportunityServices.update_opportunity(
             id=3, update_opportunity_data=update_opportunity_data
@@ -160,6 +180,7 @@ class TestOpportunityModel(TestCase):
             datetime(2024, 8, 15, 10, 30)
         )
         assert updated_opportunity.location == "Richmond"
+        assert updated_opportunity.organization.id == 1
 
     def test_add_volunteer_to_one_opportunity(self):
         opportunity = townhall_services.OpportunityServices.get_opportunity(id=1)
