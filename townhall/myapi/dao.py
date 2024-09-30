@@ -1,6 +1,7 @@
 from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
+from .models import Task
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -16,6 +17,7 @@ from .types import FilteredOrganizationData
 import typing
 from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 
 # Follows layered architecture pattern of views -> services -> dao
@@ -251,3 +253,44 @@ class OrganizationDao:
             filters["location__icontains"] = filtered_organization_data.location
 
         return Organization.objects.filter(**filters)
+
+class TaskDao:
+
+    @staticmethod
+    def get_all_tasks():
+
+        return Task.objects.all()
+
+    @staticmethod
+    def get_task_by_id(task_id: int):
+
+        try:
+            return Task.objects.get(id=task_id)
+        except ObjectDoesNotExist:
+            return None
+
+    @staticmethod
+    def create_task(task_data: dict):
+
+        return Task.objects.create(**task_data)
+
+    @staticmethod
+    def update_task(task_id: int, task_data: dict):
+
+        try:
+            task = Task.objects.get(id=task_id)
+            for key, value in task_data.items():
+                setattr(task, key, value)
+            task.save()
+            return task
+        except Task.DoesNotExist:
+            return None
+
+    @staticmethod
+    def delete_task(task_id: int):
+
+        try:
+            task = Task.objects.get(id=task_id)
+            task.delete()
+        except Task.DoesNotExist:
+            pass
