@@ -77,3 +77,22 @@ class Comment(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+class Task(models.Model):
+
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
+
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    deadline = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tasks')
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
