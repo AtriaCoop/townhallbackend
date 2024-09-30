@@ -1,0 +1,15 @@
+[
+  {
+    "model": "myapi.task",
+    "pk": 1,
+    "fields": {
+      "name": "Test Task",
+      "description": "A sample task description",
+      "deadline": "2024-12-31T23:59:59Z",
+      "status": "open",
+      "assigned_to": 1,
+      "created_by": 2,
+      "organization": 1
+    }
+  }
+]
