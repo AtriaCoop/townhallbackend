@@ -18,3 +18,4 @@ repos:
         entry: manage.py test tests
         language: system
         types: [python]
+        
