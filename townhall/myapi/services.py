@@ -296,29 +296,62 @@ class OrganizationServices:
             filtered_organization_data=filtered_organization_data
         )
 
+
 class TaskServices:
 
     @staticmethod
     def get_all_tasks() -> typing.List[Task]:
-
         return task_dao.get_all_tasks()
 
     @staticmethod
     def get_task_by_id(task_id: int) -> typing.Optional[Task]:
-
         return task_dao.get_task_by_id(task_id)
 
     @staticmethod
     def create_task(create_task_data: CreateTaskData) -> Task:
+        # Fetch related instances (User, Organization)
+        assigned_to = Volunteer.objects.get(id=create_task_data.assigned_to) if create_task_data.assigned_to else None
+        created_by = Volunteer.objects.get(id=create_task_data.created_by)
+        organization = Organization.objects.get(id=create_task_data.organization_id)
 
-        return task_dao.create_task(create_task_data.__dict__)
+        # Create the task using dataclass attributes
+        return Task.objects.create(
+            name=create_task_data.name,
+            description=create_task_data.description,
+            deadline=create_task_data.deadline,
+            status=create_task_data.status,
+            assigned_to=assigned_to,
+            created_by=created_by,
+            organization=organization
+        )
 
     @staticmethod
     def update_task(task_id: int, update_task_data: UpdateTaskData) -> typing.Optional[Task]:
+  
+        task = task_dao.get_task_by_id(task_id)
 
-        return task_dao.update_task(task_id, update_task_data.__dict__)
+        if not task:
+            return None
+
+        # Fetch the User and Organization instances from IDs (if provided)
+        if update_task_data.assigned_to:
+            assigned_to = User.objects.get(id=update_task_data.assigned_to)
+            task.assigned_to = assigned_to
+
+        if update_task_data.organization_id:
+            organization = Organization.objects.get(id=update_task_data.organization_id)
+            task.organization = organization
+
+        # Update task fields
+        task.name = update_task_data.name or task.name
+        task.description = update_task_data.description or task.description
+        task.deadline = update_task_data.deadline or task.deadline
+        task.status = update_task_data.status or task.status
+
+        task.save()
+
+        return task
 
     @staticmethod
     def delete_task(task_id: int) -> None:
-    
         task_dao.delete_task(task_id)
