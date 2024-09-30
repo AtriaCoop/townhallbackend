@@ -13,9 +13,11 @@ import typing
 from .dao import VolunteerDao as volunteer_dao
 from .dao import OpportunityDao as opportunity_dao
 from .dao import OrganizationDao as organization_dao
+from .dao import TaskDao as task_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+from .types import CreateTaskData, UpdateTaskData
 
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
@@ -28,6 +30,7 @@ from .types import FilteredOrganizationData
 from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
+from .models import Task
 
 User = get_user_model()
 
@@ -292,3 +295,30 @@ class OrganizationServices:
         return organization_dao.filtered_organization(
             filtered_organization_data=filtered_organization_data
         )
+
+class TaskServices:
+
+    @staticmethod
+    def get_all_tasks() -> typing.List[Task]:
+
+        return task_dao.get_all_tasks()
+
+    @staticmethod
+    def get_task_by_id(task_id: int) -> typing.Optional[Task]:
+
+        return task_dao.get_task_by_id(task_id)
+
+    @staticmethod
+    def create_task(create_task_data: CreateTaskData) -> Task:
+
+        return task_dao.create_task(create_task_data.__dict__)
+
+    @staticmethod
+    def update_task(task_id: int, update_task_data: UpdateTaskData) -> typing.Optional[Task]:
+
+        return task_dao.update_task(task_id, update_task_data.__dict__)
+
+    @staticmethod
+    def delete_task(task_id: int) -> None:
+    
+        task_dao.delete_task(task_id)
