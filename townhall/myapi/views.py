@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from .services import VolunteerServices as volunteer_services
 from .services import OpportunityServices as opportunity_services
 from .services import OrganizationServices as organization_services
-from .serializers import OpportunitySerializer, VolunteerSerializer, OrganizationSerializer
+from .services import TaskServices
+from .serializers import OpportunitySerializer, VolunteerSerializer, OrganizationSerializer, TaskSerializer
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
@@ -224,3 +225,48 @@ class OrganizationViewSet(viewsets.ModelViewSet):
             return Response({"message": "Organization updated successfully"}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class TaskViewSet(viewsets.ViewSet):
+
+    @action(detail=False, methods=['get'])
+    def get_all_tasks(self, request):
+
+        tasks = TaskServices.get_all_tasks()
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def get_task(self, request, pk=None):
+
+        task = TaskServices.get_task_by_id(pk)
+        if task:
+            return Response(TaskSerializer(task).data)
+        return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['post'])
+    def create_task(self, request):
+
+        serializer = TaskSerializer(data=request.data)
+        if serializer.is_valid():
+            task_data = serializer.validated_data
+            task = TaskServices.create_task(task_data)
+            return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['put'])
+    def update_task(self, request, pk=None):
+
+        serializer = TaskSerializer(data=request.data, partial=True)
+        if serializer.is_valid():
+            task_data = serializer.validated_data
+            task = TaskServices.update_task(pk, task_data)
+            if task:
+                return Response(TaskSerializer(task).data)
+            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['delete'])
+    def delete_task(self, request, pk=None):
+        
+        TaskServices.delete_task(pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
