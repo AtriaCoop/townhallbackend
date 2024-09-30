@@ -1,4 +1,5 @@
 from django.forms import ValidationError
+from .types import CreateTaskData, UpdateTaskData
 
 # Follows layered architecture pattern of views -> services -> dao
 from rest_framework import viewsets
@@ -244,26 +245,37 @@ class TaskViewSet(viewsets.ViewSet):
         return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=['post'])
-    def create_task(self, request):
-
-        serializer = TaskSerializer(data=request.data)
-        if serializer.is_valid():
-            task_data = serializer.validated_data
-            task = TaskServices.create_task(task_data)
-            return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create_task(self, request, *args, **kwargs):
+      task_data = CreateTaskData(
+          name=request.data.get('name'),
+          description=request.data.get('description'),
+          deadline=request.data.get('deadline'),
+          status=request.data.get('status'),
+          assigned_to=request.data.get('assigned_to'),
+          created_by=request.data.get('created_by'),
+          organization_id=request.data.get('organization')
+      )
+    
+      task = TaskServices.create_task(task_data)
+      return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['put'])
-    def update_task(self, request, pk=None):
+    def update_task(self, request, pk=None, *args, **kwargs):
+      task_data = UpdateTaskData(
+          id=pk,
+          name=request.data.get('name'),
+          description=request.data.get('description'),
+          deadline=request.data.get('deadline'),
+          status=request.data.get('status'),
+          assigned_to=request.data.get('assigned_to'),
+          organization_id=request.data.get('organization')
+      )
 
-        serializer = TaskSerializer(data=request.data, partial=True)
-        if serializer.is_valid():
-            task_data = serializer.validated_data
-            task = TaskServices.update_task(pk, task_data)
-            if task:
-                return Response(TaskSerializer(task).data)
-            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+      task = TaskServices.update_task(pk, task_data)
+      if task:
+          return Response(TaskSerializer(task).data, status=status.HTTP_200_OK)
+      else:
+          return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['delete'])
     def delete_task(self, request, pk=None):
