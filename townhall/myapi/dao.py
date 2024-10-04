@@ -15,6 +15,7 @@ from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
 import typing
+from typing import Optional, List, Dict
 from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
@@ -256,27 +257,61 @@ class OrganizationDao:
 
 class TaskDao:
 
-    @staticmethod
-    def get_all_tasks():
+    """
+    Data Access Object for handling Task-related database operations.
+    """
 
+    @staticmethod
+    def get_all_tasks() -> List[Task]:
+        """
+        Retrieve all tasks from the database.
+
+        Returns:
+            List[Task]: A list of all task objects.
+        """
         return Task.objects.all()
 
     @staticmethod
-    def get_task_by_id(task_id: int):
+    def get_task_by_id(task_id: int) -> Optional[Task]:
+        """
+        Retrieve a specific task by its ID.
 
+        Args:
+            task_id (int): The ID of the task.
+
+        Returns:
+            Optional[Task]: The task object if found, None otherwise.
+        """
         try:
             return Task.objects.get(id=task_id)
         except ObjectDoesNotExist:
             return None
 
     @staticmethod
-    def create_task(task_data: dict):
+    def create_task(task_data: Dict[str, any]) -> Task:
+        """
+        Create a new task in the database.
 
+        Args:
+            task_data (Dict[str, any]): A dictionary of task data for creating the task.
+
+        Returns:
+            Task: The newly created task object.
+        """
         return Task.objects.create(**task_data)
 
     @staticmethod
-    def update_task(task_id: int, task_data: dict):
+    def update_task(task_id: int, task_data: Dict[str, any]) -> Optional[Task]:
+        """
+        Update an existing task in the database.
 
+        Args:
+            task_id (int): The ID of the task to update.
+            task_data (Dict[str, any]): A dictionary of updated task fields.
+
+        Returns:
+            Optional[Task]: The updated task object if found and updated, None otherwise.
+        """
         try:
             task = Task.objects.get(id=task_id)
             for key, value in task_data.items():
@@ -287,8 +322,13 @@ class TaskDao:
             return None
 
     @staticmethod
-    def delete_task(task_id: int):
+    def delete_task(task_id: int) -> None:
+        """
+        Delete a task from the database.
 
+        Args:
+            task_id (int): The ID of the task to delete.
+        """
         try:
             task = Task.objects.get(id=task_id)
             task.delete()
