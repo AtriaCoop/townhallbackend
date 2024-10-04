@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -79,20 +80,31 @@ class Comment(models.Model):
         return str(self.id)
 
 class Task(models.Model):
+    """
+    Model representing a task in the system with fields for name, description, deadline,
+    status, and relationships to volunteers and organizations.
+    """
 
-    STATUS_CHOICES = [
-        ('open', 'Open'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-    ]
+    class TaskStatus(models.TextChoices):
+        OPEN = 'open', _('Open')
+        IN_PROGRESS = 'in_progress', _('In Progress')
+        COMPLETED = 'completed', _('Completed')
 
     name = models.CharField(max_length=255)
     description = models.TextField()
     deadline = models.DateTimeField()
-    status = models.CharField(max_length=20)
-    assigned_to = models.ForeignKey(Volunteer, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks')
-    created_by = models.ForeignKey(Volunteer, on_delete=models.SET_NULL, null=True, related_name='created_tasks')
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=20,
+        choices=TaskStatus.choices,
+        default=TaskStatus.OPEN,
+    )
+    assigned_to = models.ForeignKey(
+        'Volunteer', on_delete=models.SET_NULL, null=True, related_name='assigned_tasks'
+    )
+    created_by = models.ForeignKey(
+        'Volunteer', on_delete=models.SET_NULL, null=True, related_name='created_tasks'
+    )
+    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
