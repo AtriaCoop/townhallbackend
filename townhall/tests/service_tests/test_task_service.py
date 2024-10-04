@@ -37,7 +37,7 @@ class TaskServiceTests(TestCase):
             name='Test Task',
             description='Task description',
             deadline=timezone.make_aware(datetime(2024, 12, 31, 23, 59, 59)),
-            status='open',
+            status=Task.TaskStatus.OPEN,
             assigned_to=self.volunteer.id,
             created_by=self.volunteer.id,
             organization_id=self.organization.id
@@ -53,6 +53,7 @@ class TaskServiceTests(TestCase):
         # Assert: Verify that the task is created correctly with the expected values
         self.assertEqual(task.name, 'Test Task')
         self.assertEqual(task.assigned_to, self.volunteer)
+        self.assertEqual(task.status, Task.TaskStatus.OPEN)
 
     def test_get_all_tasks(self):
         """
@@ -72,6 +73,7 @@ class TaskServiceTests(TestCase):
         # Assert: Verify that the task list contains exactly one task
         self.assertEqual(len(tasks), 1)  # Expecting only 1 task to be present
         self.assertEqual(tasks[0].name, 'Test Task')
+        self.assertEqual(tasks[0].status, Task.TaskStatus.OPEN)
 
     def test_get_task_by_id(self):
         """
@@ -85,6 +87,7 @@ class TaskServiceTests(TestCase):
 
         # Assert: Verify that the retrieved task matches the created task
         self.assertEqual(retrieved_task.name, 'Test Task')
+        self.assertEqual(retrieved_task.status, Task.TaskStatus.OPEN)
 
     def test_update_task(self):
         """
@@ -92,13 +95,14 @@ class TaskServiceTests(TestCase):
         """
         # Arrange: Create a task and prepare update data
         task = TaskServices.create_task(self.task_data)
-        update_data = UpdateTaskData(id=task.id, name='Updated Task')
+        update_data = UpdateTaskData(id=task.id, name='Updated Task', status=Task.TaskStatus.IN_PROGRESS)
 
         # Act: Call the update_task service method
         updated_task = TaskServices.update_task(task.id, update_data)
 
         # Assert: Verify that the task is updated with the new values
         self.assertEqual(updated_task.name, 'Updated Task')
+        self.assertEqual(updated_task.status, Task.TaskStatus.IN_PROGRESS)
 
     def test_delete_task(self):
         """

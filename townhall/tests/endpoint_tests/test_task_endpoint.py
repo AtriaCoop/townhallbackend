@@ -32,7 +32,7 @@ class TaskEndpointTests(APITestCase):
             'name': 'Test Task',
             'description': 'Task description',
             'deadline': '2024-12-31T23:59:59Z',
-            'status': 'open',
+            'status': Task.TaskStatus.OPEN,
             'assigned_to': self.volunteer.id,
             'created_by': self.volunteer.id,
             'organization': self.organization.id
@@ -53,6 +53,7 @@ class TaskEndpointTests(APITestCase):
 
         # Assert: Ensure the response is successful and task is created with expected values
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['status'], Task.TaskStatus.OPEN)
 
     def test_get_task(self):
         """
@@ -69,6 +70,7 @@ class TaskEndpointTests(APITestCase):
         # Assert: Ensure the response is successful and task data is as expected
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'Test Task')
+        self.assertEqual(response.data['status'], Task.TaskStatus.OPEN) 
 
     def test_update_task(self):
         """
@@ -78,7 +80,7 @@ class TaskEndpointTests(APITestCase):
         create_response = self.client.post('/tasks/', self.task_data, format='json')
         task_id = create_response.data['id']
         url = f'/tasks/{task_id}/'
-        update_data = {'name': 'Updated Task'}
+        update_data = {'name': 'Updated Task', 'status': Task.TaskStatus.IN_PROGRESS}
 
         # Act: Make a PUT request to update the task
         response = self.client.put(url, update_data, format='json')
@@ -86,6 +88,7 @@ class TaskEndpointTests(APITestCase):
         # Assert: Ensure the response is successful and task is updated correctly
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'Updated Task')
+        self.assertEqual(response.data['status'], Task.TaskStatus.IN_PROGRESS)
 
     def test_delete_task(self):
         """
