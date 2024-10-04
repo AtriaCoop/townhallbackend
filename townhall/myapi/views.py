@@ -1,5 +1,6 @@
 from django.forms import ValidationError
 from .types import CreateTaskData, UpdateTaskData
+from .models import Task
 
 # Follows layered architecture pattern of views -> services -> dao
 from rest_framework import viewsets
@@ -250,7 +251,7 @@ class TaskViewSet(viewsets.ViewSet):
           name=request.data.get('name'),
           description=request.data.get('description', None),
           deadline=request.data.get('deadline', None),
-          status=request.data.get('status', 'open'),
+          status=request.data.get('status', Task.TaskStatus.OPEN),
           assigned_to=request.data.get('assigned_to', None),
           created_by=request.data.get('created_by'),
           organization_id=request.data.get('organization', None)
