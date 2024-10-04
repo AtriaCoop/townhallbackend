@@ -78,6 +78,9 @@ class FilteredOrganizationData:
 
 @dataclass
 class CreateTaskData:
+    """
+    Dataclass representing the data required to create a new task.
+    """
     name: str
     description: str
     deadline: datetime
@@ -88,6 +91,10 @@ class CreateTaskData:
 
 @dataclass
 class UpdateTaskData:
+    """
+    Dataclass representing the fields that can be updated for a task.
+    Optional fields allow partial updates.
+    """
     id: int
     name: Optional[str] = None
     description: Optional[str] = None
