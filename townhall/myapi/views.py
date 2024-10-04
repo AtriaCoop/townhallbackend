@@ -248,12 +248,12 @@ class TaskViewSet(viewsets.ViewSet):
     def create_task(self, request, *args, **kwargs):
       task_data = CreateTaskData(
           name=request.data.get('name'),
-          description=request.data.get('description'),
-          deadline=request.data.get('deadline'),
-          status=request.data.get('status'),
-          assigned_to=request.data.get('assigned_to'),
+          description=request.data.get('description', None),
+          deadline=request.data.get('deadline', None),
+          status=request.data.get('status', 'open'),
+          assigned_to=request.data.get('assigned_to', None),
           created_by=request.data.get('created_by'),
-          organization_id=request.data.get('organization')
+          organization_id=request.data.get('organization', None)
       )
     
       task = TaskServices.create_task(task_data)
@@ -264,11 +264,11 @@ class TaskViewSet(viewsets.ViewSet):
       task_data = UpdateTaskData(
           id=pk,
           name=request.data.get('name'),
-          description=request.data.get('description'),
-          deadline=request.data.get('deadline'),
-          status=request.data.get('status'),
-          assigned_to=request.data.get('assigned_to'),
-          organization_id=request.data.get('organization')
+          description=request.data.get('description', None),
+          deadline=request.data.get('deadline', None),
+          status=request.data.get('status', None),
+          assigned_to=request.data.get('assigned_to', None),
+          organization_id=request.data.get('organization', None)
       )
 
       task = TaskServices.update_task(pk, task_data)
