@@ -75,3 +75,30 @@ class UpdateOrganizationData:
 class FilteredOrganizationData:
     name: Optional[str] = None
     location: Optional[str] = None
+
+@dataclass
+class CreateTaskData:
+    """
+    Dataclass representing the data required to create a new task.
+    """
+    name: str
+    description: str
+    deadline: datetime
+    status: str
+    assigned_to: Optional[int]
+    created_by: int
+    organization_id: int
+
+@dataclass
+class UpdateTaskData:
+    """
+    Dataclass representing the fields that can be updated for a task.
+    Optional fields allow partial updates.
+    """
+    id: int
+    name: Optional[str] = None
+    description: Optional[str] = None
+    deadline: Optional[datetime] = None
+    status: Optional[str] = None
+    assigned_to: Optional[int] = None
+    organization_id: Optional[int] = None

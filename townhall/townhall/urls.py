@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
 from myapi.views import OrganizationViewSet
+from myapi.views import TaskViewSet
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -61,6 +62,25 @@ urlpatterns = [
                 "put": "handle_organization_update",
             }
         ),
+    ),
+    path(
+        'tasks/',
+        TaskViewSet.as_view(
+            {
+                'get': 'get_all_tasks',
+                'post': 'create_task'
+            }
+        )
+    ),
+    path(
+        'tasks/<int:pk>/',
+          TaskViewSet.as_view(
+              {
+                  'get': 'get_task',
+                  'put': 'update_task',
+                  'delete': 'delete_task'
+              }
+        )
     ),
 ]
 
