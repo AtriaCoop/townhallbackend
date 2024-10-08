@@ -1,4 +1,6 @@
 from django.forms import ValidationError
+from .types import CreateTaskData, UpdateTaskData
+from .models import Task
 
 # Follows layered architecture pattern of views -> services -> dao
 from rest_framework import viewsets
@@ -9,7 +11,8 @@ from rest_framework.response import Response
 from .services import VolunteerServices as volunteer_services
 from .services import OpportunityServices as opportunity_services
 from .services import OrganizationServices as organization_services
-from .serializers import OpportunitySerializer, VolunteerSerializer, OrganizationSerializer
+from .services import TaskServices
+from .serializers import OpportunitySerializer, VolunteerSerializer, OrganizationSerializer, TaskSerializer
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
@@ -224,3 +227,59 @@ class OrganizationViewSet(viewsets.ModelViewSet):
             return Response({"message": "Organization updated successfully"}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class TaskViewSet(viewsets.ViewSet):
+
+    @action(detail=False, methods=['get'])
+    def get_all_tasks(self, request):
+
+        tasks = TaskServices.get_all_tasks()
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def get_task(self, request, pk=None):
+
+        task = TaskServices.get_task_by_id(pk)
+        if task:
+            return Response(TaskSerializer(task).data)
+        return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['post'])
+    def create_task(self, request, *args, **kwargs):
+      task_data = CreateTaskData(
+          name=request.data.get('name'),
+          description=request.data.get('description', None),
+          deadline=request.data.get('deadline', None),
+          status=request.data.get('status', Task.TaskStatus.OPEN),
+          assigned_to=request.data.get('assigned_to', None),
+          created_by=request.data.get('created_by'),
+          organization_id=request.data.get('organization', None)
+      )
+    
+      task = TaskServices.create_task(task_data)
+      return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['put'])
+    def update_task(self, request, pk=None, *args, **kwargs):
+      task_data = UpdateTaskData(
+          id=pk,
+          name=request.data.get('name'),
+          description=request.data.get('description', None),
+          deadline=request.data.get('deadline', None),
+          status=request.data.get('status', None),
+          assigned_to=request.data.get('assigned_to', None),
+          organization_id=request.data.get('organization', None)
+      )
+
+      task = TaskServices.update_task(pk, task_data)
+      if task:
+          return Response(TaskSerializer(task).data, status=status.HTTP_200_OK)
+      else:
+          return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['delete'])
+    def delete_task(self, request, pk=None):
+        
+        TaskServices.delete_task(pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)

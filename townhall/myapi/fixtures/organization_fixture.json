@@ -1,0 +1,13 @@
+[
+  {
+    "model": "myapi.organization",
+    "pk": 1,
+    "fields": {
+      "name": "Goodwill",
+      "location": "Victoria",
+      "email": "contact@goodwill.com",
+      "phone_number": "123456789",
+      "website": "http://goodwill.com"
+    }
+  }
+]
