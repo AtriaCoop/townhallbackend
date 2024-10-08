@@ -132,3 +132,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # are stored and how they are accessed.)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+AUTHENTICATION_BACKENDS = [
+    "myapi.backends.EmailBackend",  # Pointing to the backend in the app directory
+    "django.contrib.auth.backends.ModelBackend",  # Keep the default backend if needed
+]
