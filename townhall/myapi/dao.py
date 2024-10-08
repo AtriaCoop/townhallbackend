@@ -1,6 +1,7 @@
 from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
+from .models import Task
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -14,8 +15,13 @@ from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
+from .types import CreateTaskData, UpdateTaskData
+
 import typing
+from typing import Optional, List
 from django.db.models.query import QuerySet
+from django.contrib.auth.hashers import make_password
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 
 # Follows layered architecture pattern of views -> services -> dao
@@ -251,3 +257,67 @@ class OrganizationDao:
             filters["location__icontains"] = filtered_organization_data.location
 
         return Organization.objects.filter(**filters)
+
+class TaskDao:
+
+    """
+    Data Access Object for handling Task-related database operations.
+    """
+
+    @staticmethod
+    def get_all_tasks() -> List[Task]:
+
+        return Task.objects.all()
+
+    @staticmethod
+    def get_task_by_id(task_id: int) -> Optional[Task]:
+
+        try:
+            return Task.objects.get(id=task_id)
+        except ObjectDoesNotExist:
+            return None
+
+    @staticmethod
+    def create_task(task_data: CreateTaskData) -> Task:
+
+        return Task.objects.create(
+            name=task_data.name,
+            description=task_data.description,
+            deadline=task_data.deadline,
+            status=task_data.status,
+            assigned_to_id=task_data.assigned_to,
+            created_by_id=task_data.created_by,
+            organization_id=task_data.organization_id
+        )
+
+    @staticmethod
+    def update_task(task_data: UpdateTaskData) -> Optional[Task]:
+
+        try:
+            task = Task.objects.get(id=task_data.id)
+            # Update only the fields provided in UpdateTaskData (partial updates)
+            if task_data.name is not None:
+                task.name = task_data.name
+            if task_data.description is not None:
+                task.description = task_data.description
+            if task_data.deadline is not None:
+                task.deadline = task_data.deadline
+            if task_data.status is not None:
+                task.status = task_data.status
+            if task_data.assigned_to is not None:
+                task.assigned_to_id = task_data.assigned_to
+            if task_data.organization_id is not None:
+                task.organization_id = task_data.organization_id
+            task.save()
+            return task
+        except Task.DoesNotExist:
+            return None
+
+    @staticmethod
+    def delete_task(task_id: int) -> None:
+        
+        try:
+            task = Task.objects.get(id=task_id)
+            task.delete()
+        except Task.DoesNotExist:
+          pass
