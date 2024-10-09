@@ -2,6 +2,7 @@ from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 from .models import Task
+from .models import Chat, Message
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -22,6 +23,8 @@ from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 
 # Follows layered architecture pattern of views -> services -> dao
 
@@ -320,3 +323,34 @@ class TaskDao:
             task.delete()
         except Task.DoesNotExist:
           pass
+
+
+class ChatDao:
+
+    @staticmethod
+    def get_chat(user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            chat = Chat.objects.filter(participants=user).distinct()
+            return chat
+        except User.DoesNotExist:
+            raise ValueError(f"User with ID {user.id} does not exist")
+        except ObjectDoesNotExist:
+            return []
+        
+    @staticmethod
+    def start_chat(participants_id):
+        # Create new chat
+        new_chat = Chat.objects.create()
+        new_chat.participants.set(User.objects.filter(id__in=participants_id))
+        new_chat.save()
+
+        return new_chat
+    
+    @staticmethod
+    def delete_chat(chat_id):
+        try:
+            chat = Chat.objects.get(id=chat_id)
+            chat.delete()  # Deletes the chat from the database
+        except Chat.DoesNotExist:
+            raise ValueError(f"Chat with ID {chat_id} does not exist.")
