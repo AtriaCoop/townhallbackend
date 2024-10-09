@@ -9,15 +9,25 @@ class CreateVolunteerData:
     last_name: str
     gender: str
     email: str
+    password: str
 
 
 @dataclass
 class UpdateVolunteerData:
     id: int
-    first_name: str
-    last_name: str
-    gender: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    gender: Optional[str] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+@dataclass
+class ChangeVolunteerPasswordData:
+    id: int
     email: str
+    curr_password: str
+    new_password: str
 
 
 @dataclass
