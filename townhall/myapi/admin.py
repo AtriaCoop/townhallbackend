@@ -5,7 +5,7 @@ from .models import Volunteer
 from .models import Organization
 from .models import Opportunity
 from .models import Post, Comment, Task
-from .models import Chat, Message
+from .models import Chat
 
 
 # Displays the comments under the post in tabular form (neat table).
@@ -31,4 +31,3 @@ admin.site.register(Organization)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Comment)
 admin.site.register(Chat)
-admin.site.register(Message)

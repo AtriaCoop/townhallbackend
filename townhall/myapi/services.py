@@ -32,7 +32,7 @@ from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 from .models import Task
-from .models import Chat, Message
+from .models import Chat
 
 User = get_user_model()
 
