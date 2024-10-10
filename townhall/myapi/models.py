@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 class Volunteer(models.Model):
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
-    email = models.EmailField(max_length=254)
+    email = models.EmailField(max_length=254, unique=True)
     password = models.CharField(
         max_length=128, default=make_password("default_password")
     )
@@ -21,6 +21,8 @@ class Volunteer(models.Model):
         ("F", "Female"),
     )
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+
+    USERNAME_FIELD = "email"
 
     def __str__(self):
         return self.first_name

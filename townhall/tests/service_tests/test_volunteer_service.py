@@ -1,8 +1,17 @@
 from django.test import TestCase
 from django.core.management import call_command
+
 from unittest.mock import patch
+
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import check_password, make_password
+
 from myapi import models as townhall_models
+from myapi import services as townhall_services
+
+from myapi.types import UpdateVolunteerData
+from myapi.types import ChangeVolunteerPasswordData
+
 
 # VOLUNTEER
 
@@ -10,363 +19,433 @@ from myapi import models as townhall_models
 # Testing ONLY volunteer "python manage.py test myapi.tests.test_volunteer"
 
 
-@patch("myapi.services.VolunteerServices")
 class TestVolunteerModel(TestCase):
     fixtures = ["volunteer_fixture.json"]
 
     def setUp(self):
-        # Load the fixture data to set up initial state
+        # Arrange (For all non-mock tests)
         call_command("loaddata", "volunteer_fixture.json")
 
-    def test_get_volunteer(self, MockVolunteerServices):
-        # Arrange: Set up the mock return value for the get_volunteer method
-        mock_volunteer = townhall_models.Volunteer(
-            id=1,
-            first_name="Zamorak",
-            last_name="Red",
-            email="zamorak.red@gmail.com",
-            gender="M",
-        )
-        MockVolunteerServices.get_volunteer.return_value = mock_volunteer
+    def test_get_all_volunteers(self):
+        # Act
+        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
 
-        # Act: Call the get_volunteer method with a specific ID
-        volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
-
-        # Assert: Verify the returned volunteer has the expected attributes
-        assert volunteer_1.first_name == "Zamorak"
-        assert volunteer_1.last_name == "Red"
-        assert volunteer_1.email == "zamorak.red@gmail.com"
-        assert volunteer_1.gender == "M"
-        # Assert: Ensure the get_volunteer method was called exactly once with
-        #         the correct ID
-        MockVolunteerServices.get_volunteer.assert_called_once_with(id=1)
-
-    def test_update_volunteer(self, MockVolunteerServices):
-        # Arrange: Set up the mock return value before the update
-        mock_volunteer_before_update = townhall_models.Volunteer(
-            id=2,
-            first_name="Guthix",
-            last_name="Green",
-            email="guthix_green@hotmail.ca",
-            gender="F",
-        )
-        MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
-
-        # Arrange: Prepare the data for the update operation
-        update_volunteer_data = townhall_models.Volunteer(
-            id=2,
-            first_name="Saradomin",
-            last_name="Blue",
-            email="saradomin.blue@gmail.com",
-            gender="M",
-        )
-        MockVolunteerServices.update_volunteer.return_value = None
-
-        # Act: Perform the update operation and then retrieve the updated volunteer
-        volunteer_before_update = MockVolunteerServices.get_volunteer(id=2)
-        MockVolunteerServices.update_volunteer(update_volunteer_data)
-
-        # Mock the volunteer after update
-        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
-            id=2,
-            first_name="Saradomin",
-            last_name="Blue",
-            email="saradomin.blue@gmail.com",
-            gender="M",
-        )
-        updated_volunteer = MockVolunteerServices.get_volunteer(id=2)
-
-        # Assert: Check that the initial volunteer's details were as expected
-        assert volunteer_before_update.first_name == "Guthix"
-        assert volunteer_before_update.last_name == "Green"
-        assert volunteer_before_update.email == "guthix_green@hotmail.ca"
-        assert volunteer_before_update.gender == "F"
-        MockVolunteerServices.get_volunteer.assert_called_with(id=2)
-
-        # Assert: Verify that the update operation was called with the correct data
-        MockVolunteerServices.update_volunteer.assert_called_once_with(
-            update_volunteer_data
-        )
-
-        # Assert: Verify the volunteer's details were updated correctly
-        assert updated_volunteer.first_name == "Saradomin"
-        assert updated_volunteer.last_name == "Blue"
-        assert updated_volunteer.email == "saradomin.blue@gmail.com"
-        assert updated_volunteer.gender == "M"
-
-    def test_delete_volunteer(self, MockVolunteerServices):
-        # Arrange: Set up the mock return value before deletion
-        mock_volunteer = townhall_models.Volunteer(
-            id=1,
-            first_name="Zamorak",
-            last_name="Red",
-            email="zamorak.red@gmail.com",
-            gender="M",
-        )
-        MockVolunteerServices.get_volunteer.side_effect = [mock_volunteer, None]
-
-        # Act: Retrieve the volunteer and then delete it
-        volunteer_1 = MockVolunteerServices.get_volunteer(id=1)
-        MockVolunteerServices.delete_volunteer(id=1)
-        volunteer_after_deletion = MockVolunteerServices.get_volunteer(id=1)
-
-        # Assert: Verify the volunteer's initial details were correct
-        assert volunteer_1.first_name == "Zamorak"
-        assert volunteer_1.last_name == "Red"
-        assert volunteer_1.email == "zamorak.red@gmail.com"
-        assert volunteer_1.gender == "M"
-
-        # Assert: Ensure the volunteer was deleted successfully
-        MockVolunteerServices.get_volunteer.assert_called_with(id=1)
-        MockVolunteerServices.get_volunteer.assert_called_with(id=1)
-        MockVolunteerServices.delete_volunteer.assert_called_once_with(id=1)
-        assert volunteer_after_deletion is None
-
-    def test_get_all_volunteers(self, MockVolunteerServices):
-        # Arrange: Mock the return value for getting all volunteers
-        MockVolunteerServices.get_volunteers_all.return_value = [
-            townhall_models.Volunteer(
-                id=1,
-                first_name="Zamorak",
-                last_name="Red",
-                email="zamorak.red@gmail.com",
-                gender="M",
-            ),
-            townhall_models.Volunteer(
-                id=2,
-                first_name="Guthix",
-                last_name="Green",
-                email="guthix.green@hotmail.ca",
-                gender="F",
-            ),
-        ]
-
-        # Act: Retrieve all volunteers
-        volunteers = MockVolunteerServices.get_volunteers_all()
-
-        # Assert: Verify the correct number of volunteers is returned
+        # Assert
         assert len(volunteers) == 2
-        assert volunteers[0].first_name == "Zamorak"
-        assert volunteers[1].first_name == "Guthix"
-        # Assert: Ensure the get_volunteers_all method was called exactly once
-        MockVolunteerServices.get_volunteers_all.assert_called_once()
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1, 2}
 
-    def test_get_all_volunteers_empty(self, MockVolunteerServices):
-        # Arrange: Mock the return value for getting all volunteers to be an empty list
-        MockVolunteerServices.get_volunteers_all.return_value = []
+    def test_get_volunteer_found(self):
+        # Act
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
 
-        # Act: Retrieve all volunteers when none exist
-        volunteers = MockVolunteerServices.get_volunteers_all()
-
-        # Assert: Verify that no volunteers are returned
-        assert len(volunteers) == 0
-        # Assert: Ensure the get_volunteers_all method was called exactly once
-        MockVolunteerServices.get_volunteers_all.assert_called_once()
-
-    def test_update_volunteer_success(self, MockVolunteerServices):
-        # Arrange: Set up the mock return value before the update
-        mock_volunteer_before_update = townhall_models.Volunteer(
-            id=2,
-            first_name="Guthix",
-            last_name="Green",
-            email="guthix_green@hotmail.ca",
-            gender="F",
-        )
-        MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
-
-        # Arrange: Prepare the data for the update operation
-        update_volunteer_data = townhall_models.Volunteer(
-            id=2,
-            first_name="Saradomin",
-            last_name="Blue",
-            email="saradomin.blue@gmail.com",
-            gender="M",
-        )
-        MockVolunteerServices.update_volunteer.return_value = None
-
-        # Act: Perform the update operation and then retrieve the updated volunteer
-        MockVolunteerServices.update_volunteer(update_volunteer_data)
-
-        # Arrange: Mock the return value after the update
-        MockVolunteerServices.get_volunteer.return_value = townhall_models.Volunteer(
-            id=2,
-            first_name="Saradomin",
-            last_name="Blue",
-            email="saradomin.blue@gmail.com",
-            gender="M",
-        )
-        updated_volunteer = MockVolunteerServices.get_volunteer(id=2)
-
-        # Assert: Verify that the update operation was called with the correct data
-        MockVolunteerServices.update_volunteer.assert_called_once_with(
-            update_volunteer_data
-        )
-        assert updated_volunteer.first_name == "Saradomin"
-        assert updated_volunteer.last_name == "Blue"
-        assert updated_volunteer.email == "saradomin.blue@gmail.com"
-        assert updated_volunteer.gender == "M"
-
-    def test_update_volunteer_invalid_data(self, MockVolunteerServices):
-        # Arrange: Mock the return value for the get_volunteer method
-        mock_volunteer_before_update = townhall_models.Volunteer(
-            id=2,
-            first_name="Guthix",
-            last_name="Green",
-            email="guthix_green@hotmail.ca",
-            gender="F",
-        )
-        MockVolunteerServices.get_volunteer.return_value = mock_volunteer_before_update
-
-        # Arrange: Prepare invalid update data
-        invalid_data = townhall_models.Volunteer(
-            id=2, first_name="", last_name="Blue", email="not-an-email", gender="X"
-        )
-
-        # Act: Attempt to update the volunteer with invalid data
-        MockVolunteerServices.update_volunteer(invalid_data)
-
-        # Assert: Ensure the update operation was attempted with invalid data
-        MockVolunteerServices.update_volunteer.assert_called_once_with(invalid_data)
-
-    def test_authenticate_volunteer_success(self, MockVolunteerServices):
-        # Arrange: Mock successful authentication
-        mock_volunteer = townhall_models.Volunteer(
-            id=1,
-            first_name="Zamorak",
-            last_name="Red",
-            email="zamorak.red@gmail.com",
-            gender="M",
-        )
-        MockVolunteerServices.authenticate_volunteer.return_value = mock_volunteer
-
-        # Act: Authenticate with correct credentials
-        volunteer = MockVolunteerServices.authenticate_volunteer(
-            username="zamorak", password="correct_password"
-        )
-
-        # Assert: Check that the returned volunteer is as expected
-        assert volunteer is not None
+        # Assert
         assert volunteer.first_name == "Zamorak"
         assert volunteer.last_name == "Red"
-        MockVolunteerServices.authenticate_volunteer.assert_called_once_with(
-            username="zamorak", password="correct_password"
+        assert volunteer.email == "zamorak.red@gmail.com"
+        assert volunteer.gender == "M"
+        split_string = (
+            "pbkdf2_sha256$320000$eERGy7Egdf2$"
+            "Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI="
+        )
+        assert volunteer.password == split_string
+        assert volunteer.is_active is True
+
+    @patch("myapi.dao.VolunteerDao.get_volunteer")
+    def test_get_volunteer_failed_not_found(self, mock_get_volunteer):
+        # Arrange
+        mock_get_volunteer.side_effect = townhall_models.Volunteer.DoesNotExist
+        volunteer_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.get_volunteer(volunteer_id)
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
         )
 
-    def test_authenticate_volunteer_failure(self, MockVolunteerServices):
-        # Arrange: Mock failed authentication
-        MockVolunteerServices.authenticate_volunteer.return_value = None
+    def test_update_volunteer_one_field_success(self):
+        # Pre Assert
+        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=1)
+        assert volunteer_before.first_name == "Zamorak"
+        assert volunteer_before.last_name == "Red"
+        assert volunteer_before.email == "zamorak.red@gmail.com"
+        assert volunteer_before.gender == "M"
+        split_string = (
+            "pbkdf2_sha256$320000$eERGy7Egdf2$"
+            "Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI="
+        )
+        assert volunteer_before.password == split_string
+        assert volunteer_before.is_active is True
 
-        # Act: Attempt to authenticate with incorrect credentials
-        volunteer = MockVolunteerServices.authenticate_volunteer(
-            username="zamorak", password="wrong_password"
+        # Arrange
+        update_volunteer_data = UpdateVolunteerData(id=1, first_name="John")
+
+        # Act
+        townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+
+        # Assert
+        volunteer_after = townhall_models.Volunteer.objects.get(id=1)
+        assert volunteer_after.first_name == "John"
+        assert volunteer_after.last_name == "Red"
+        assert volunteer_after.email == "zamorak.red@gmail.com"
+        assert volunteer_after.gender == "M"
+        split_string = (
+            "pbkdf2_sha256$320000$eERGy7Egdf2$"
+            "Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI="
+        )
+        assert volunteer_before.password == split_string
+        assert volunteer_after.is_active is True
+
+    def test_update_volunteer_all_fields_success(self):
+        # Pre Assert
+        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=1)
+        assert volunteer_before.first_name == "Zamorak"
+        assert volunteer_before.last_name == "Red"
+        assert volunteer_before.email == "zamorak.red@gmail.com"
+        assert volunteer_before.gender == "M"
+        split_string = (
+            "pbkdf2_sha256$320000$eERGy7Egdf2$"
+            "Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI="
+        )
+        assert volunteer_before.password == split_string
+        assert volunteer_before.is_active is True
+
+        # Arrange
+        update_volunteer_data = UpdateVolunteerData(
+            id=1,
+            first_name="John",
+            last_name="Doe",
+            gender="F",
+            email="john.doe@example.com",
+            is_active=False,
         )
 
-        # Assert: Ensure that the authentication fails and returns None
+        # Act
+        townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+
+        # Assert
+        volunteer_after = townhall_models.Volunteer.objects.get(id=1)
+        assert volunteer_after.first_name == "John"
+        assert volunteer_after.last_name == "Doe"
+        assert volunteer_after.email == "john.doe@example.com"
+        assert volunteer_after.gender == "F"
+        split_string = (
+            "pbkdf2_sha256$320000$eERGy7Egdf2$"
+            "Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI="
+        )
+        assert volunteer_before.password == split_string
+        assert volunteer_after.is_active is False
+
+    @patch("myapi.dao.VolunteerDao.update_volunteer")
+    def test_update_volunteer_failed_not_found(self, mock_update_volunteer):
+        # Arrange
+        mock_update_volunteer.side_effect = townhall_models.Volunteer.DoesNotExist
+        update_volunteer_data = UpdateVolunteerData(
+            id=999, first_name="John"  # Assuming this ID does not exist
+        )
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+
+        # Assert
+        id = update_volunteer_data.id
+        assert (
+            str(context.exception)
+            == f"['Volunteer with the given id: {id}, does not exist.']"
+        )
+
+    def test_delete_volunteer_success(self):
+        # Pre Assert
+        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=1)
+        assert volunteer_before.first_name == "Zamorak"
+        assert volunteer_before.last_name == "Red"
+        assert volunteer_before.email == "zamorak.red@gmail.com"
+        assert volunteer_before.gender == "M"
+        split_string = (
+            "pbkdf2_sha256$320000$eERGy7Egdf2$"
+            "Rh6s7lqJXJH7dZJsZUZ7ix77E6EsHZaFL3Q8vPBvmfI="
+        )
+        assert volunteer_before.password == split_string
+        assert volunteer_before.is_active is True
+
+        # Arrange
+        volunteer_id = 1
+
+        # Act
+        townhall_services.VolunteerServices.delete_volunteer(volunteer_id)
+
+        # Assert
+        with self.assertRaises(townhall_models.Volunteer.DoesNotExist):
+            townhall_models.Volunteer.objects.get(id=1)
+
+    @patch("myapi.dao.VolunteerDao.delete_volunteer")
+    def test_delete_volunteer_failed_not_found(self, mock_delete_volunteer):
+        # Arrange
+        mock_delete_volunteer.side_effect = townhall_models.Volunteer.DoesNotExist
+        volunteer_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.delete_volunteer(volunteer_id)
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
+        )
+
+    @patch("myapi.services.VolunteerServices.authenticate_volunteer")
+    @patch("myapi.services.VolunteerServices.validate_volunteer")
+    def test_change_volunteers_password_success(
+        self, mock_validate_volunteer, mock_authenticate_volunteer
+    ):
+        # Pre Arrange
+        # Creating a Volunteer without a fixture to know the password pre hash
+        townhall_models.Volunteer.objects.create(
+            id=3,
+            first_name="Bruce",
+            last_name="Wayne",
+            gender="M",
+            email="batman@gmail.com",
+            password=make_password("ImBatman99"),
+        )
+
+        # Pre Assert
+        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=3)
+        assert volunteer_before.first_name == "Bruce"
+        assert volunteer_before.last_name == "Wayne"
+        assert volunteer_before.email == "batman@gmail.com"
+        assert volunteer_before.gender == "M"
+        assert check_password("ImBatman99", volunteer_before.password)
+
+        # Arrange
+        changePasswordData = ChangeVolunteerPasswordData(
+            id=3,
+            email="batman@gmail.com",
+            curr_password="ImBatman99",
+            new_password="BruceWayne00",
+        )
+        # Ensure that these two methods always succeed and don't cause an error
+        mock_authenticate_volunteer.return_value = (
+            townhall_services.VolunteerServices.get_volunteer(id=3)
+        )
+        mock_validate_volunteer.return_value = None
+
+        # Act
+        townhall_services.VolunteerServices.change_volunteers_password(
+            changePasswordData
+        )
+
+        # Assert
+        volunteer_after = townhall_services.VolunteerServices.get_volunteer(id=3)
+        assert volunteer_after.first_name == "Bruce"
+        assert volunteer_after.last_name == "Wayne"
+        assert volunteer_after.email == "batman@gmail.com"
+        assert volunteer_after.gender == "M"
+        assert check_password("BruceWayne00", volunteer_after.password)
+
+    @patch("myapi.services.VolunteerServices.authenticate_volunteer")
+    @patch("myapi.services.VolunteerServices.validate_volunteer")
+    def test_change_volunteers_password_failed_authentication(
+        self, mock_validate_volunteer, mock_authenticate_volunteer
+    ):
+        # Arrange
+        mock_authenticate_volunteer.return_value = None  # Fail
+        mock_validate_volunteer.return_value = None
+
+        changePasswordData = (
+            ChangeVolunteerPasswordData(  # Irrelevant, does not get checked
+                id=3,
+                email="batman@gmail.com",
+                curr_password="ImBatman99",
+                new_password="BruceWayne00",
+            )
+        )
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.change_volunteers_password(
+                changePasswordData
+            )
+
+        # Assert
+        assert (
+            str(context.exception)
+            == "['Volunteer could not be authenticated, try again later']"
+        )
+
+    @patch("myapi.services.VolunteerServices.authenticate_volunteer")
+    @patch("myapi.services.VolunteerServices.validate_volunteer")
+    def test_change_volunteers_password_failed_validation(
+        self, mock_validate_volunteer, mock_authenticate_volunteer
+    ):
+        # Arrange
+        mock_authenticate_volunteer.return_value = (
+            townhall_services.VolunteerServices.get_volunteer(id=2)
+        )
+        mock_validate_volunteer.side_effect = ValidationError("Random Error Message")
+
+        changePasswordData = (
+            ChangeVolunteerPasswordData(  # Irrelevant, does not get checked
+                id=3,
+                email="batman@gmail.com",
+                curr_password="ImBatman99",
+                new_password="BruceWayne00",
+            )
+        )
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.change_volunteers_password(
+                changePasswordData
+            )
+
+        # Assert
+        assert str(context.exception) == "['Random Error Message']"
+
+    def test_authenticate_volunteer_success(self):
+        # Pre Arrange
+        # Creating a Volunteer without a fixture to know the password pre hash
+        townhall_models.Volunteer.objects.create(
+            id=3,
+            first_name="Bruce",
+            last_name="Wayne",
+            gender="M",
+            email="batman@gmail.com",
+            password=make_password("ImBatman99"),
+        )
+
+        # Pre Assert
+        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=3)
+        assert volunteer_before.first_name == "Bruce"
+        assert volunteer_before.last_name == "Wayne"
+        assert volunteer_before.email == "batman@gmail.com"
+        assert volunteer_before.gender == "M"
+        assert check_password("ImBatman99", volunteer_before.password)
+
+        # Arrange
+        email = "batman@gmail.com"
+        password = "ImBatman99"
+
+        # Act
+        returned_volunteer = townhall_services.VolunteerServices.authenticate_volunteer(
+            email, password
+        )
+
+        # Assert
+        assert returned_volunteer.first_name == "Bruce"
+        assert returned_volunteer.last_name == "Wayne"
+        assert returned_volunteer.email == "batman@gmail.com"
+        assert returned_volunteer.gender == "M"
+        assert check_password("ImBatman99", returned_volunteer.password)
+
+    def test_authenticate_volunteer_failed_wrong_password(self):
+        # Arrange
+        email = "zamorak.red@gmail.com"
+        password = "something_wrong1234"
+
+        # Act & Assert
+        volunteer = townhall_services.VolunteerServices.authenticate_volunteer(
+            email, password
+        )
+
+        # Assert
         assert volunteer is None
-        MockVolunteerServices.authenticate_volunteer.assert_called_once_with(
-            username="zamorak", password="wrong_password"
+
+    def test_authenticate_volunteer_failed_inactive(self):
+        # Pre Arrange
+        # Creating a Volunteer without a fixture to know the password pre hash
+        townhall_models.Volunteer.objects.create(
+            id=3,
+            first_name="Bruce",
+            last_name="Wayne",
+            gender="M",
+            email="batman@gmail.com",
+            password=make_password("ImBatman99"),
+            is_active=False,
         )
 
-    def test_validate_username_and_password_success(self, MockVolunteerServices):
-        # Arrange: No setup needed for successful validation
-        MockVolunteerServices.validate_username_and_password.return_value = None
+        # Pre Assert
+        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=3)
+        assert volunteer_before.first_name == "Bruce"
+        assert volunteer_before.last_name == "Wayne"
+        assert volunteer_before.email == "batman@gmail.com"
+        assert volunteer_before.gender == "M"
+        assert volunteer_before.is_active is False
+        assert check_password("ImBatman99", volunteer_before.password)
 
-        # Act: Validate correct username and password
-        MockVolunteerServices.validate_username_and_password(
-            username="zamorak", password="StrongPassword123!"
-        )
+        # Arrange
+        email = "batman@gmail.com"
+        password = "ImBatman99"
 
-        # Assert: Ensure that validation was called with correct arguments
-        MockVolunteerServices.validate_username_and_password.assert_called_once_with(
-            username="zamorak", password="StrongPassword123!"
-        )
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.authenticate_volunteer(email, password)
 
-    def test_validate_username_and_password_failure(self, MockVolunteerServices):
-        # Arrange: Mock validation failure
-        MockVolunteerServices.validate_username_and_password.side_effect = (
-            ValidationError("Invalid password")
-        )
+        # Assert
+        assert str(context.exception) == "['Account is inactive.']"
 
-        # Act & Assert: Attempt validation and expect a ValidationError
-        with self.assertRaises(ValidationError):
-            MockVolunteerServices.validate_username_and_password(
-                username="zamorak", password="weakpass"
+    def test_validate_volunteer_success(self):
+        # Arrange
+        valid_email = "interstellar@gmail.com"
+        valid_password = "Qwertyuiop1."
+
+        # Act & Assert
+        try:
+            townhall_services.VolunteerServices.validate_volunteer(
+                valid_email, valid_password
+            )
+        except ValidationError:
+            self.fail("ValidationError raised incorrectly")
+
+    def test_validate_volunteer_failed_invalid_email(self):
+        # Arrange
+        invalid_email = "interstellar"
+        valid_password = "Qwertyuiop1."
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.validate_volunteer(
+                invalid_email, valid_password
             )
 
-        MockVolunteerServices.validate_username_and_password.assert_called_once_with(
-            username="zamorak", password="weakpass"
-        )
+        # Assert
+        assert str(context.exception) == "['Invalid email format.']"
 
-    def test_encrypt_password_success(self, MockVolunteerServices):
-        # Arrange: Mock the password encryption
-        MockVolunteerServices.encrypt_password.return_value = "encrypted_password"
+    def test_validate_volunteer_failed_invalid_password(self):
+        # Arrange
+        valid_email = "interstellar@gmail.com"
+        invalid_password = "qwer"
 
-        # Act: Encrypt a valid password
-        encrypted_password = MockVolunteerServices.encrypt_password(
-            "StrongPassword123!"
-        )
-
-        # Assert: Ensure the encryption method was called correctly
-        assert encrypted_password == "encrypted_password"
-        MockVolunteerServices.encrypt_password.assert_called_once_with(
-            "StrongPassword123!"
-        )
-
-    def test_change_password_success(self, MockVolunteerServices):
-        # Arrange: Mock the successful password change
-        MockVolunteerServices.change_password.return_value = None
-
-        # Act: Change the password for a volunteer
-        MockVolunteerServices.change_password(
-            volunteer_id=1,
-            old_password="OldPassword123!",
-            new_password="NewPassword456!",
-        )
-
-        # Assert: Ensure the change password method was called with correct arguments
-        MockVolunteerServices.change_password.assert_called_once_with(
-            volunteer_id=1,
-            old_password="OldPassword123!",
-            new_password="NewPassword456!",
-        )
-
-    def test_change_password_failure_due_to_old_password(self, MockVolunteerServices):
-        # Arrange: Mock failure due to incorrect old password
-        MockVolunteerServices.change_password.side_effect = ValidationError(
-            "Old password is incorrect"
-        )
-
-        # Act & Assert: Attempt to change password and expect a ValidationError
-        with self.assertRaises(ValidationError):
-            MockVolunteerServices.change_password(
-                volunteer_id=1,
-                old_password="WrongOldPassword!",
-                new_password="NewPassword456!",
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.validate_volunteer(
+                valid_email, invalid_password
             )
 
-        MockVolunteerServices.change_password.assert_called_once_with(
-            volunteer_id=1,
-            old_password="WrongOldPassword!",
-            new_password="NewPassword456!",
-        )
+        # Assert
+        assert str(context.exception) == "['Invalid password.']"
 
-    def test_change_password_failure_due_to_password_reuse(self, MockVolunteerServices):
-        # Arrange: Mock failure due to password reuse
-        MockVolunteerServices.change_password.side_effect = ValidationError(
-            "You cannot reuse a recent password"
-        )
+    def test_validate_volunteer_failed_similar_password_and_email(self):
+        # Arrange
+        invalid_email = "interstellar5@gmail.com"
+        invalid_password = "Interstellar5"
 
-        # Act & Assert: Attempt to change password to a recent password
-        #               and expect a ValidationError
-        with self.assertRaises(ValidationError):
-            MockVolunteerServices.change_password(
-                volunteer_id=1,
-                old_password="OldPassword123!",
-                new_password="OldPassword123!",
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.validate_volunteer(
+                invalid_email, invalid_password
             )
 
-        MockVolunteerServices.change_password.assert_called_once_with(
-            volunteer_id=1,
-            old_password="OldPassword123!",
-            new_password="OldPassword123!",
-        )
+        # Assert
+        assert str(context.exception) == "['Password is too similar to the email.']"
+
+
+# ***!!! KEYNOTE:
+#        The testing done is NOT full coverage for methods involving the cache
+#        This will need to be done in the future.

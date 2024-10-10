@@ -6,6 +6,7 @@ from .models import Chat
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+from .types import ChangeVolunteerPasswordData
 
 from .types import CreateOpportunityData
 from .types import UpdateOpportunityData
@@ -30,16 +31,11 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class VolunteerDao:
-
     def get_volunteers_all() -> typing.List[Volunteer]:
         return Volunteer.objects.all()
 
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
-        try:
-            volunteer = Volunteer.objects.get(id=id)
-            return volunteer
-        except Volunteer.DoesNotExist:
-            return None
+        return Volunteer.objects.get(id=id)
 
     def create_volunteer(create_volunteer_data: CreateVolunteerData) -> None:
         Volunteer.objects.create(
@@ -47,32 +43,37 @@ class VolunteerDao:
             last_name=create_volunteer_data.last_name,
             gender=create_volunteer_data.gender,
             email=create_volunteer_data.email,
-            password=make_password(
-                create_volunteer_data.password
-            ),  # Hashing the password before saving
+            password=create_volunteer_data.password,
             is_active=True,
         )
 
     def delete_volunteer(volunteer_id: int) -> None:
-        try:
-            Volunteer.objects.get(id=volunteer_id).delete()
-        except Volunteer.DoesNotExist:
-            pass
+        Volunteer.objects.get(id=volunteer_id).delete()
 
     def update_volunteer(update_volunteer_data: UpdateVolunteerData) -> None:
-        try:
-            volunteer = Volunteer.objects.get(id=update_volunteer_data.id)
+        volunteer = Volunteer.objects.get(id=update_volunteer_data.id)
+
+        if update_volunteer_data.first_name:
             volunteer.first_name = update_volunteer_data.first_name
+        if update_volunteer_data.last_name:
             volunteer.last_name = update_volunteer_data.last_name
+        if update_volunteer_data.gender:
             volunteer.gender = update_volunteer_data.gender
+        if update_volunteer_data.email:
             volunteer.email = update_volunteer_data.email
-            if (
-                update_volunteer_data.password
-            ):  # Check if password is provided for update
-                volunteer.password = make_password(update_volunteer_data.password)
-            volunteer.save()
-        except Volunteer.DoesNotExist:
-            pass
+        if update_volunteer_data.is_active is not None:
+            volunteer.is_active = update_volunteer_data.is_active
+
+        volunteer.save()
+
+    def change_volunteers_password(
+        change_vounteer_password_data: ChangeVolunteerPasswordData,
+    ) -> None:
+        volunteer = Volunteer.objects.get(id=change_vounteer_password_data.id)
+
+        volunteer.password = change_vounteer_password_data.new_password
+
+        volunteer.save()
 
 
 class OpportunityDao:
@@ -226,7 +227,7 @@ class OrganizationDao:
             return organization
         except Organization.DoesNotExist:
             return None
-        
+
     def get_organization_all() -> typing.List[Organization]:
         return Organization.objects.all()
 
