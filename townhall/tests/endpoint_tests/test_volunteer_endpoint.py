@@ -1,31 +1,45 @@
-import pytest
+from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
-from myapi import models as townhall_models
 
 
-@pytest.mark.django_db
-class TestEndpointVolunteer:
+class TestEndpointVolunteer(TestCase):
 
-    @pytest.fixture
-    def api_client(self):
-        return APIClient()
-
-    @pytest.fixture
     def setup(self):
-        townhall_models.Volunteer.objects.create(
-            id=1,
-            first_name="John",
-            last_name="Doe",
-            email="Johndoe@townhall.com",
-        )
+        self.client = APIClient()
 
-    # GET Voluinteer
-    def test_get_volunteer(self, api_client, setup):
-        url = "/volunteer/?id=1"
-        response = api_client.get(url)
+    # POST Volunteer
+    def test_create_volunteer_success(self):
+        # Arrange
+        self.url = "/volunteer/create_volunteer/"
+        valid_data = {
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "password": "ILikePizza9000",
+            "gender": "M",
+        }
 
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data["first_name"] == "John"
-        assert response.data["last_name"] == "Doe"
-        assert response.data["email"] == "Johndoe@townhall.com"
+        # Act
+        response = self.client.post(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["message"], "Volunteer Created Successfully")
+
+    def test_create_volunteer_fail_invalid_data(self):
+        # Arrange
+        self.url = "/volunteer/create_volunteer/"
+        valid_data = {
+            "first_name": "John",
+            # Invalid Data because missing email
+            "email": "john.doe@example.com",
+            "password": "ILikePizza9000",
+            "gender": "M",
+        }
+
+        # Act
+        response = self.client.post(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
