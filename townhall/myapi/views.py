@@ -74,7 +74,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                 )
             except ValidationError as e:
                 # If services method returns an error, return an error Response
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         # If the data is NOT valid return with a message serializers errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
