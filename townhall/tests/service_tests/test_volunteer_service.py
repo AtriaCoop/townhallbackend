@@ -20,11 +20,10 @@ from myapi.types import ChangeVolunteerPasswordData
 
 
 class TestVolunteerModel(TestCase):
-    fixtures = ["volunteer_fixture.json"]
-
     def setUp(self):
         # Arrange (For all non-mock tests)
         call_command("loaddata", "volunteer_fixture.json")
+        call_command("loaddata", "opportunity_fixture.json")
 
     def test_get_all_volunteers(self):
         # Act
@@ -65,6 +64,161 @@ class TestVolunteerModel(TestCase):
         assert (
             str(context.exception)
             == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
+        )
+
+    def test_get_all_opportunities_of_volunteer_found(self):
+        # Arrange
+        opportunity1 = townhall_models.Opportunity.objects.get(id=1)
+        opportunity2 = townhall_models.Opportunity.objects.get(id=2)
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        opportunity1.volunteers.add(volunteer)
+        opportunity2.volunteers.add(volunteer)
+
+        # Act
+        opportunities = (
+            townhall_services.VolunteerServices.get_all_opportunities_of_a_volunteer(1)
+        )
+
+        # Assert
+        assert len(opportunities) == 2
+        ids = [opportunity.id for opportunity in opportunities]
+        assert set(ids) == {1, 2}
+
+    @patch("myapi.dao.VolunteerDao.get_all_opportunities_of_a_volunteer")
+    def test_get_all_opportunities_of_volunteer_not_found(
+        self, mock_get_all_opportunities_of_a_volunteer
+    ):
+        # Arrange
+        mock_get_all_opportunities_of_a_volunteer.side_effect = (
+            townhall_models.Volunteer.DoesNotExist
+        )
+        volunteer_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.get_all_opportunities_of_a_volunteer(
+                volunteer_id
+            )
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
+        )
+
+    def test_add_volunteer_to_opportunity_success(self):
+        # Act
+        townhall_services.VolunteerServices.add_volunteer_to_opportunity(1, 1)
+
+        # Assert
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        assert len(volunteer.opportunities.all()) == 1
+        ids = [opportunity.id for opportunity in volunteer.opportunities.all()]
+        assert set(ids) == {1}
+
+    @patch("myapi.dao.VolunteerDao.add_volunteer_to_opportunity")
+    def test_add_volunteer_to_opportunity_volunteer_not_found(
+        self, mock_add_volunteer_to_opportunity
+    ):
+        # Arrange
+        mock_add_volunteer_to_opportunity.side_effect = (
+            townhall_models.Volunteer.DoesNotExist
+        )
+        volunteer_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.add_volunteer_to_opportunity(
+                volunteer_id, 1
+            )
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
+        )
+
+    @patch("myapi.dao.VolunteerDao.add_volunteer_to_opportunity")
+    def test_add_volunteer_to_opportunity_opportunity_not_found(
+        self, mock_add_volunteer_to_opportunity
+    ):
+        # Arrange
+        mock_add_volunteer_to_opportunity.side_effect = (
+            townhall_models.Opportunity.DoesNotExist
+        )
+        opportunity_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.add_volunteer_to_opportunity(
+                1, opportunity_id
+            )
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Opportunity with the given id: {opportunity_id}, does not exist.']"
+        )
+
+    def test_remove_volunteer_from_opportunity_success(self):
+        # Arrange
+        opportunity1 = townhall_models.Opportunity.objects.get(id=1)
+        opportunity2 = townhall_models.Opportunity.objects.get(id=2)
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        opportunity1.volunteers.add(volunteer)
+        opportunity2.volunteers.add(volunteer)
+
+        # Act
+        townhall_services.VolunteerServices.remove_volunteer_from_opportunity(1, 1)
+
+        # Assert
+        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        assert len(volunteer.opportunities.all()) == 1
+        ids = [opportunity.id for opportunity in volunteer.opportunities.all()]
+        assert set(ids) == {2}
+
+    @patch("myapi.dao.VolunteerDao.remove_volunteer_from_opportunity")
+    def test_remove_volunteer_from_opportunity_volunteer_not_found(
+        self, mock_remove_volunteer_from_opportunity
+    ):
+        # Arrange
+        mock_remove_volunteer_from_opportunity.side_effect = (
+            townhall_models.Volunteer.DoesNotExist
+        )
+        volunteer_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.remove_volunteer_from_opportunity(
+                volunteer_id, 1
+            )
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
+        )
+
+    @patch("myapi.dao.VolunteerDao.remove_volunteer_from_opportunity")
+    def test_remove_volunteer_from_opportunity_opportunity_not_found(
+        self, mock_remove_volunteer_from_opportunity
+    ):
+        # Arrange
+        mock_remove_volunteer_from_opportunity.side_effect = (
+            townhall_models.Opportunity.DoesNotExist
+        )
+        opportunity_id = 999  # Assuming this ID does not exist
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.add_volunteer_to_opportunity(
+                1, opportunity_id
+            )
+
+        # Assert
+        assert (
+            str(context.exception)
+            == f"['Opportunity with the given id: {opportunity_id}, does not exist.']"
         )
 
     def test_update_volunteer_one_field_success(self):

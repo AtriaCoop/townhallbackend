@@ -81,13 +81,41 @@ class VolunteerServices:
         volunteer_id: int,
     ) -> QuerySet[Opportunity]:
         try:
-            volunteer = volunteer_dao.get_all_opportunities_of_a_volunteer(
+            opportunities = volunteer_dao.get_all_opportunities_of_a_volunteer(
                 volunteer_id=volunteer_id
             )
-            return volunteer
+            return opportunities
         except Volunteer.DoesNotExist:
             raise ValidationError(
                 f"Volunteer with the given id: {volunteer_id}, does not exist."
+            )
+
+    def add_volunteer_to_opportunity(volunteer_id: int, opportunity_id: int) -> None:
+        try:
+            volunteer_dao.add_volunteer_to_opportunity(volunteer_id, opportunity_id)
+        except Volunteer.DoesNotExist:
+            raise ValidationError(
+                f"Volunteer with the given id: {volunteer_id}, does not exist."
+            )
+        except Opportunity.DoesNotExist:
+            raise ValidationError(
+                f"Opportunity with the given id: {opportunity_id}, does not exist."
+            )
+
+    def remove_volunteer_from_opportunity(
+        volunteer_id: int, opportunity_id: int
+    ) -> None:
+        try:
+            volunteer_dao.remove_volunteer_from_opportunity(
+                volunteer_id, opportunity_id
+            )
+        except Volunteer.DoesNotExist:
+            raise ValidationError(
+                f"Volunteer with the given id: {volunteer_id}, does not exist."
+            )
+        except Opportunity.DoesNotExist:
+            raise ValidationError(
+                f"Opportunity with the given id: {opportunity_id}, does not exist."
             )
 
     def change_volunteers_password(
@@ -320,7 +348,11 @@ class TaskServices:
     @staticmethod
     def create_task(create_task_data: CreateTaskData) -> Task:
         # Fetch related instances (User, Organization)
-        assigned_to = Volunteer.objects.get(id=create_task_data.assigned_to) if create_task_data.assigned_to else None
+        assigned_to = (
+            Volunteer.objects.get(id=create_task_data.assigned_to)
+            if create_task_data.assigned_to
+            else None
+        )
         created_by = Volunteer.objects.get(id=create_task_data.created_by)
         organization = Organization.objects.get(id=create_task_data.organization_id)
 
@@ -332,12 +364,14 @@ class TaskServices:
             status=create_task_data.status,
             assigned_to=assigned_to,
             created_by=created_by,
-            organization=organization
+            organization=organization,
         )
 
     @staticmethod
-    def update_task(task_id: int, update_task_data: UpdateTaskData) -> typing.Optional[Task]:
-  
+    def update_task(
+        task_id: int, update_task_data: UpdateTaskData
+    ) -> typing.Optional[Task]:
+
         task = task_dao.get_task_by_id(task_id)
 
         if not task:
