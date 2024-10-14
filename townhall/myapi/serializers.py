@@ -12,11 +12,17 @@ class OpportunitySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class VolunteerSerializer(serializers.ModelSerializer):
+class ResponseVolunteerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Volunteer
-        fields = ["first_name", "last_name", "email", "gender", "is_active"]
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "gender",
+            "is_active",
+        ]
 
 
 class CreateVolunteerSerializer(serializers.ModelSerializer):
@@ -44,3 +50,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
+
+
+class ValidIDSerializer(serializers.Serializer):
+    opportunity_id = serializers.IntegerField(required=True)

@@ -60,7 +60,11 @@ class VolunteerServices:
             create_volunteer_data.password = make_password(
                 create_volunteer_data.password
             )
-            volunteer_dao.create_volunteer(create_volunteer_data=create_volunteer_data)
+            volunteer = volunteer_dao.create_volunteer(
+                create_volunteer_data=create_volunteer_data
+            )
+
+            return volunteer
         except ValidationError:
             raise
 

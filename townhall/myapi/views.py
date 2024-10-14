@@ -13,9 +13,10 @@ from .services import OrganizationServices as organization_services
 from .services import TaskServices
 
 from .serializers import OpportunitySerializer
-from .serializers import VolunteerSerializer, CreateVolunteerSerializer
+from .serializers import ResponseVolunteerSerializer, CreateVolunteerSerializer
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
+from .serializers import ValidIDSerializer
 
 from .types import CreateVolunteerData
 
@@ -47,37 +48,74 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         # Transforms requests JSON data into a python dictionary
         serializer = CreateVolunteerSerializer(data=request.data)
 
-        # Checks if the data is valid
-        if serializer.is_valid():
-            # If data is valid, Take out the validated data
-            validated_data = serializer.validated_data
+        # If the data is NOT valid return with a message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # Convert the validated data into the CreateVolunteerData type
-            create_volunteer_data = CreateVolunteerData(
-                first_name=validated_data["first_name"],
-                last_name=validated_data["last_name"],
-                email=validated_data["email"],
-                password=validated_data["password"],
-                gender=validated_data["gender"],
+        # If data is valid, Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Convert the validated data into the CreateVolunteerData type
+        create_volunteer_data = CreateVolunteerData(
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            gender=validated_data["gender"],
+        )
+
+        try:
+            # Call the service method to create the volunteer
+            volunteer = volunteer_services.create_volunteer(create_volunteer_data)
+
+            # Create the response serializer
+            response_serializer = ResponseVolunteerSerializer(volunteer)
+
+            # Return the successful response
+            return Response(
+                {
+                    "message": "Volunteer Created Successfully",
+                    "volunteer": response_serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # POST (Create) Add volunteer to Opportunity
+    @action(detail=True, methods=["post"], url_path="add_volunteer_to_opportunity")
+    def add_volunteer_to_opportunity_request(self, request, vol_id=None):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
+
+        # Create a serializer to check if the data is valid
+        serializer = ValidIDSerializer(data=request.data)
+
+        # If the data is NOT valid return with message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Take out the validated data
+        validated_data = serializer.validated_data
+        opportunity_id = validated_data["opportunity_id"]
+
+        try:
+            # Call the service method to add volunteer to opportunity
+            volunteer_services.add_volunteer_to_opportunity(
+                volunteer_id, opportunity_id
             )
 
-            try:
-                # Call the service method to create the volunteer
-                volunteer_services.create_volunteer(create_volunteer_data)
-
-                # Return the successful response
-                return Response(
-                    {
-                        "message": "Volunteer Created Successfully",
-                    },
-                    status=status.HTTP_201_CREATED,
-                )
-            except ValidationError as e:
-                # If services method returns an error, return an error Response
-                return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        # If the data is NOT valid return with a message serializers errors
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Return the successful response
+            return Response(
+                {
+                    "message": "Volunteer Added to Opportunity Successfully",
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
     # GET all volunteers
     @action(detail=False, methods=["get"], url_path="volunteers")
@@ -91,7 +129,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         print("Volunteers data:", volunteers)
 
         # Serialize the list of volunteers
-        serializer = VolunteerSerializer(volunteers, many=True)
+        serializer = ResponseVolunteerSerializer(volunteers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # GET Volunteer
@@ -103,7 +141,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         if error_response:
             return error_response
 
-        serializer = VolunteerSerializer(volunteer_obj)
+        serializer = ResponseVolunteerSerializer(volunteer_obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # Update a Volunteer by ID
@@ -117,7 +155,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                 {"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = VolunteerSerializer(
+        serializer = ResponseVolunteerSerializer(
             volunteer_obj, data=request.data, partial=False
         )
         if serializer.is_valid():

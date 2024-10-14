@@ -37,6 +37,15 @@ urlpatterns = [
         name="create_volunteer",
     ),
     path(
+        "volunteer/<int:vol_id>/add_volunteer_to_opportunity/",
+        VolunteerViewSet.as_view(
+            {
+                "post": "add_volunteer_to_opportunity_request",
+            }
+        ),
+        name="add_volunteer_to_opportunity",
+    ),
+    path(
         "volunteer/",
         VolunteerViewSet.as_view(
             {

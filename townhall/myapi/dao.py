@@ -34,7 +34,7 @@ class VolunteerDao:
         return Volunteer.objects.get(id=id)
 
     def create_volunteer(create_volunteer_data: CreateVolunteerData) -> None:
-        Volunteer.objects.create(
+        volunteer = Volunteer.objects.create(
             first_name=create_volunteer_data.first_name,
             last_name=create_volunteer_data.last_name,
             gender=create_volunteer_data.gender,
@@ -42,6 +42,8 @@ class VolunteerDao:
             password=create_volunteer_data.password,
             is_active=True,
         )
+
+        return volunteer
 
     def delete_volunteer(volunteer_id: int) -> None:
         Volunteer.objects.get(id=volunteer_id).delete()
