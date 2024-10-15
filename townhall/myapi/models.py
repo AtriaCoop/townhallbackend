@@ -110,3 +110,11 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Chat(models.Model):
+    participants = models.ManyToManyField(User, related_name='chats')
+    started_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.participants
