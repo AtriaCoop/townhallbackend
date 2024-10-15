@@ -33,4 +33,9 @@ jobs:
         git config --local user.email "github-actions@github.com"
         git add .
         git commit -m "Automated code formatting with Black" || echo "No changes to commit"
-        git push origin HEAD:refs/heads/${{ github.head_ref }}
+
+    - name: Pull Changes
+      run: git pull origin ${{ github.head_ref }} --rebase
+
+    - name: Push Changes
+      run: git push origin HEAD:refs/heads/${{ github.head_ref }}
