@@ -21,7 +21,6 @@ from .types import CreateTaskData, UpdateTaskData
 import typing
 from typing import Optional, List
 from django.db.models.query import QuerySet
-from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from django.contrib.auth.models import User
@@ -38,7 +37,7 @@ class VolunteerDao:
         return Volunteer.objects.get(id=id)
 
     def create_volunteer(create_volunteer_data: CreateVolunteerData) -> None:
-        Volunteer.objects.create(
+        volunteer = Volunteer.objects.create(
             first_name=create_volunteer_data.first_name,
             last_name=create_volunteer_data.last_name,
             gender=create_volunteer_data.gender,
@@ -46,6 +45,8 @@ class VolunteerDao:
             password=create_volunteer_data.password,
             is_active=True,
         )
+
+        return volunteer
 
     def delete_volunteer(volunteer_id: int) -> None:
         Volunteer.objects.get(id=volunteer_id).delete()
@@ -65,6 +66,26 @@ class VolunteerDao:
             volunteer.is_active = update_volunteer_data.is_active
 
         volunteer.save()
+
+    def get_all_opportunities_of_a_volunteer(
+        volunteer_id: int,
+    ) -> QuerySet[Opportunity]:
+        volunteer = Volunteer.objects.get(id=volunteer_id)
+        return volunteer.opportunities.all()
+
+    def add_volunteer_to_opportunity(volunteer_id: int, opportunity_id: int) -> None:
+        opportunity = Opportunity.objects.get(id=opportunity_id)
+        volunteer = Volunteer.objects.get(id=volunteer_id)
+        opportunity.volunteers.add(volunteer)
+        opportunity.save()
+
+    def remove_volunteer_from_opportunity(
+        volunteer_id: int, opportunity_id: int
+    ) -> None:
+        opportunity = Opportunity.objects.get(id=opportunity_id)
+        volunteer = Volunteer.objects.get(id=volunteer_id)
+        opportunity.volunteers.remove(volunteer)
+        opportunity.save()
 
     def change_volunteers_password(
         change_vounteer_password_data: ChangeVolunteerPasswordData,
@@ -261,8 +282,8 @@ class OrganizationDao:
 
         return Organization.objects.filter(**filters)
 
-class TaskDao:
 
+class TaskDao:
     """
     Data Access Object for handling Task-related database operations.
     """
@@ -290,7 +311,7 @@ class TaskDao:
             status=task_data.status,
             assigned_to_id=task_data.assigned_to,
             created_by_id=task_data.created_by,
-            organization_id=task_data.organization_id
+            organization_id=task_data.organization_id,
         )
 
     @staticmethod
@@ -318,13 +339,12 @@ class TaskDao:
 
     @staticmethod
     def delete_task(task_id: int) -> None:
-        
+
         try:
             task = Task.objects.get(id=task_id)
             task.delete()
         except Task.DoesNotExist:
-          pass
-
+            pass
 
 class ChatDao:
 
