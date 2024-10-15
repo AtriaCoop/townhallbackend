@@ -19,3 +19,4 @@ PyYAML==6.0.2
 sqlparse==0.5.0
 virtualenv==20.26.3
 black==22.3.0
+flake8==6.0.0
