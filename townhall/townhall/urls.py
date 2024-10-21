@@ -28,16 +28,40 @@ from myapi.views import TaskViewSet
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
+        "volunteer/create_volunteer/",
+        VolunteerViewSet.as_view(
+            {
+                "post": "create_volunteer_request",
+            }
+        ),
+        name="create_volunteer",
+    ),
+    path(
+        "volunteer/<int:vol_id>/add_volunteer_to_opportunity/",
+        VolunteerViewSet.as_view(
+            {
+                "post": "add_volunteer_to_opportunity_request",
+            }
+        ),
+        name="add_volunteer_to_opportunity",
+    ),
+    path(
         "volunteer/",
         VolunteerViewSet.as_view(
-            {"get": "handle_volunteer_request", "delete": "handle_volunteer_delete"}
+            {
+                "get": "handle_volunteer_request",
+                "delete": "handle_volunteer_delete",
+            }
         ),
     ),
-     path("volunteers/",
-          VolunteerViewSet.as_view(
-              {'get': 'get_all_volunteers'}
-          )
-     ),
+    path(
+        "volunteers/",
+        VolunteerViewSet.as_view(
+            {
+                "get": "get_all_volunteers",
+            }
+        ),
+    ),
     path(
         "volunteer/<int:pk>/update/",
         VolunteerViewSet.as_view({"put": "update_volunteer"}),
@@ -64,23 +88,13 @@ urlpatterns = [
         ),
     ),
     path(
-        'tasks/',
-        TaskViewSet.as_view(
-            {
-                'get': 'get_all_tasks',
-                'post': 'create_task'
-            }
-        )
+        "tasks/", TaskViewSet.as_view({"get": "get_all_tasks", "post": "create_task"})
     ),
     path(
-        'tasks/<int:pk>/',
-          TaskViewSet.as_view(
-              {
-                  'get': 'get_task',
-                  'put': 'update_task',
-                  'delete': 'delete_task'
-              }
-        )
+        "tasks/<int:pk>/",
+        TaskViewSet.as_view(
+            {"get": "get_task", "put": "update_task", "delete": "delete_task"}
+        ),
     ),
 ]
 
