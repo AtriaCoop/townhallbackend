@@ -81,6 +81,7 @@ class Comment(models.Model):
     def __str__(self):
         return str(self.id)
 
+
 class Task(models.Model):
     """
     Model representing a task in the system with fields for name, description, deadline,
@@ -88,9 +89,9 @@ class Task(models.Model):
     """
 
     class TaskStatus(models.TextChoices):
-        OPEN = 'open', _('Open')
-        IN_PROGRESS = 'in_progress', _('In Progress')
-        COMPLETED = 'completed', _('Completed')
+        OPEN = "open", _("Open")
+        IN_PROGRESS = "in_progress", _("In Progress")
+        COMPLETED = "completed", _("Completed")
 
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -101,20 +102,31 @@ class Task(models.Model):
         default=TaskStatus.OPEN,
     )
     assigned_to = models.ForeignKey(
-        'Volunteer', on_delete=models.SET_NULL, null=True, related_name='assigned_tasks'
+        "Volunteer", on_delete=models.SET_NULL, null=True, related_name="assigned_tasks"
     )
     created_by = models.ForeignKey(
-        'Volunteer', on_delete=models.SET_NULL, null=True, related_name='created_tasks'
+        "Volunteer", on_delete=models.SET_NULL, null=True, related_name="created_tasks"
     )
-    organization = models.ForeignKey('Organization', on_delete=models.CASCADE)
+    organization = models.ForeignKey("Organization", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
-    
+
 
 class Chat(models.Model):
-    participants = models.ManyToManyField(User, related_name='chats')
+    participants = models.ManyToManyField(User, related_name="chats")
     started_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.participants
+
+
+class Project(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    # community_id = models.ForeignKey(Community, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
