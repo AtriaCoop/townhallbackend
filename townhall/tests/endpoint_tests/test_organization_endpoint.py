@@ -2,8 +2,7 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 from myapi import models as townhall_models
-from datetime import datetime
-from django.utils import timezone
+
 
 @pytest.mark.django_db  # Enables access to database
 class TestEndpointOrganization:

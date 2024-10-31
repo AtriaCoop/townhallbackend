@@ -6,6 +6,7 @@ from myapi.services import TaskServices
 from myapi.types import CreateTaskData, UpdateTaskData
 from myapi.models import Task, Volunteer, Organization
 
+
 class TaskServiceTests(TestCase):
 
     @classmethod
@@ -15,9 +16,9 @@ class TaskServiceTests(TestCase):
         """
         super().setUpClass()
         # Load the volunteer fixture
-        call_command('loaddata', 'volunteer_fixture.json')
-        call_command('loaddata', 'organization_fixture.json')
-        call_command('loaddata', 'task_fixture.json')
+        call_command("loaddata", "volunteer_fixture.json")
+        call_command("loaddata", "organization_fixture.json")
+        call_command("loaddata", "task_fixture.json")
 
     def setUp(self):
         """
@@ -28,19 +29,19 @@ class TaskServiceTests(TestCase):
 
         self.volunteer = Volunteer.objects.get(pk=1)
         self.organization = Organization.objects.create(
-            name='Test Organization',
-            location='Test Location',
-            email='testorg@example.com'
+            name="Test Organization",
+            location="Test Location",
+            email="testorg@example.com",
         )
 
         self.task_data = CreateTaskData(
-            name='Test Task',
-            description='Task description',
+            name="Test Task",
+            description="Task description",
             deadline=timezone.make_aware(datetime(2024, 12, 31, 23, 59, 59)),
             status=Task.TaskStatus.OPEN,
             assigned_to=self.volunteer.id,
             created_by=self.volunteer.id,
-            organization_id=self.organization.id
+            organization_id=self.organization.id,
         )
 
     def test_create_task(self):
@@ -51,7 +52,7 @@ class TaskServiceTests(TestCase):
         task = TaskServices.create_task(self.task_data)
 
         # Assert: Verify that the task is created correctly with the expected values
-        self.assertEqual(task.name, 'Test Task')
+        self.assertEqual(task.name, "Test Task")
         self.assertEqual(task.assigned_to, self.volunteer)
         self.assertEqual(task.status, Task.TaskStatus.OPEN)
 
@@ -72,7 +73,7 @@ class TaskServiceTests(TestCase):
 
         # Assert: Verify that the task list contains exactly one task
         self.assertEqual(len(tasks), 1)  # Expecting only 1 task to be present
-        self.assertEqual(tasks[0].name, 'Test Task')
+        self.assertEqual(tasks[0].name, "Test Task")
         self.assertEqual(tasks[0].status, Task.TaskStatus.OPEN)
 
     def test_get_task_by_id(self):
@@ -86,7 +87,7 @@ class TaskServiceTests(TestCase):
         retrieved_task = TaskServices.get_task_by_id(task.id)
 
         # Assert: Verify that the retrieved task matches the created task
-        self.assertEqual(retrieved_task.name, 'Test Task')
+        self.assertEqual(retrieved_task.name, "Test Task")
         self.assertEqual(retrieved_task.status, Task.TaskStatus.OPEN)
 
     def test_update_task(self):
@@ -95,13 +96,15 @@ class TaskServiceTests(TestCase):
         """
         # Arrange: Create a task and prepare update data
         task = TaskServices.create_task(self.task_data)
-        update_data = UpdateTaskData(id=task.id, name='Updated Task', status=Task.TaskStatus.IN_PROGRESS)
+        update_data = UpdateTaskData(
+            id=task.id, name="Updated Task", status=Task.TaskStatus.IN_PROGRESS
+        )
 
         # Act: Call the update_task service method
         updated_task = TaskServices.update_task(task.id, update_data)
 
         # Assert: Verify that the task is updated with the new values
-        self.assertEqual(updated_task.name, 'Updated Task')
+        self.assertEqual(updated_task.name, "Updated Task")
         self.assertEqual(updated_task.status, Task.TaskStatus.IN_PROGRESS)
 
     def test_delete_task(self):
