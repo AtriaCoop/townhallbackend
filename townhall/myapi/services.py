@@ -413,6 +413,7 @@ class chatServices:
     def get_chat(user_id):
         try:
             # Check if the user exists
+            User.objects.get(id=user_id)
             chat = chat_dao.get_chat(user_id)
             if not chat:
                 return {"message": "No chats found for this user", "data": []}

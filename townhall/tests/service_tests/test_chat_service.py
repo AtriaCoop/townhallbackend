@@ -17,9 +17,9 @@ class ChatServiceTest(TestCase):
         self.assertEqual(result["message"], "Success")
         self.assertEqual(len(result["data"]), 1)
 
-    # def test_get_chats_no_user(self):
-    #     result = chatServices.get_chat(999)
-    #     self.assertEqual(result["error"], "User with ID 999 does not exist.")
+    def test_get_chats_no_user(self):
+        result = chatServices.get_chat(999)
+        self.assertEqual(result["error"], "User with ID 999 does not exist.")
 
     def test_get_chats_no_chats(self):
         another_user = User.objects.create(username="anotheruser")
