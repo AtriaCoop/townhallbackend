@@ -16,6 +16,7 @@ from .dao import OpportunityDao as opportunity_dao
 from .dao import OrganizationDao as organization_dao
 from .dao import TaskDao as task_dao
 from .dao import ChatDao as chat_dao
+from .dao import ProjectDao as project_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -36,7 +37,7 @@ from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 from .models import Task
-from .models import Chat
+from .models import Project
 
 User = get_user_model()
 
@@ -412,7 +413,6 @@ class chatServices:
     def get_chat(user_id):
         try:
             # Check if the user exists
-            user = User.objects.get(id=user_id)
             chat = chat_dao.get_chat(user_id)
             if not chat:
                 return {"message": "No chats found for this user", "data": []}
@@ -424,10 +424,10 @@ class chatServices:
 
     @staticmethod
     def start_chat(participants_id):
-            # Calling DAO method to create chat
-            chat = chat_dao.start_chat(participants_id)
-            return {"message": "Chat created successfully", "data": chat}
-    
+        # Calling DAO method to create chat
+        chat = chat_dao.start_chat(participants_id)
+        return {"message": "Chat created successfully", "data": chat}
+
     @staticmethod
     def delete_chat(chat_id):
         if not isinstance(chat_id, int) or chat_id <= 0:
@@ -440,3 +440,10 @@ class chatServices:
             return {"error": str(ve)}
         except Exception as e:
             return {"error": "An unexpected error occurred.", "details": str(e)}
+
+
+class ProjectServices:
+
+    @staticmethod
+    def get_project(id: int) -> typing.Optional[Project]:
+        return project_dao.get_project(id=id)
