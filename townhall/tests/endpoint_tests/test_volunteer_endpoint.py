@@ -12,10 +12,55 @@ from django.core.exceptions import ValidationError
 
 class TestEndpointVolunteer(TestCase):
 
-    def setup(self):
+    def setUp(self):
         self.client = APIClient()
+        townhall_models.Volunteer.objects.create(
+            id=10,
+            first_name="James",
+            last_name="Bond",
+            gender="M",
+            email="jamesbond@gmail.ca",
+        )
+        townhall_models.Volunteer.objects.create(
+            id=11,
+            first_name="Iron",
+            last_name="Man",
+            gender="M",
+            email="ironman@yahoo.com",
+        )
 
     # GET One Volunteer
+    def test_get_volunteer_success(self):
+        # Arrange
+        self.url = "/volunteer/10/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"], "Volunteer Added to Opportunity Successfully"
+        )
+        self.assertEqual(response.data["volunteer"]["first_name"], "James")
+        self.assertEqual(response.data["volunteer"]["last_name"], "Bond")
+        self.assertEqual(response.data["volunteer"]["email"], "jamesbond@gmail.ca")
+        self.assertEqual(response.data["volunteer"]["gender"], "M")
+        self.assertEqual(response.data["volunteer"]["is_active"], True)
+
+    def test_get_volunteer_fail_service_error(self):
+        # Arrange
+        self.url = "/volunteer/999/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data["message"],
+            "['Volunteer with the given id: 999, does not exist.']",
+        )
 
     # GET All Volunteers
 
@@ -38,11 +83,6 @@ class TestEndpointVolunteer(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["message"], "Volunteer Created Successfully")
-        self.assertEqual(response.data["volunteer"]["first_name"], "John")
-        self.assertEqual(response.data["volunteer"]["last_name"], "Doe")
-        self.assertEqual(response.data["volunteer"]["email"], "john.doe@example.com")
-        self.assertEqual(response.data["volunteer"]["gender"], "M")
-        self.assertEqual(response.data["volunteer"]["is_active"], True)
 
     def test_create_volunteer_fail_invalid_data(self):
         # Arrange

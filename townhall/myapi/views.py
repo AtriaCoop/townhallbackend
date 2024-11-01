@@ -101,19 +101,13 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # GET One Volunteer
     @action(detail=True, methods=["get"], url_path="volunteer")
-    def get_volunteer_request(self, vol_id=None):
+    def get_volunteer_request(self, request, vol_id=None):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
         try:
             # Call the service method to get the volunteer
             volunteer = volunteer_services.get_volunteer(volunteer_id)
-
-            if volunteer is None:
-                return Response(
-                    {"message": "An unexpected error has occured"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
 
             # Create the response serializer
             response_serializer = ResponseVolunteerSerializer(volunteer)
@@ -154,7 +148,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # GET All Opportunities of a Volunteer
     @action(detail=True, methods=["get"], url_path="opportunity")
-    def get_all_opportunities_of_a_volunteer_request(self, vol_id=None):
+    def get_all_opportunities_of_a_volunteer_request(self, request, vol_id=None):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 

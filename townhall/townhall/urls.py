@@ -41,7 +41,7 @@ urlpatterns = [
         "volunteer/<int:vol_id>/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_volunteer_requesr",
+                "get": "get_volunteer_request",
                 "delete": "handle_volunteer_delete",
             }
         ),
