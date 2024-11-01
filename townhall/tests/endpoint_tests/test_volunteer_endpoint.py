@@ -29,7 +29,6 @@ class TestEndpointVolunteer(TestCase):
             email="ironman@yahoo.com",
         )
 
-    # GET One Volunteer
     def test_get_volunteer_success(self):
         # Arrange
         self.url = "/volunteer/10/"
@@ -62,7 +61,33 @@ class TestEndpointVolunteer(TestCase):
             "['Volunteer with the given id: 999, does not exist.']",
         )
 
-    # GET All Volunteers
+    def test_get_all_volunteers_success(self):
+        # Arrange
+        self.url = "/volunteer/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"], "All Volunteers retreived successfully"
+        )
+        volunteers = response.data["data"]
+        self.assertEqual(len(volunteers), 2)
+
+    @patch("myapi.services.VolunteerServices.get_volunteers_all")
+    def test_get_all_volunteers_success_none(self, mock_get_volunteers_all):
+        # Arrange
+        mock_get_volunteers_all.return_value = townhall_models.Volunteer.objects.none()
+        self.url = "/volunteer/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "No Volunteers were found")
 
     # GET All Opportunities of a Volunteer
 
