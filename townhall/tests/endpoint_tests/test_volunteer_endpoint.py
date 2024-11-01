@@ -15,10 +15,15 @@ class TestEndpointVolunteer(TestCase):
     def setup(self):
         self.client = APIClient()
 
-    # POST Create Volunteer
+    # GET One Volunteer
+
+    # GET All Volunteers
+
+    # GET All Opportunities of a Volunteer
+
     def test_create_volunteer_success(self):
         # Arrange
-        self.url = "/volunteer/create_volunteer/"
+        self.url = "/volunteer/"
         valid_data = {
             "first_name": "John",
             "last_name": "Doe",
@@ -41,7 +46,7 @@ class TestEndpointVolunteer(TestCase):
 
     def test_create_volunteer_fail_invalid_data(self):
         # Arrange
-        self.url = "/volunteer/create_volunteer/"
+        self.url = "/volunteer/"
         invalid_data = {
             "first_name": "John",
             # Invalid Data because missing email
@@ -60,7 +65,7 @@ class TestEndpointVolunteer(TestCase):
     def test_create_volunteer_fail_service_error(self, mock_create_volunteer):
         # Arrange
         mock_create_volunteer.side_effect = ValidationError("random message")
-        self.url = "/volunteer/create_volunteer/"
+        self.url = "/volunteer/"
         valid_data = {
             "first_name": "John",
             "last_name": "Doe",
@@ -76,7 +81,6 @@ class TestEndpointVolunteer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["message"], "['random message']")
 
-    # POST Add Volunteer to Opportunity
     def test_add_volunteer_to_opportunity_success(self):
         # Pre Arrange
         townhall_models.Organization.objects.create(
@@ -106,7 +110,7 @@ class TestEndpointVolunteer(TestCase):
         )
 
         # Arrange
-        self.url = "/volunteer/1/add_volunteer_to_opportunity/"
+        self.url = "/volunteer/1/opportunity/"
         valid_data = {"opportunity_id": 1}
 
         # Act
@@ -124,7 +128,7 @@ class TestEndpointVolunteer(TestCase):
 
     def test_add_volunteer_to_opportunity_fail_invalid_data(self):
         # Arrange
-        self.url = "/volunteer/1/add_volunteer_to_opportunity/"
+        self.url = "/volunteer/1/opportunity/"
         invalid_data = {"opportunity_id": "one"}
 
         # Act
@@ -141,7 +145,7 @@ class TestEndpointVolunteer(TestCase):
         mock_add_volunteer_to_opportunity.side_effect = ValidationError(
             "random message"
         )
-        self.url = "/volunteer/1/add_volunteer_to_opportunity/"
+        self.url = "/volunteer/1/opportunity/"
         valid_data = {"opportunity_id": 1}
 
         # Act
