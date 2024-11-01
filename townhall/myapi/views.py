@@ -125,7 +125,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
     # GET All Volunteers
-    @action(detail=False, methods=["get"], url_path="volunteers")
+    @action(detail=False, methods=["get"], url_path="volunteer")
     def get_all_volunteers_request(self, request):
         volunteers = volunteer_services.get_volunteers_all()
 
@@ -160,7 +160,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
             if not opportunities:
                 return Response(
-                    {"message": "No Volunteers were found"},
+                    {"message": "No Opportunities were found"},
                     status=status.HTTP_200_OK,
                 )
 

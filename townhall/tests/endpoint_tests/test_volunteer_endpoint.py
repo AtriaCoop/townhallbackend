@@ -89,7 +89,79 @@ class TestEndpointVolunteer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "No Volunteers were found")
 
-    # GET All Opportunities of a Volunteer
+    def test_get_all_opportunities_of_a_volunteer_success(self):
+        # Arrange
+        organization = townhall_models.Organization.objects.create(
+            id=1,
+            name="Sample Organization",
+            location="Sample Location",
+            email="Sample Email",
+            phone_number="Sample Phone Number",
+            website="Sample Website",
+        )
+        opportunity1 = townhall_models.Opportunity.objects.create(
+            id=1,
+            title="Sample Opportunity1",
+            start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            end_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            description="Sample description",
+            location="Sample location",
+            organization=organization,
+        )
+        opportunity2 = townhall_models.Opportunity.objects.create(
+            id=2,
+            title="Sample Opportunity2",
+            start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            end_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            description="Sample description",
+            location="Sample location",
+            organization=organization,
+        )
+        opportunity1.volunteers.add(townhall_models.Volunteer.objects.get(id=10))
+        opportunity2.volunteers.add(townhall_models.Volunteer.objects.get(id=10))
+        self.url = "/volunteer/10/opportunity/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"],
+            "Opportunities of this Volunteer retreived successfully",
+        )
+        volunteers = response.data["data"]
+        self.assertEqual(len(volunteers), 2)
+
+    @patch("myapi.services.VolunteerServices.get_all_opportunities_of_a_volunteer")
+    def test_get_all_opportunities_of_a_volunteer_success_none(
+        self, mock_get_all_opportunities_of_a_volunteer
+    ):
+        # Arrange
+        empty_queryset = townhall_models.Opportunity.objects.none()
+        mock_get_all_opportunities_of_a_volunteer.return_value = empty_queryset
+        self.url = "/volunteer/11/opportunity/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "No Opportunities were found")
+
+    def test_get_all_opportunities_of_a_volunteer_fail_service_error(self):
+        # Arrange
+        self.url = "/volunteer/999/opportunity/"
+
+        # Act
+        response = self.client.get(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data["message"],
+            "['Volunteer with the given id: 999, does not exist.']",
+        )
 
     def test_create_volunteer_success(self):
         # Arrange
