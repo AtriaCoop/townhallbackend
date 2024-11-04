@@ -6,7 +6,6 @@ from myapi import models as townhall_models
 
 from datetime import datetime
 from django.utils import timezone
-
 from django.core.exceptions import ValidationError
 
 
