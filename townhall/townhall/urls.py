@@ -42,7 +42,7 @@ urlpatterns = [
         VolunteerViewSet.as_view(
             {
                 "get": "get_volunteer_request",
-                "delete": "handle_volunteer_delete",
+                "delete": "delete_volunteer_request",
             }
         ),
         name="volunteer_id",
