@@ -53,6 +53,7 @@ urlpatterns = [
             {
                 "get": "get_all_opportunities_of_a_volunteer_request",
                 "post": "add_volunteer_to_opportunity_request",
+                "delete": "remove_opportunity_from_a_volunteer",
             }
         ),
         name="volunteers_opportunities",
