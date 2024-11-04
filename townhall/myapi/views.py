@@ -198,7 +198,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # DELETE (Remove) An Opportunity from a Volunteer
     @action(detail=True, methods=["delete"], url_path="opportunity")
-    def remove_opportunity_from_a_volunteer(self, request, vol_id=None):
+    def remove_opportunity_from_a_volunteer_request(self, request, vol_id=None):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
