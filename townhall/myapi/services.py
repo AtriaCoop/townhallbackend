@@ -36,7 +36,6 @@ from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 from .models import Task
-from .models import Chat
 
 User = get_user_model()
 
@@ -412,7 +411,7 @@ class chatServices:
     def get_chat(user_id):
         try:
             # Check if the user exists
-            user = User.objects.get(id=user_id)
+            User.objects.get(id=user_id)
             chat = chat_dao.get_chat(user_id)
             if not chat:
                 return {"message": "No chats found for this user", "data": []}
@@ -424,10 +423,10 @@ class chatServices:
 
     @staticmethod
     def start_chat(participants_id):
-            # Calling DAO method to create chat
-            chat = chat_dao.start_chat(participants_id)
-            return {"message": "Chat created successfully", "data": chat}
-    
+        # Calling DAO method to create chat
+        chat = chat_dao.start_chat(participants_id)
+        return {"message": "Chat created successfully", "data": chat}
+
     @staticmethod
     def delete_chat(chat_id):
         if not isinstance(chat_id, int) or chat_id <= 0:

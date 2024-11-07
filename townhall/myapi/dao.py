@@ -24,7 +24,6 @@ from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 
 # Follows layered architecture pattern of views -> services -> dao
 
@@ -346,6 +345,7 @@ class TaskDao:
         except Task.DoesNotExist:
             pass
 
+
 class ChatDao:
 
     @staticmethod
@@ -358,7 +358,7 @@ class ChatDao:
             raise ValueError(f"User with ID {user.id} does not exist")
         except ObjectDoesNotExist:
             return []
-        
+
     @staticmethod
     def start_chat(participants_id):
         # Create new chat
@@ -367,7 +367,7 @@ class ChatDao:
         new_chat.save()
 
         return new_chat
-    
+
     @staticmethod
     def delete_chat(chat_id):
         try:
