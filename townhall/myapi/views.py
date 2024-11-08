@@ -183,6 +183,13 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
+        # If volunteer_id is None return an error
+        if volunteer_id is None:
+            return Response(
+                {"message": "Given Volunteer is not Valid"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
         try:
             # Call the service method to delete the volunteer
             volunteer_services.delete_volunteer(volunteer_id)
