@@ -26,24 +26,8 @@ from .types import UpdateTaskData
 
 class VolunteerViewSet(viewsets.ModelViewSet):
 
-    # Define the get_queryset method to fetch all volunteers
-    # Returns all volunteers for use with the ModelViewSet's built-in functionality.
-    def get_queryset(self):
-
-        return volunteer_services.get_volunteers_all()
-
-    # Helper method to fetch volunteer by ID and handle case where volunteer not found
-    def get_volunteer_object(self, pk):
-
-        volunteer = volunteer_services.get_volunteer(id=pk)
-        if not volunteer:
-            return None, Response(
-                {"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        return volunteer, None
-
     # POST (Create) Volunteer
-    @action(detail=False, methods=["post"], url_path="create_volunteer")
+    @action(detail=False, methods=["post"], url_path="volunteer")
     def create_volunteer_request(self, request):
         # Transforms requests JSON data into a python dictionary
         serializer = CreateVolunteerSerializer(data=request.data)
@@ -84,7 +68,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     # POST (Create) Add volunteer to Opportunity
-    @action(detail=True, methods=["post"], url_path="add_volunteer_to_opportunity")
+    @action(detail=True, methods=["post"], url_path="opportunity")
     def add_volunteer_to_opportunity_request(self, request, vol_id=None):
         # Get the volunteer id from the url
         volunteer_id = vol_id
@@ -108,41 +92,90 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
             # Return the successful response
             return Response(
-                {
-                    "message": "Volunteer Added to Opportunity Successfully",
-                },
+                {"message": "Volunteer Added to Opportunity Successfully"},
                 status=status.HTTP_201_CREATED,
             )
         except ValidationError as e:
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-    # GET all volunteers
-    @action(detail=False, methods=["get"], url_path="volunteers")
-    def get_all_volunteers(self, request):
+    # GET One Volunteer
+    @action(detail=True, methods=["get"], url_path="volunteer")
+    def get_volunteer_request(self, request, vol_id=None):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
+
+        try:
+            # Call the service method to get the volunteer
+            volunteer = volunteer_services.get_volunteer(volunteer_id)
+
+            # Create the response serializer
+            response_serializer = ResponseVolunteerSerializer(volunteer)
+
+            # Return the successful response
+            return Response(
+                {
+                    "message": "Volunteer Added to Opportunity Successfully",
+                    "volunteer": response_serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    # GET All Volunteers
+    @action(detail=False, methods=["get"], url_path="volunteer")
+    def get_all_volunteers_request(self, request):
         volunteers = volunteer_services.get_volunteers_all()
 
         # If no volunteers exist, return an empty list
         if not volunteers:
-            return Response([], status=status.HTTP_200_OK)
+            return Response(
+                {"message": "No Volunteers were found"},
+                status=status.HTTP_200_OK,
+            )
 
-        print("Volunteers data:", volunteers)
+        # Create the response serializer for the list of volunteers
+        response_serializer = ResponseVolunteerSerializer(volunteers, many=True)
+        return Response(
+            {
+                "message": "All Volunteers retreived successfully",
+                "data": response_serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
-        # Serialize the list of volunteers
-        serializer = ResponseVolunteerSerializer(volunteers, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # GET All Opportunities of a Volunteer
+    @action(detail=True, methods=["get"], url_path="opportunity")
+    def get_all_opportunities_of_a_volunteer_request(self, request, vol_id=None):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
 
-    # GET Volunteer
-    @action(detail=False, methods=["get"], url_path="volunteer")
-    def handle_volunteer_request(self, request):
-        volunteer_id = self.request.query_params.get("id")
+        try:
+            # Call the service method to get the opportunities for the volunteer
+            opportunities = volunteer_services.get_all_opportunities_of_a_volunteer(
+                volunteer_id
+            )
 
-        volunteer_obj, error_response = self.get_volunteer_object(volunteer_id)
-        if error_response:
-            return error_response
+            if not opportunities:
+                return Response(
+                    {"message": "No Opportunities were found"},
+                    status=status.HTTP_200_OK,
+                )
 
-        serializer = ResponseVolunteerSerializer(volunteer_obj)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            # Create the response serializer for the list of volunteers
+            response_serializer = OpportunitySerializer(opportunities, many=True)
+            return Response(
+                {
+                    "message": "Opportunities of this Volunteer retreived successfully",
+                    "data": response_serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
     # Update a Volunteer by ID
     @action(detail=True, methods=["put"], url_path="update")
