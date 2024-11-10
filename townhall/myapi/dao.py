@@ -3,6 +3,7 @@ from .models import Opportunity
 from .models import Organization
 from .models import Task
 from .models import Chat
+from .models import Project
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -375,3 +376,14 @@ class ChatDao:
             chat.delete()  # Deletes the chat from the database
         except Chat.DoesNotExist:
             raise ValueError(f"Chat with ID {chat_id} does not exist.")
+
+
+class ProjectDao:
+
+    @staticmethod
+    def get_project(id: int) -> typing.Optional[Project]:
+        try:
+            project = Project.objects.get(id=id)
+            return project
+        except Project.DoesNotExist:
+            return None
