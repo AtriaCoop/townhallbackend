@@ -28,39 +28,34 @@ from myapi.views import TaskViewSet
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
-        "volunteer/create_volunteer/",
-        VolunteerViewSet.as_view(
-            {
-                "post": "create_volunteer_request",
-            }
-        ),
-        name="create_volunteer",
-    ),
-    path(
-        "volunteer/<int:vol_id>/add_volunteer_to_opportunity/",
-        VolunteerViewSet.as_view(
-            {
-                "post": "add_volunteer_to_opportunity_request",
-            }
-        ),
-        name="add_volunteer_to_opportunity",
-    ),
-    path(
         "volunteer/",
         VolunteerViewSet.as_view(
             {
-                "get": "handle_volunteer_request",
+                "get": "get_all_volunteers_request",
+                "post": "create_volunteer_request",
+            }
+        ),
+        name="volunteer",
+    ),
+    path(
+        "volunteer/<int:vol_id>/",
+        VolunteerViewSet.as_view(
+            {
+                "get": "get_volunteer_request",
                 "delete": "handle_volunteer_delete",
             }
         ),
+        name="volunteer_id",
     ),
     path(
-        "volunteers/",
+        "volunteer/<int:vol_id>/opportunity/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_all_volunteers",
+                "get": "get_all_opportunities_of_a_volunteer_request",
+                "post": "add_volunteer_to_opportunity_request",
             }
         ),
+        name="volunteers_opportunities",
     ),
     path(
         "volunteer/<int:pk>/update/",

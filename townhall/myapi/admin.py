@@ -18,12 +18,14 @@ class CommentInline(admin.TabularInline):
 class PostAdmin(admin.ModelAdmin):
     inlines = [CommentInline]
 
+
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
 
-    list_display = ['name', 'status', 'deadline', 'assigned_to', 'created_by']
-    search_fields = ['name', 'description']
-    list_filter = ['status', 'deadline', 'assigned_to']
+    list_display = ["name", "status", "deadline", "assigned_to", "created_by"]
+    search_fields = ["name", "description"]
+    list_filter = ["status", "deadline", "assigned_to"]
+
 
 admin.site.register(Volunteer)
 admin.site.register(Opportunity)

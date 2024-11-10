@@ -43,9 +43,8 @@ class ChatServiceTest(TestCase):
         chat = chatServices.start_chat([self.user1.id, self.user2.id])["data"]
         result = chatServices.delete_chat(chat.id)
         self.assertEqual(result["message"], "Chat deleted successfully.")
-        self.assertFalse(
-            Chat.objects.filter(id=chat.id).exists()
-        )  # Chat should no longer exist
+        # Chat should no longer exist
+        self.assertFalse(Chat.objects.filter(id=chat.id).exists())
 
     def test_delete_chat_invalid_id(self):
         result = chatServices.delete_chat(-1)  # Invalid ID
