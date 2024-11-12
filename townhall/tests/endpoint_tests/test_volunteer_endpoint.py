@@ -289,3 +289,33 @@ class TestEndpointVolunteer(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["message"], "['random message']")
+
+    def test_delete_volunteer_success(self):
+        # Arrange
+        self.url = "/volunteer/10/"
+
+        # Act
+        response = self.client.delete(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "Volunteer Deleted Successfully")
+        try:
+            townhall_models.Volunteer.objects.get(id=10)
+            self.fail("Should have returned a Volunteer Does Not Exist Error")
+        except townhall_models.Volunteer.DoesNotExist:
+            pass
+
+    def test_delete_volunteer_fail_does_not_exist(self):
+        # Arrange
+        self.url = "/volunteer/999/"  # Assuming ID 999 doesn't exist
+
+        # Act
+        response = self.client.delete(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data["message"],
+            "['Volunteer with the given id: 999, does not exist.']",
+        )
