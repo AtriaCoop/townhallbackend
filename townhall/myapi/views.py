@@ -203,6 +203,38 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
+    # DELETE (Remove) An Opportunity from a Volunteer
+    @action(detail=True, methods=["delete"], url_path="opportunity")
+    def remove_opportunity_from_a_volunteer_request(self, request, vol_id=None):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
+
+        # Create a serializer to check if the data is valid
+        serializer = ValidIDSerializer(data=request.data)
+
+        # If the data is NOT valid return with message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Take out the validated data
+        validated_data = serializer.validated_data
+        opportunity_id = validated_data["opportunity_id"]
+
+        try:
+            # Call the service method to remove the opportunity from the volunteer
+            volunteer_services.remove_volunteer_from_opportunity(
+                volunteer_id, opportunity_id
+            )
+
+            # Create and return the response
+            return Response(
+                {"message": "Opportunity removed from Volunteer successfully"},
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     # Update a Volunteer by ID
     @action(detail=True, methods=["put"], url_path="update")
     def update_volunteer(self, request, pk=None):
@@ -224,26 +256,6 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # DELETE Volunteer
-    @action(detail=False, methods=["delete"], url_path="volunteer")
-    def handle_volunteer_delete(self, request):
-        volunteer_id = self.request.query_params.get("id")
-
-        if not volunteer_id:
-            raise ValidationError("The 'id' query parameter is required.")
-
-        volunteer_obj = volunteer_services.get_volunteer(id=volunteer_id)
-        if not volunteer_obj:
-            return Response(
-                {"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        volunteer_services.delete_volunteer(id=volunteer_id)
-        return Response(
-            {"message": "Volunteer deleted successfully"},
-            status=status.HTTP_204_NO_CONTENT,
-        )
 
 
 class OpportunityViewSet(viewsets.ModelViewSet):
