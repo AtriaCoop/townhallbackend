@@ -38,9 +38,7 @@ class TestEndpointVolunteer(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response.data["message"], "Volunteer Added to Opportunity Successfully"
-        )
+        self.assertEqual(response.data["message"], "Volunteer Retreived Successfully")
         self.assertEqual(response.data["volunteer"]["first_name"], "James")
         self.assertEqual(response.data["volunteer"]["last_name"], "Bond")
         self.assertEqual(response.data["volunteer"]["email"], "jamesbond@gmail.ca")

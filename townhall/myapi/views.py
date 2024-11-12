@@ -115,7 +115,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             # Return the successful response
             return Response(
                 {
-                    "message": "Volunteer Added to Opportunity Successfully",
+                    "message": "Volunteer Retreived Successfully",
                     "volunteer": response_serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -171,6 +171,32 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                     "message": "Opportunities of this Volunteer retreived successfully",
                     "data": response_serializer.data,
                 },
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    # DELETE A Volunteer
+    @action(detail=True, methods=["delete"], url_path="volunteer")
+    def delete_volunteer_request(self, request, vol_id=None):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
+
+        # If volunteer_id is None return an error
+        if volunteer_id is None:
+            return Response(
+                {"message": "Given Volunteer is not Valid"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            # Call the service method to delete the volunteer
+            volunteer_services.delete_volunteer(volunteer_id)
+
+            # Return the successful response
+            return Response(
+                {"message": "Volunteer Deleted Successfully"},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
