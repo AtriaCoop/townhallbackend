@@ -4,6 +4,11 @@ from myapi import services as townhall_services
 from datetime import datetime
 from django.utils import timezone
 
+# Project
+
+# Testing ALL tests "python manage.py test tests"
+# Testing ONLY project python manage.py tests.service_tests.test_project_services
+
 
 class TestProjectModel(TestCase):
     def setUp(self):
