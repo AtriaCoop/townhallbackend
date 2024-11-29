@@ -18,6 +18,13 @@ class TestProjectModel(TestCase):
             description="Description1",
             start_date=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             end_date=timezone.make_aware(datetime(2024, 7, 20, 20, 30)),
+        ),
+        townhall_models.Project.objects.create(
+            id=2,
+            title="Project2",
+            description="Description2",
+            start_date=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            end_date=timezone.make_aware(datetime(2024, 7, 20, 20, 30)),
         )
 
     def test_get_project(self):
@@ -28,5 +35,16 @@ class TestProjectModel(TestCase):
         assert project.end_date == timezone.make_aware(datetime(2024, 7, 20, 20, 30))
 
     def test_get_project_not_found(self):
-        project = townhall_services.ProjectServices.get_project(id=2)
+        project = townhall_services.ProjectServices.get_project(id=100)
         assert project is None
+
+    def test_get_all_projects(self):
+        projects = townhall_services.ProjectServices.get_all_projects()
+        assert len(projects) == 2
+        assert projects[0].title == "Project1"
+        assert projects[1].title == "Project2"
+
+    def test_get_all_projects_empty(self):
+        townhall_models.Project.objects.all().delete()
+        projects = townhall_services.ProjectServices.get_all_projects()
+        assert len(projects) == 0

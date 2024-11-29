@@ -387,3 +387,7 @@ class ProjectDao:
             return project
         except Project.DoesNotExist:
             return None
+
+    @staticmethod
+    def get_project_all() -> typing.Optional[Project]:
+        return Project.objects.all()
