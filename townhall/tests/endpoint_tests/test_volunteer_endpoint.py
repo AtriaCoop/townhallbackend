@@ -38,9 +38,7 @@ class TestEndpointVolunteer(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response.data["message"], "Volunteer Added to Opportunity Successfully"
-        )
+        self.assertEqual(response.data["message"], "Volunteer Retreived Successfully")
         self.assertEqual(response.data["volunteer"]["first_name"], "James")
         self.assertEqual(response.data["volunteer"]["last_name"], "Bond")
         self.assertEqual(response.data["volunteer"]["email"], "jamesbond@gmail.ca")
@@ -291,3 +289,100 @@ class TestEndpointVolunteer(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["message"], "['random message']")
+
+    def test_delete_volunteer_success(self):
+        # Arrange
+        self.url = "/volunteer/10/"
+
+        # Act
+        response = self.client.delete(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "Volunteer Deleted Successfully")
+        try:
+            townhall_models.Volunteer.objects.get(id=10)
+            self.fail("Should have returned a Volunteer Does Not Exist Error")
+        except townhall_models.Volunteer.DoesNotExist:
+            pass
+
+    def test_delete_volunteer_fail_does_not_exist(self):
+        # Arrange
+        self.url = "/volunteer/999/"  # Assuming ID 999 doesn't exist
+
+        # Act
+        response = self.client.delete(self.url, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data["message"],
+            "['Volunteer with the given id: 999, does not exist.']",
+        )
+
+    def test_remove_opportunity_from_a_volunteer_success(self):
+        # Pre Arrange
+        test_organization = townhall_models.Organization.objects.create(
+            id=1,
+            name="Goodwill",
+            location="Victoria",
+            email="goodwill@gmail.com",
+            phone_number="778-123-4567",
+            website="goodwill.ca",
+        )
+        test_volunteer = townhall_models.Volunteer.objects.get(id=10)
+        test_opportunity = townhall_models.Opportunity.objects.create(
+            id=1,
+            title="Food bank",
+            description="Deliver food",
+            start_time=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
+            end_time=timezone.make_aware(datetime(2024, 7, 20, 20, 30)),
+            location="Vancouver",
+            organization=test_organization,
+        )
+        test_opportunity.volunteers.add(test_volunteer)
+        test_opportunity.save()
+
+        # Arrange
+        self.url = "/volunteer/10/opportunity/"
+        valid_data = {"opportunity_id": 1}
+
+        # Act
+        response = self.client.delete(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"], "Opportunity removed from Volunteer successfully"
+        )
+        opportunities_list = list(test_volunteer.opportunities.all())
+        self.assertNotIn(test_opportunity, opportunities_list)
+
+    @patch("myapi.services.VolunteerServices.remove_volunteer_from_opportunity")
+    def test_remove_opportunity_from_a_volunteer_fail_service_error(
+        self, mock_remove_volunteer_from_opportunity
+    ):
+        # Arrange
+        self.url = "/volunteer/10/opportunity/"
+        mock_remove_volunteer_from_opportunity.side_effect = ValidationError(
+            "random message"
+        )
+        valid_data = {"opportunity_id": 1}
+
+        # Act
+        response = self.client.delete(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["message"], "['random message']")
+
+    def test_remove_opportunity_from_a_volunteer_fail_invalid_data(self):
+        # Arrange
+        self.url = "/volunteer/10/opportunity/"
+        valid_data = {"opportunity_id": "one"}
+
+        # Act
+        response = self.client.delete(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
