@@ -389,5 +389,5 @@ class ProjectDao:
             return None
 
     @staticmethod
-    def get_project_all() -> typing.Optional[Project]:
+    def get_project_all() -> QuerySet[Project]:
         return Project.objects.all()

@@ -451,4 +451,4 @@ class ProjectServices:
 
     @staticmethod
     def get_all_projects() -> typing.List[Project]:
-        return project_dao.get_project_all()
+        return list(project_dao.get_project_all())

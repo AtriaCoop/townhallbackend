@@ -7,7 +7,7 @@ from django.utils import timezone
 # Project
 
 # Testing ALL tests "python manage.py test tests"
-# Testing ONLY project python manage.py tests.service_tests.test_project_services
+# Testing ONLY project python manage.py test tests.service_tests.test_project_service
 
 
 class TestProjectModel(TestCase):
