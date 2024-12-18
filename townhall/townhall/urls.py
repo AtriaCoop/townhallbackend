@@ -43,6 +43,7 @@ urlpatterns = [
             {
                 "get": "get_volunteer_request",
                 "delete": "delete_volunteer_request",
+                "patch": "update_volunteer_request",
             }
         ),
         name="volunteer_id",
@@ -57,11 +58,6 @@ urlpatterns = [
             }
         ),
         name="volunteers_opportunities",
-    ),
-    path(
-        "volunteer/<int:pk>/update/",
-        VolunteerViewSet.as_view({"put": "update_volunteer"}),
-        name="update_volunteer",
     ),
     path(
         "opportunity/",

@@ -12,7 +12,7 @@ class OpportunitySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ResponseVolunteerSerializer(serializers.ModelSerializer):
+class VolunteerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Volunteer
@@ -36,6 +36,22 @@ class CreateVolunteerSerializer(serializers.ModelSerializer):
             "password",
             "gender",
         ]
+
+
+class UpdateVolunteerSerializer(serializers.Serializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    gender = serializers.ChoiceField(
+        choices=[("M", "Male"), ("F", "Female")], required=False
+    )
+    is_active = serializers.BooleanField(required=False)
+
+    # Make sure atleast 1 field has a Value
+    def validate(self, data):
+        if not any(data.values()):
+            raise serializers.ValidationError("Atleast 1 field must have a Value")
+        return data
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
