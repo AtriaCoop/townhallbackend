@@ -60,6 +60,15 @@ urlpatterns = [
         name="volunteers_opportunities",
     ),
     path(
+        "volunteer/<int:vol_id>/change_password/",
+        VolunteerViewSet.as_view(
+            {
+                "patch": "change_password_volunteer_request",
+            }
+        ),
+        name="volunteer_change_password",
+    ),
+    path(
         "opportunity/",
         OpportunityViewSet.as_view(
             {

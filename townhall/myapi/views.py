@@ -13,13 +13,17 @@ from .services import OrganizationServices as organization_services
 from .services import TaskServices
 
 from .serializers import OpportunitySerializer
-from .serializers import VolunteerSerializer, CreateVolunteerSerializer
-from .serializers import UpdateVolunteerSerializer
+from .serializers import (
+    VolunteerSerializer,
+    CreateVolunteerSerializer,
+    UpdateVolunteerSerializer,
+    ChangePasswordVolunteerSerializer,
+)
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
 from .serializers import ValidIDSerializer
 
-from .types import CreateVolunteerData, UpdateVolunteerData
+from .types import CreateVolunteerData, UpdateVolunteerData, ChangeVolunteerPasswordData
 
 from .types import CreateTaskData
 from .types import UpdateTaskData
@@ -273,6 +277,47 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    # PATCH (Change) A Volunteers Password by ID
+    @action(detail=True, methods=["patch"], url_path="change_password")
+    def change_password_volunteer_request(self, request, vol_id):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
+
+        # Create a serializer to check if the data is valid
+        serializer = ChangePasswordVolunteerSerializer(data=request.data)
+
+        # If the data is NOT valid return with message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Convert the validated data into the UpdateVolunteerData type
+        change_volunteer_password_data = ChangeVolunteerPasswordData(
+            id=volunteer_id,
+            email=validated_data["email"],
+            curr_password=validated_data["curr_password"],
+            new_password=validated_data["new_password"],
+        )
+
+        try:
+            # Call the service method to update the volunteer
+            volunteer_services.change_volunteers_password(
+                change_volunteer_password_data
+            )
+
+            # Return the successful response
+            return Response(
+                {
+                    "message": "Volunteers Password Changed Successfully",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OpportunityViewSet(viewsets.ModelViewSet):

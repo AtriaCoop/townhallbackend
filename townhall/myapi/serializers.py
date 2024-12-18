@@ -54,6 +54,12 @@ class UpdateVolunteerSerializer(serializers.Serializer):
         return data
 
 
+class ChangePasswordVolunteerSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    curr_password = serializers.CharField(max_length=128, required=True)
+    new_password = serializers.CharField(max_length=128, required=True)
+
+
 class OrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
