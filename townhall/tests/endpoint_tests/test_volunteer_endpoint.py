@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from unittest.mock import patch
 from myapi import models as townhall_models
+from django.contrib.auth.hashers import make_password
 
 from datetime import datetime
 from django.utils import timezone
@@ -20,6 +21,8 @@ class TestEndpointVolunteer(TestCase):
             last_name="Bond",
             gender="M",
             email="jamesbond@gmail.ca",
+            is_active="True",
+            password=make_password("JamesBond123"),
         )
         townhall_models.Volunteer.objects.create(
             id=11,
@@ -27,6 +30,8 @@ class TestEndpointVolunteer(TestCase):
             last_name="Man",
             gender="M",
             email="ironman@yahoo.com",
+            is_active="True",
+            password=make_password("TonyStarkRules456"),
         )
 
     def test_get_volunteer_success(self):
@@ -379,10 +384,134 @@ class TestEndpointVolunteer(TestCase):
     def test_remove_opportunity_from_a_volunteer_fail_invalid_data(self):
         # Arrange
         self.url = "/volunteer/10/opportunity/"
-        valid_data = {"opportunity_id": "one"}
+        invalid_data = {"opportunity_id": "one"}
 
         # Act
-        response = self.client.delete(self.url, valid_data, format="json")
+        response = self.client.delete(self.url, invalid_data, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_volunteer_all_fields_success(self):
+        # Arrange
+        self.url = "/volunteer/10/"
+        valid_data = {
+            "id": 10,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "gender": "F",
+            "is_active": False,
+        }
+
+        # Act
+        response = self.client.patch(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "Volunteer Updated Successfully")
+
+    def test_update_volunteer_one_field_success(self):
+        # Arrange
+        self.url = "/volunteer/10/"
+        valid_data = {
+            "id": 10,
+            "email": "john.doe@example.com",
+        }
+
+        # Act
+        response = self.client.patch(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "Volunteer Updated Successfully")
+
+    def test_update_volunteer_no_fields_fail(self):
+        # Arrange
+        self.url = "/volunteer/10/"
+        invalid_data = {
+            "id": 10,
+            # No Parameters to Update
+        }
+
+        # Act
+        response = self.client.patch(self.url, invalid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["non_field_errors"][0], "Atleast 1 field must have a Value"
+        )
+
+    @patch("myapi.services.VolunteerServices.update_volunteer")
+    def test_update_volunteer_service_error_fail(self, mock_update_volunteer):
+        # Arrange
+        self.url = "/volunteer/10/"
+        mock_update_volunteer.side_effect = ValidationError("random message")
+        valid_data = {
+            "id": 10,
+            "email": "john.doe@example.com",
+        }
+
+        # Act
+        response = self.client.patch(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["message"], "['random message']")
+
+    def test_change_volunteer_password_success(self):
+        # Arrange
+        self.url = "/volunteer/10/change_password/"
+        valid_data = {
+            "id": 10,
+            "email": "jamesbond@gmail.ca",
+            "curr_password": "JamesBond123",
+            "new_password": "IamJamesBond9",
+        }
+
+        # Act
+        response = self.client.patch(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"], "Volunteers Password Changed Successfully"
+        )
+
+    def test_change_volunteer_password_invalid_data_fail(self):
+        # Arrange
+        self.url = "/volunteer/10/change_password/"
+        invalid_data = {
+            "id": 10,
+            "email": "jamesbond@gmail.ca",
+            # No current Password given
+            "new_password": make_password("IamJamesBond9"),
+        }
+
+        # Act
+        response = self.client.patch(self.url, invalid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch("myapi.services.VolunteerServices.change_volunteers_password")
+    def test_change_volunteer_password_service_error_fail(
+        self, mock_change_volunteers_password
+    ):
+        # Arrange
+        self.url = "/volunteer/10/change_password/"
+        mock_change_volunteers_password.side_effect = ValidationError("random message")
+        valid_data = {
+            "id": 10,
+            "email": "jamesbond@gmail.ca",
+            "curr_password": make_password("JamesBond123"),
+            "new_password": make_password("IamJamesBond9"),
+        }
+
+        # Act
+        response = self.client.patch(self.url, valid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["message"], "['random message']")

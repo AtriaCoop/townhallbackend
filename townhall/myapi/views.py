@@ -252,25 +252,21 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         # Convert the validated data into the UpdateVolunteerData type
         update_volunteer_data = UpdateVolunteerData(
             id=volunteer_id,
-            first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
-            email=validated_data["email"],
-            gender=validated_data["gender"],
-            is_active=validated_data["is_active"],
+            first_name=validated_data.get("first_name", None),
+            last_name=validated_data.get("last_name", None),
+            email=validated_data.get("email", None),
+            gender=validated_data.get("gender", None),
+            is_active=validated_data.get("is_active", None),
         )
 
         try:
             # Call the service method to update the volunteer
-            volunteer = volunteer_services.update_volunteer(update_volunteer_data)
-
-            # Create the response serializer
-            response_serializer = VolunteerSerializer(volunteer)
+            volunteer_services.update_volunteer(update_volunteer_data)
 
             # Return the successful response
             return Response(
                 {
                     "message": "Volunteer Updated Successfully",
-                    "volunteer": response_serializer.data,
                 },
                 status=status.HTTP_200_OK,
             )
