@@ -13,12 +13,17 @@ from .services import OrganizationServices as organization_services
 from .services import TaskServices
 
 from .serializers import OpportunitySerializer
-from .serializers import ResponseVolunteerSerializer, CreateVolunteerSerializer
+from .serializers import (
+    VolunteerSerializer,
+    CreateVolunteerSerializer,
+    UpdateVolunteerSerializer,
+    ChangePasswordVolunteerSerializer,
+)
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
 from .serializers import ValidIDSerializer
 
-from .types import CreateVolunteerData
+from .types import CreateVolunteerData, UpdateVolunteerData, ChangeVolunteerPasswordData
 
 from .types import CreateTaskData
 from .types import UpdateTaskData
@@ -53,7 +58,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             volunteer = volunteer_services.create_volunteer(create_volunteer_data)
 
             # Create the response serializer
-            response_serializer = ResponseVolunteerSerializer(volunteer)
+            response_serializer = VolunteerSerializer(volunteer)
 
             # Return the successful response
             return Response(
@@ -69,7 +74,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # POST (Create) Add volunteer to Opportunity
     @action(detail=True, methods=["post"], url_path="opportunity")
-    def add_volunteer_to_opportunity_request(self, request, vol_id=None):
+    def add_volunteer_to_opportunity_request(self, request, vol_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
@@ -101,7 +106,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # GET One Volunteer
     @action(detail=True, methods=["get"], url_path="volunteer")
-    def get_volunteer_request(self, request, vol_id=None):
+    def get_volunteer_request(self, request, vol_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
@@ -110,7 +115,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             volunteer = volunteer_services.get_volunteer(volunteer_id)
 
             # Create the response serializer
-            response_serializer = ResponseVolunteerSerializer(volunteer)
+            response_serializer = VolunteerSerializer(volunteer)
 
             # Return the successful response
             return Response(
@@ -137,7 +142,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             )
 
         # Create the response serializer for the list of volunteers
-        response_serializer = ResponseVolunteerSerializer(volunteers, many=True)
+        response_serializer = VolunteerSerializer(volunteers, many=True)
         return Response(
             {
                 "message": "All Volunteers retreived successfully",
@@ -148,7 +153,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # GET All Opportunities of a Volunteer
     @action(detail=True, methods=["get"], url_path="opportunity")
-    def get_all_opportunities_of_a_volunteer_request(self, request, vol_id=None):
+    def get_all_opportunities_of_a_volunteer_request(self, request, vol_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
@@ -179,16 +184,9 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # DELETE A Volunteer
     @action(detail=True, methods=["delete"], url_path="volunteer")
-    def delete_volunteer_request(self, request, vol_id=None):
+    def delete_volunteer_request(self, request, vol_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
-
-        # If volunteer_id is None return an error
-        if volunteer_id is None:
-            return Response(
-                {"message": "Given Volunteer is not Valid"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
 
         try:
             # Call the service method to delete the volunteer
@@ -205,7 +203,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # DELETE (Remove) An Opportunity from a Volunteer
     @action(detail=True, methods=["delete"], url_path="opportunity")
-    def remove_opportunity_from_a_volunteer_request(self, request, vol_id=None):
+    def remove_opportunity_from_a_volunteer_request(self, request, vol_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
@@ -235,27 +233,87 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-    # Update a Volunteer by ID
-    @action(detail=True, methods=["put"], url_path="update")
-    def update_volunteer(self, request, pk=None):
+    # PATCH (Update) A Volunteer by ID
+    @action(detail=True, methods=["patch"], url_path="volunteer")
+    def update_volunteer_request(self, request, vol_id):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
 
-        # Use the helper method to fetch the volunteer
-        volunteer_obj = volunteer_services.get_volunteer(id=pk)
-        if not volunteer_obj:
+        # Create a serializer to check if the data is valid
+        serializer = UpdateVolunteerSerializer(data=request.data)
+
+        # If the data is NOT valid return with message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Convert the validated data into the UpdateVolunteerData type
+        update_volunteer_data = UpdateVolunteerData(
+            id=volunteer_id,
+            first_name=validated_data.get("first_name", None),
+            last_name=validated_data.get("last_name", None),
+            email=validated_data.get("email", None),
+            gender=validated_data.get("gender", None),
+            is_active=validated_data.get("is_active", None),
+        )
+
+        try:
+            # Call the service method to update the volunteer
+            volunteer_services.update_volunteer(update_volunteer_data)
+
+            # Return the successful response
             return Response(
-                {"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND
+                {
+                    "message": "Volunteer Updated Successfully",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    # PATCH (Change) A Volunteers Password by ID
+    @action(detail=True, methods=["patch"], url_path="change_password")
+    def change_password_volunteer_request(self, request, vol_id):
+        # Get the volunteer id from the url
+        volunteer_id = vol_id
+
+        # Create a serializer to check if the data is valid
+        serializer = ChangePasswordVolunteerSerializer(data=request.data)
+
+        # If the data is NOT valid return with message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Convert the validated data into the UpdateVolunteerData type
+        change_volunteer_password_data = ChangeVolunteerPasswordData(
+            id=volunteer_id,
+            email=validated_data["email"],
+            curr_password=validated_data["curr_password"],
+            new_password=validated_data["new_password"],
+        )
+
+        try:
+            # Call the service method to update the volunteer
+            volunteer_services.change_volunteers_password(
+                change_volunteer_password_data
             )
 
-        serializer = ResponseVolunteerSerializer(
-            volunteer_obj, data=request.data, partial=False
-        )
-        if serializer.is_valid():
-
-            serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Return the successful response
+            return Response(
+                {
+                    "message": "Volunteers Password Changed Successfully",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            # If services method returns an error, return an error Response
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OpportunityViewSet(viewsets.ModelViewSet):

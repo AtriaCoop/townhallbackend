@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from myapi import models as townhall_models
 from myapi import services as townhall_services
 
-from myapi.types import UpdateVolunteerData
+from myapi.types import CreateVolunteerData, UpdateVolunteerData
 from myapi.types import ChangeVolunteerPasswordData
 
 
@@ -105,6 +105,25 @@ class TestVolunteerModel(TestCase):
             str(context.exception)
             == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
         )
+
+    @patch("myapi.services.VolunteerServices.validate_volunteer")
+    def test_create_volunteer_validation_error(self, mock_validate_volunteer):
+        # Arrange
+        mock_validate_volunteer.side_effect = ValidationError("Random Error Message")
+        create_volunteer_data = CreateVolunteerData(
+            first_name="John",
+            last_name="Doe",
+            gender="F",
+            email="john.doe@example.com",
+            password="JohnDoe987",
+        )
+
+        # Act & Assert
+        with self.assertRaises(ValidationError) as context:
+            townhall_services.VolunteerServices.create_volunteer(create_volunteer_data)
+
+        # Assert
+        assert str(context.exception) == "['Random Error Message']"
 
     def test_add_volunteer_to_opportunity_success(self):
         # Act
