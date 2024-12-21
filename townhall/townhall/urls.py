@@ -31,16 +31,11 @@ urlpatterns = [
         "volunteer/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_all_volunteers_request",
+                "get": "get_all_volunteers_optional_filter_request",
                 "post": "create_volunteer_request",
             }
         ),
         name="volunteer",
-    ),
-    path(
-        "volunteer/filter/",
-        VolunteerViewSet.as_view({"get": "get_all_filtered_volunteers_request"}),
-        name="filter_volunteers",
     ),
     path(
         "volunteer/<int:vol_id>/",

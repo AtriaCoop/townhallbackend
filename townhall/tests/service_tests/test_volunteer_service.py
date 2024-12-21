@@ -27,15 +27,6 @@ class TestVolunteerModel(TestCase):
         call_command("loaddata", "volunteer_fixture.json")
         call_command("loaddata", "opportunity_fixture.json")
 
-    def test_get_all_volunteers(self):
-        # Act
-        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
-
-        # Assert
-        assert len(volunteers) == 2
-        ids = [volunteer.id for volunteer in volunteers]
-        assert set(ids) == {1, 2}
-
     def test_get_volunteer_found(self):
         # Act
         volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
@@ -374,7 +365,7 @@ class TestVolunteerModel(TestCase):
             == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
         )
 
-    def test_all_filters_volunteers_success_found(self):
+    def test_get_all_volunteers_all_filters_success_found(self):
         # Arrange
         filter_volunteer_data = FilterVolunteerData(
             first_name="amor",
@@ -385,8 +376,10 @@ class TestVolunteerModel(TestCase):
         )
 
         # Act
-        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
-            filter_volunteer_data
+        volunteers = (
+            townhall_services.VolunteerServices.get_all_volunteers_optional_filter(
+                filter_volunteer_data
+            )
         )
 
         # Assert
@@ -394,13 +387,15 @@ class TestVolunteerModel(TestCase):
         ids = [volunteer.id for volunteer in volunteers]
         assert set(ids) == {1}
 
-    def test_one_filter_volunters_success_many_found(self):
+    def test_get_all_volunteers_one_filter_success_found(self):
         # Arrange
         filter_volunteer_data = FilterVolunteerData(is_active=True)
 
         # Act
-        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
-            filter_volunteer_data
+        volunteers = (
+            townhall_services.VolunteerServices.get_all_volunteers_optional_filter(
+                filter_volunteer_data
+            )
         )
 
         # Assert
@@ -408,7 +403,7 @@ class TestVolunteerModel(TestCase):
         ids = [volunteer.id for volunteer in volunteers]
         assert set(ids) == {1, 2}
 
-    def test_all_filters_volunteers_success_not_found(self):
+    def test_get_all_volunteers_all_filters_success_not_found(self):
         # Arrange
         filter_volunteer_data = FilterVolunteerData(
             first_name="amor",
@@ -419,25 +414,39 @@ class TestVolunteerModel(TestCase):
         )
 
         # Act
-        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
-            filter_volunteer_data
+        volunteers = (
+            townhall_services.VolunteerServices.get_all_volunteers_optional_filter(
+                filter_volunteer_data
+            )
         )
 
         # Assert
         assert len(volunteers) == 0
 
-    def test_one_filter_volunters_success_none_found(self):
+    def test_get_all_volunteers_one_filter_success_not_found(self):
         # Arrange
         filter_volunteer_data = FilterVolunteerData(is_active=False)
 
         # Act
-        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
-            filter_volunteer_data
+        volunteers = (
+            townhall_services.VolunteerServices.get_all_volunteers_optional_filter(
+                filter_volunteer_data
+            )
         )
 
         # Assert
-        print(volunteers)
         assert len(volunteers) == 0
+
+    def test_get_all_volunteers_no_filters_success(self):
+        # Act
+        volunteers = (
+            townhall_services.VolunteerServices.get_all_volunteers_optional_filter(None)
+        )
+
+        # Assert
+        assert len(volunteers) == 2
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1, 2}
 
     @patch("myapi.services.VolunteerServices.authenticate_volunteer")
     @patch("myapi.services.VolunteerServices.validate_volunteer")

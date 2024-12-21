@@ -21,7 +21,7 @@ class TestEndpointVolunteer(TestCase):
             last_name="Bond",
             gender="M",
             email="jamesbond@gmail.ca",
-            is_active="True",
+            is_active=True,
             password=make_password("JamesBond123"),
         )
         townhall_models.Volunteer.objects.create(
@@ -30,7 +30,7 @@ class TestEndpointVolunteer(TestCase):
             last_name="Man",
             gender="M",
             email="ironman@yahoo.com",
-            is_active="True",
+            is_active=True,
             password=make_password("TonyStarkRules456"),
         )
 
@@ -64,12 +64,13 @@ class TestEndpointVolunteer(TestCase):
             "['Volunteer with the given id: 999, does not exist.']",
         )
 
-    def test_get_all_volunteers_success(self):
+    def test_get_all_volunteers_no_filter_success(self):
         # Arrange
         self.url = "/volunteer/"
+        filter_data = {"should_filter": False}
 
         # Act
-        response = self.client.get(self.url, format="json")
+        response = self.client.get(self.url, filter_data, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -79,14 +80,90 @@ class TestEndpointVolunteer(TestCase):
         volunteers = response.data["data"]
         self.assertEqual(len(volunteers), 2)
 
-    @patch("myapi.services.VolunteerServices.get_volunteers_all")
-    def test_get_all_volunteers_success_none(self, mock_get_volunteers_all):
+    def test_get_all_volunteers_one_filter_success(self):
         # Arrange
-        mock_get_volunteers_all.return_value = townhall_models.Volunteer.objects.none()
         self.url = "/volunteer/"
+        filter_data = {"should_filter": True, "first_name": "Jame"}
 
         # Act
-        response = self.client.get(self.url, format="json")
+        response = self.client.get(self.url, filter_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"], "All Volunteers retreived successfully"
+        )
+        volunteers = response.data["data"]
+        self.assertEqual(len(volunteers), 1)
+
+    def test_get_all_volunteers_all_filters_success(self):
+        # Arrange
+        self.url = "/volunteer/"
+        filter_data = {
+            "should_filter": True,
+            "first_name": "mes",
+            "last_name": "Bond",
+            "gender": "M",
+            "email": "jamesbond@gmail.ca",
+            "is_active": True,
+        }
+
+        # Act
+        response = self.client.get(self.url, filter_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["message"], "All Volunteers retreived successfully"
+        )
+        volunteers = response.data["data"]
+        self.assertEqual(len(volunteers), 1)
+
+    def test_get_all_volunteers_optional_filters_invalid_data(self):
+        # Arrange
+        self.url = "/volunteer/"
+        invalid_data = {
+            "should_filter": True
+            # Invalid becuase no filter param with should_filter=True
+        }
+
+        # Act
+        response = self.client.get(self.url, invalid_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch("myapi.services.VolunteerServices.get_all_volunteers_optional_filter")
+    def test_get_all_volunteers_no_filter_success_none(
+        self, mock_get_all_volunteers_optional_filter
+    ):
+        # Arrange
+        mock_get_all_volunteers_optional_filter.return_value = (
+            townhall_models.Volunteer.objects.none()
+        )
+        self.url = "/volunteer/"
+        filter_data = {"should_filter": False}
+
+        # Act
+        response = self.client.get(self.url, filter_data, format="json")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "No Volunteers were found")
+
+    @patch("myapi.services.VolunteerServices.get_all_volunteers_optional_filter")
+    def test_get_all_volunteers_with_filter_success_none(
+        self, mock_get_all_volunteers_optional_filter
+    ):
+        # Arrange
+        mock_get_all_volunteers_optional_filter.return_value = (
+            townhall_models.Volunteer.objects.none()
+        )
+        self.url = "/volunteer/"
+        filter_data = {"should_filter": True, "is_active": False}
+
+        # Act
+        response = self.client.get(self.url, filter_data, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)

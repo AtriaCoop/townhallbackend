@@ -137,8 +137,37 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # GET All Volunteers
     @action(detail=False, methods=["get"], url_path="volunteer")
-    def get_all_volunteers_request(self, request):
-        volunteers = volunteer_services.get_volunteers_all()
+    def get_all_volunteers_optional_filter_request(self, request):
+        # Transforms requests JSON data into a python dictionary
+        serializer = FilterVolunteerSerializer(data=request.query_params)
+
+        # If the data is NOT valid return with a message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # If data is valid, Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Get Should Filter value
+        should_filter = validated_data["should_filter"]
+
+        # If should filter, then create proceed with filter, otherwise do not
+        volunteers = None
+        if should_filter:
+            # Convert the validated data into the CreateVolunteerData type
+            filter_volunteer_data = FilterVolunteerData(
+                first_name=validated_data.get("first_name", None),
+                last_name=validated_data.get("last_name", None),
+                email=validated_data.get("email", None),
+                gender=validated_data.get("gender", None),
+                is_active=validated_data.get("is_active", None),
+            )
+
+            volunteers = volunteer_services.get_all_volunteers_optional_filter(
+                filter_volunteer_data
+            )
+        else:
+            volunteers = volunteer_services.get_all_volunteers_optional_filter(None)
 
         # If no volunteers exist, return an empty list
         if not volunteers:
@@ -152,49 +181,6 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         return Response(
             {
                 "message": "All Volunteers retreived successfully",
-                "data": response_serializer.data,
-            },
-            status=status.HTTP_200_OK,
-        )
-
-    # GET All Filtered Volunteers
-    @action(detail=False, methods=["get"], url_path="filter")
-    def get_all_filtered_volunteers_request(self, request):
-        # Transforms requests JSON data into a python dictionary
-        serializer = FilterVolunteerSerializer(data=request.data)
-
-        # If the data is NOT valid return with a message serializers errors
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # If data is valid, Take out the validated data
-        validated_data = serializer.validated_data
-
-        # Convert the validated data into the CreateVolunteerData type
-        filter_volunteer_data = FilterVolunteerData(
-            first_name=validated_data.get("first_name", None),
-            last_name=validated_data.get("last_name", None),
-            email=validated_data.get("email", None),
-            gender=validated_data.get("gender", None),
-            is_active=validated_data.get("is_active", None),
-        )
-
-        filtered_volunteers = volunteer_services.filter_all_volunteers(
-            filter_volunteer_data
-        )
-
-        # If no volunteers exist, return an empty list
-        if not filtered_volunteers:
-            return Response(
-                {"message": "No Volunteers were found with those filters"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-
-        # Create the response serializer for the list of filtered volunteers
-        response_serializer = VolunteerSerializer(filtered_volunteers, many=True)
-        return Response(
-            {
-                "message": "All Volunteers with those filters retreived successfully",
                 "data": response_serializer.data,
             },
             status=status.HTTP_200_OK,

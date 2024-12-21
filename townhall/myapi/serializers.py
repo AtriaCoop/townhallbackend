@@ -55,13 +55,25 @@ class UpdateVolunteerSerializer(serializers.Serializer):
 
 
 class FilterVolunteerSerializer(serializers.Serializer):
+    should_filter = serializers.BooleanField(required=True)
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
     email = serializers.EmailField(required=False)
     gender = serializers.ChoiceField(
         choices=[("M", "Male"), ("F", "Female")], required=False
     )
-    is_active = serializers.BooleanField(required=False)
+    is_active = serializers.BooleanField(required=False, allow_null=True)
+
+    def validate(self, data):
+        if data.get("should_filter"):
+            if all(
+                data.get(field) is None
+                for field in ["first_name", "last_name", "email", "gender", "is_active"]
+            ):
+                raise serializers.ValidationError(
+                    {"should_filter": "This field is required."}
+                )
+        return data
 
 
 class ChangePasswordVolunteerSerializer(serializers.Serializer):

@@ -46,9 +46,6 @@ logger = logging.getLogger(__name__)
 
 
 class VolunteerServices:
-    def get_volunteers_all() -> typing.List[Volunteer]:
-        return volunteer_dao.get_volunteers_all()
-
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         try:
             volunteer = volunteer_dao.get_volunteer(id=id)
@@ -85,23 +82,26 @@ class VolunteerServices:
         except Volunteer.DoesNotExist:
             raise ValidationError(f"Volunteer with the given id: {id}, does not exist.")
 
-    def filter_all_volunteers(
-        filter_volunteer_data: FilterVolunteerData,
+    def get_all_volunteers_optional_filter(
+        filter_volunteer_data: typing.Optional[FilterVolunteerData] = None,
     ) -> QuerySet[Volunteer]:
-        filters = {}
+        if filter_volunteer_data is not None:
+            filters = {}
 
-        if filter_volunteer_data.first_name:
-            filters["first_name__icontains"] = filter_volunteer_data.first_name
-        if filter_volunteer_data.last_name:
-            filters["last_name__icontains"] = filter_volunteer_data.last_name
-        if filter_volunteer_data.email:
-            filters["email__iexact"] = filter_volunteer_data.email
-        if filter_volunteer_data.is_active is not None:
-            filters["is_active"] = filter_volunteer_data.is_active
-        if filter_volunteer_data.gender:
-            filters["gender__icontains"] = filter_volunteer_data.gender
+            if filter_volunteer_data.first_name:
+                filters["first_name__icontains"] = filter_volunteer_data.first_name
+            if filter_volunteer_data.last_name:
+                filters["last_name__icontains"] = filter_volunteer_data.last_name
+            if filter_volunteer_data.email:
+                filters["email__iexact"] = filter_volunteer_data.email
+            if filter_volunteer_data.is_active is not None:
+                filters["is_active"] = filter_volunteer_data.is_active
+            if filter_volunteer_data.gender:
+                filters["gender__icontains"] = filter_volunteer_data.gender
 
-        return volunteer_dao.filter_all_volunteers(filtersDict=filters)
+            return volunteer_dao.filter_all_volunteers(filtersDict=filters)
+        else:
+            return volunteer_dao.get_volunteers_all()
 
     def get_all_opportunities_of_a_volunteer(
         volunteer_id: int,
