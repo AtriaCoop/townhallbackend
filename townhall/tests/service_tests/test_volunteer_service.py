@@ -9,7 +9,9 @@ from django.contrib.auth.hashers import check_password, make_password
 from myapi import models as townhall_models
 from myapi import services as townhall_services
 
-from myapi.types import CreateVolunteerData, UpdateVolunteerData
+from myapi.types import CreateVolunteerData
+from myapi.types import UpdateVolunteerData
+from myapi.types import FilterVolunteerData
 from myapi.types import ChangeVolunteerPasswordData
 
 
@@ -371,6 +373,71 @@ class TestVolunteerModel(TestCase):
             str(context.exception)
             == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
         )
+
+    def test_all_filters_volunteers_success_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(
+            first_name="amor",
+            last_name="Re",
+            email="zamorak.red@gmail.com",
+            gender="M",
+            is_active=True,
+        )
+
+        # Act
+        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
+            filter_volunteer_data
+        )
+
+        # Assert
+        assert len(volunteers) == 1
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1}
+
+    def test_one_filter_volunters_success_many_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(is_active=True)
+
+        # Act
+        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
+            filter_volunteer_data
+        )
+
+        # Assert
+        assert len(volunteers) == 2
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1, 2}
+
+    def test_all_filters_volunteers_success_not_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(
+            first_name="amor",
+            last_name="Re",
+            email="zamorak.red@gmail.co",
+            gender="M",
+            is_active=True,
+        )
+
+        # Act
+        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
+            filter_volunteer_data
+        )
+
+        # Assert
+        assert len(volunteers) == 0
+
+    def test_one_filter_volunters_success_none_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(is_active=False)
+
+        # Act
+        volunteers = townhall_services.VolunteerServices.filter_all_volunteers(
+            filter_volunteer_data
+        )
+
+        # Assert
+        print(volunteers)
+        assert len(volunteers) == 0
 
     @patch("myapi.services.VolunteerServices.authenticate_volunteer")
     @patch("myapi.services.VolunteerServices.validate_volunteer")

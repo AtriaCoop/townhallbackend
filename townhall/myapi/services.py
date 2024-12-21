@@ -20,6 +20,7 @@ from .dao import ProjectDao as project_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+from .types import FilterVolunteerData
 from .types import ChangeVolunteerPasswordData
 
 from .types import CreateTaskData
@@ -83,6 +84,24 @@ class VolunteerServices:
             volunteer_dao.delete_volunteer(volunteer_id=id)
         except Volunteer.DoesNotExist:
             raise ValidationError(f"Volunteer with the given id: {id}, does not exist.")
+
+    def filter_all_volunteers(
+        filter_volunteer_data: FilterVolunteerData,
+    ) -> QuerySet[Volunteer]:
+        filters = {}
+
+        if filter_volunteer_data.first_name:
+            filters["first_name__icontains"] = filter_volunteer_data.first_name
+        if filter_volunteer_data.last_name:
+            filters["last_name__icontains"] = filter_volunteer_data.last_name
+        if filter_volunteer_data.email:
+            filters["email__iexact"] = filter_volunteer_data.email
+        if filter_volunteer_data.is_active is not None:
+            filters["is_active"] = filter_volunteer_data.is_active
+        if filter_volunteer_data.gender:
+            filters["gender__icontains"] = filter_volunteer_data.gender
+
+        return volunteer_dao.filter_all_volunteers(filtersDict=filters)
 
     def get_all_opportunities_of_a_volunteer(
         volunteer_id: int,

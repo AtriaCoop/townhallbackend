@@ -67,6 +67,9 @@ class VolunteerDao:
 
         volunteer.save()
 
+    def filter_all_volunteers(filtersDict) -> QuerySet[Volunteer]:
+        return Volunteer.objects.filter(**filtersDict)
+
     def get_all_opportunities_of_a_volunteer(
         volunteer_id: int,
     ) -> QuerySet[Opportunity]:

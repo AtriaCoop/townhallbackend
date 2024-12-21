@@ -23,6 +23,15 @@ class UpdateVolunteerData:
 
 
 @dataclass
+class FilterVolunteerData:
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    gender: Optional[str] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+@dataclass
 class ChangeVolunteerPasswordData:
     id: int
     email: str
