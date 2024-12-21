@@ -12,18 +12,26 @@ from .services import OpportunityServices as opportunity_services
 from .services import OrganizationServices as organization_services
 from .services import TaskServices
 
-from .serializers import OpportunitySerializer
+from .serializers import OpportunitySerializer, FilteredOpportunitySerializer
 from .serializers import (
     VolunteerSerializer,
     CreateVolunteerSerializer,
     UpdateVolunteerSerializer,
+    FilterVolunteerSerializer,
     ChangePasswordVolunteerSerializer,
 )
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
 from .serializers import ValidIDSerializer
 
-from .types import CreateVolunteerData, UpdateVolunteerData, ChangeVolunteerPasswordData
+from .types import (
+    CreateVolunteerData,
+    UpdateVolunteerData,
+    FilterVolunteerData,
+    ChangeVolunteerPasswordData,
+)
+
+from .types import FilteredOpportunityData
 
 from .types import CreateTaskData
 from .types import UpdateTaskData
@@ -129,10 +137,39 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-    # GET All Volunteers
+    # GET All Volunteers (Optional Volunteer Filter)
     @action(detail=False, methods=["get"], url_path="volunteer")
-    def get_all_volunteers_request(self, request):
-        volunteers = volunteer_services.get_volunteers_all()
+    def get_all_volunteers_optional_filter_request(self, request):
+        # Transforms requests JSON data into a python dictionary
+        serializer = FilterVolunteerSerializer(data=request.query_params)
+
+        # If the data is NOT valid return with a message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # If data is valid, Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Get Should Filter value
+        should_filter = validated_data["should_filter"]
+
+        # If should filter, then create proceed with filter, otherwise do not
+        volunteers = None
+        if should_filter:
+            # Convert the validated data into the FilterVolunteerData type
+            filter_volunteer_data = FilterVolunteerData(
+                first_name=validated_data.get("first_name", None),
+                last_name=validated_data.get("last_name", None),
+                email=validated_data.get("email", None),
+                gender=validated_data.get("gender", None),
+                is_active=validated_data.get("is_active", None),
+            )
+
+            volunteers = volunteer_services.get_all_volunteers_optional_filter(
+                filter_volunteer_data
+            )
+        else:
+            volunteers = volunteer_services.get_all_volunteers_optional_filter(None)
 
         # If no volunteers exist, return an empty list
         if not volunteers:
@@ -151,36 +188,58 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    # GET All Opportunities of a Volunteer
+    # GET All Opportunities of a Volunteer (Optional Opportunity Filter)
     @action(detail=True, methods=["get"], url_path="opportunity")
-    def get_all_opportunities_of_a_volunteer_request(self, request, vol_id):
+    def get_all_filtered_opportunities_of_a_volunteer_request(self, request, vol_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
-        try:
-            # Call the service method to get the opportunities for the volunteer
-            opportunities = volunteer_services.get_all_opportunities_of_a_volunteer(
-                volunteer_id
+        # Transforms requests JSON data into a python dictionary
+        serializer = FilteredOpportunitySerializer(data=request.query_params)
+
+        # If the data is NOT valid return with a message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # If data is valid, Take out the validated data
+        validated_data = serializer.validated_data
+
+        # Convert the validated data into the FilteredOpportunityData type
+        filtered_opportunity_data = FilteredOpportunityData(
+            title=validated_data.get("title", None),
+            starting_start_time=validated_data.get("starting_start_time", None),
+            starting_end_time=validated_data.get("starting_end_time", None),
+            ending_start_time=validated_data.get("ending_start_time", None),
+            ending_end_time=validated_data.get("ending_end_time", None),
+            location=validated_data.get("location", None),
+            organization_id=validated_data.get("organization", None),
+            volunteer_id=volunteer_id,
+        )
+
+        # Call the service method to get the opportunities for the volunteer
+        opportunities = (
+            volunteer_services.get_all_filtered_opportunities_of_a_volunteer(
+                filtered_opportunity_data
             )
+        )
 
-            if not opportunities:
-                return Response(
-                    {"message": "No Opportunities were found"},
-                    status=status.HTTP_200_OK,
-                )
-
-            # Create the response serializer for the list of volunteers
-            response_serializer = OpportunitySerializer(opportunities, many=True)
+        # If no opportunities were found, send an appropriate message
+        if not opportunities:
             return Response(
-                {
-                    "message": "Opportunities of this Volunteer retreived successfully",
-                    "data": response_serializer.data,
-                },
+                {"message": "No Opportunities were found with the specified filters"},
                 status=status.HTTP_200_OK,
             )
-        except ValidationError as e:
-            # If services method returns an error, return an error Response
-            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create the response serializer for the list of volunteers
+        response_serializer = OpportunitySerializer(opportunities, many=True)
+        return Response(
+            {
+                "message": "Filtered Opportunities of this "
+                + "Volunteer retreived successfully",
+                "data": response_serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     # DELETE A Volunteer
     @action(detail=True, methods=["delete"], url_path="volunteer")

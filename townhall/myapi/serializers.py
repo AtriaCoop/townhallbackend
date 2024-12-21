@@ -12,6 +12,16 @@ class OpportunitySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class FilteredOpportunitySerializer(serializers.Serializer):
+    title = serializers.CharField(required=False)
+    starting_start_time = serializers.DateTimeField(required=False)
+    starting_end_time = serializers.DateTimeField(required=False)
+    ending_start_time = serializers.DateTimeField(required=False)
+    ending_end_time = serializers.DateTimeField(required=False)
+    location = serializers.CharField(required=False)
+    organization_id = serializers.IntegerField(required=False)
+
+
 class VolunteerSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -51,6 +61,28 @@ class UpdateVolunteerSerializer(serializers.Serializer):
     def validate(self, data):
         if not any(data.values()):
             raise serializers.ValidationError("Atleast 1 field must have a Value")
+        return data
+
+
+class FilterVolunteerSerializer(serializers.Serializer):
+    should_filter = serializers.BooleanField(required=True)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    gender = serializers.ChoiceField(
+        choices=[("M", "Male"), ("F", "Female")], required=False
+    )
+    is_active = serializers.BooleanField(required=False, allow_null=True)
+
+    def validate(self, data):
+        if data.get("should_filter"):
+            if all(
+                data.get(field) is None
+                for field in ["first_name", "last_name", "email", "gender", "is_active"]
+            ):
+                raise serializers.ValidationError(
+                    {"should_filter": "This field is required."}
+                )
         return data
 
 

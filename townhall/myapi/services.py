@@ -20,6 +20,7 @@ from .dao import ProjectDao as project_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
+from .types import FilterVolunteerData
 from .types import ChangeVolunteerPasswordData
 
 from .types import CreateTaskData
@@ -45,9 +46,6 @@ logger = logging.getLogger(__name__)
 
 
 class VolunteerServices:
-    def get_volunteers_all() -> typing.List[Volunteer]:
-        return volunteer_dao.get_volunteers_all()
-
     def get_volunteer(id: int) -> typing.Optional[Volunteer]:
         try:
             volunteer = volunteer_dao.get_volunteer(id=id)
@@ -84,18 +82,52 @@ class VolunteerServices:
         except Volunteer.DoesNotExist:
             raise ValidationError(f"Volunteer with the given id: {id}, does not exist.")
 
-    def get_all_opportunities_of_a_volunteer(
-        volunteer_id: int,
+    def get_all_volunteers_optional_filter(
+        filter_volunteer_data: typing.Optional[FilterVolunteerData] = None,
+    ) -> QuerySet[Volunteer]:
+        if filter_volunteer_data is not None:
+            filters = {}
+
+            if filter_volunteer_data.first_name:
+                filters["first_name__icontains"] = filter_volunteer_data.first_name
+            if filter_volunteer_data.last_name:
+                filters["last_name__icontains"] = filter_volunteer_data.last_name
+            if filter_volunteer_data.email:
+                filters["email__iexact"] = filter_volunteer_data.email
+            if filter_volunteer_data.is_active is not None:
+                filters["is_active"] = filter_volunteer_data.is_active
+            if filter_volunteer_data.gender:
+                filters["gender__icontains"] = filter_volunteer_data.gender
+
+            return volunteer_dao.filter_all_volunteers(filtersDict=filters)
+        else:
+            return volunteer_dao.get_volunteers_all()
+
+    def get_all_filtered_opportunities_of_a_volunteer(
+        filtered_opportunity_data: FilteredOpportunityData,
     ) -> QuerySet[Opportunity]:
-        try:
-            opportunities = volunteer_dao.get_all_opportunities_of_a_volunteer(
-                volunteer_id=volunteer_id
-            )
-            return opportunities
-        except Volunteer.DoesNotExist:
-            raise ValidationError(
-                f"Volunteer with the given id: {volunteer_id}, does not exist."
-            )
+        filters = {}
+
+        if filtered_opportunity_data.title:
+            filters["title__icontains"] = filtered_opportunity_data.title
+        if filtered_opportunity_data.starting_start_time:
+            filters["start_time__gte"] = filtered_opportunity_data.starting_start_time
+        if filtered_opportunity_data.starting_end_time:
+            filters["start_time__lte"] = filtered_opportunity_data.starting_end_time
+        if filtered_opportunity_data.ending_start_time:
+            filters["end_time__gte"] = filtered_opportunity_data.ending_start_time
+        if filtered_opportunity_data.ending_end_time:
+            filters["end_time__lte"] = filtered_opportunity_data.ending_end_time
+        if filtered_opportunity_data.location:
+            filters["location__icontains"] = filtered_opportunity_data.location
+        if filtered_opportunity_data.organization_id:
+            filters["organization_id"] = filtered_opportunity_data.organization_id
+        if filtered_opportunity_data.volunteer_id:
+            filters["volunteers__id"] = filtered_opportunity_data.volunteer_id
+
+        return volunteer_dao.get_all_filtered_opportunities_of_a_volunteer(
+            filters_dict=filters
+        )
 
     def add_volunteer_to_opportunity(volunteer_id: int, opportunity_id: int) -> None:
         try:
