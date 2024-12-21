@@ -12,6 +12,16 @@ class OpportunitySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class FilteredOpportunitySerializer(serializers.Serializer):
+    title = serializers.CharField(required=False)
+    starting_start_time = serializers.DateTimeField(required=False)
+    starting_end_time = serializers.DateTimeField(required=False)
+    ending_start_time = serializers.DateTimeField(required=False)
+    ending_end_time = serializers.DateTimeField(required=False)
+    location = serializers.CharField(required=False)
+    organization_id = serializers.IntegerField(required=False)
+
+
 class VolunteerSerializer(serializers.ModelSerializer):
 
     class Meta:

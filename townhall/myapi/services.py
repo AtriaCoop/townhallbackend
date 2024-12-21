@@ -103,18 +103,31 @@ class VolunteerServices:
         else:
             return volunteer_dao.get_volunteers_all()
 
-    def get_all_opportunities_of_a_volunteer(
-        volunteer_id: int,
+    def get_all_filtered_opportunities_of_a_volunteer(
+        filtered_opportunity_data: FilteredOpportunityData,
     ) -> QuerySet[Opportunity]:
-        try:
-            opportunities = volunteer_dao.get_all_opportunities_of_a_volunteer(
-                volunteer_id=volunteer_id
-            )
-            return opportunities
-        except Volunteer.DoesNotExist:
-            raise ValidationError(
-                f"Volunteer with the given id: {volunteer_id}, does not exist."
-            )
+        filters = {}
+
+        if filtered_opportunity_data.title:
+            filters["title__icontains"] = filtered_opportunity_data.title
+        if filtered_opportunity_data.starting_start_time:
+            filters["start_time__gte"] = filtered_opportunity_data.starting_start_time
+        if filtered_opportunity_data.starting_end_time:
+            filters["start_time__lte"] = filtered_opportunity_data.starting_end_time
+        if filtered_opportunity_data.ending_start_time:
+            filters["end_time__gte"] = filtered_opportunity_data.ending_start_time
+        if filtered_opportunity_data.ending_end_time:
+            filters["end_time__lte"] = filtered_opportunity_data.ending_end_time
+        if filtered_opportunity_data.location:
+            filters["location__icontains"] = filtered_opportunity_data.location
+        if filtered_opportunity_data.organization_id:
+            filters["organization_id"] = filtered_opportunity_data.organization_id
+        if filtered_opportunity_data.volunteer_id:
+            filters["volunteers__id"] = filtered_opportunity_data.volunteer_id
+
+        return volunteer_dao.get_all_filtered_opportunities_of_a_volunteer(
+            filters_dict=filters
+        )
 
     def add_volunteer_to_opportunity(volunteer_id: int, opportunity_id: int) -> None:
         try:

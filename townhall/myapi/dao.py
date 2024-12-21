@@ -70,11 +70,10 @@ class VolunteerDao:
     def filter_all_volunteers(filtersDict) -> QuerySet[Volunteer]:
         return Volunteer.objects.filter(**filtersDict)
 
-    def get_all_opportunities_of_a_volunteer(
-        volunteer_id: int,
+    def get_all_filtered_opportunities_of_a_volunteer(
+        filters_dict,
     ) -> QuerySet[Opportunity]:
-        volunteer = Volunteer.objects.get(id=volunteer_id)
-        return volunteer.opportunities.all()
+        return Opportunity.objects.filter(**filters_dict)
 
     def add_volunteer_to_opportunity(volunteer_id: int, opportunity_id: int) -> None:
         opportunity = Opportunity.objects.get(id=opportunity_id)

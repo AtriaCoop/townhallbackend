@@ -69,6 +69,7 @@ class FilteredOpportunityData:
     ending_end_time: Optional[datetime] = None
     location: Optional[str] = None
     organization_id: Optional[int] = None
+    volunteer_id: Optional[int] = None
 
 
 @dataclass
