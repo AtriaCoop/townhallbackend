@@ -54,6 +54,16 @@ class UpdateVolunteerSerializer(serializers.Serializer):
         return data
 
 
+class FilterVolunteerSerializer(serializers.Serializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    gender = serializers.ChoiceField(
+        choices=[("M", "Male"), ("F", "Female")], required=False
+    )
+    is_active = serializers.BooleanField(required=False)
+
+
 class ChangePasswordVolunteerSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     curr_password = serializers.CharField(max_length=128, required=True)

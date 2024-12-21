@@ -38,6 +38,11 @@ urlpatterns = [
         name="volunteer",
     ),
     path(
+        "volunteer/filter/",
+        VolunteerViewSet.as_view({"get": "get_all_filtered_volunteers_request"}),
+        name="filter_volunteers",
+    ),
+    path(
         "volunteer/<int:vol_id>/",
         VolunteerViewSet.as_view(
             {
