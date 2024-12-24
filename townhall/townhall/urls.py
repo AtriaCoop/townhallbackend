@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
@@ -97,7 +98,7 @@ urlpatterns = [
             {"get": "get_task", "put": "update_task", "delete": "delete_task"}
         ),
     ),
-]
+] + debug_toolbar_urls()
 
 # Serve media files during development
 if settings.DEBUG:
