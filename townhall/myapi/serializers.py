@@ -104,7 +104,3 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
-
-
-class ValidIDSerializer(serializers.Serializer):
-    opportunity_id = serializers.IntegerField(required=True)

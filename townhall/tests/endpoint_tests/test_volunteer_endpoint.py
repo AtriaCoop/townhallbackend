@@ -420,11 +420,10 @@ class TestEndpointVolunteer(TestCase):
         )
 
         # Arrange
-        self.url = "/volunteer/1/opportunity/"
-        valid_data = {"opportunity_id": 1}
+        self.url = "/volunteer/1/opportunity/1/"
 
         # Act
-        response = self.client.post(self.url, valid_data, format="json")
+        response = self.client.post(self.url, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -436,17 +435,6 @@ class TestEndpointVolunteer(TestCase):
         self.assertEqual(len(volunteer.opportunities.all()), 1)
         self.assertEqual(len(opportunity.volunteers.all()), 1)
 
-    def test_add_volunteer_to_opportunity_fail_invalid_data(self):
-        # Arrange
-        self.url = "/volunteer/1/opportunity/"
-        invalid_data = {"opportunity_id": "one"}
-
-        # Act
-        response = self.client.post(self.url, invalid_data, format="json")
-
-        # Assert
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     @patch("myapi.services.VolunteerServices.add_volunteer_to_opportunity")
     def test_add_volunteer_to_opportunity_fail_service_error(
         self, mock_add_volunteer_to_opportunity
@@ -455,11 +443,10 @@ class TestEndpointVolunteer(TestCase):
         mock_add_volunteer_to_opportunity.side_effect = ValidationError(
             "random message"
         )
-        self.url = "/volunteer/1/opportunity/"
-        valid_data = {"opportunity_id": 1}
+        self.url = "/volunteer/1/opportunity/1/"
 
         # Act
-        response = self.client.post(self.url, valid_data, format="json")
+        response = self.client.post(self.url, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -519,11 +506,10 @@ class TestEndpointVolunteer(TestCase):
         test_opportunity.save()
 
         # Arrange
-        self.url = "/volunteer/10/opportunity/"
-        valid_data = {"opportunity_id": 1}
+        self.url = "/volunteer/10/opportunity/1/"
 
         # Act
-        response = self.client.delete(self.url, valid_data, format="json")
+        response = self.client.delete(self.url, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -538,29 +524,17 @@ class TestEndpointVolunteer(TestCase):
         self, mock_remove_volunteer_from_opportunity
     ):
         # Arrange
-        self.url = "/volunteer/10/opportunity/"
+        self.url = "/volunteer/10/opportunity/1/"
         mock_remove_volunteer_from_opportunity.side_effect = ValidationError(
             "random message"
         )
-        valid_data = {"opportunity_id": 1}
 
         # Act
-        response = self.client.delete(self.url, valid_data, format="json")
+        response = self.client.delete(self.url, format="json")
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["message"], "['random message']")
-
-    def test_remove_opportunity_from_a_volunteer_fail_invalid_data(self):
-        # Arrange
-        self.url = "/volunteer/10/opportunity/"
-        invalid_data = {"opportunity_id": "one"}
-
-        # Act
-        response = self.client.delete(self.url, invalid_data, format="json")
-
-        # Assert
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_volunteer_all_fields_success(self):
         # Arrange

@@ -54,11 +54,19 @@ urlpatterns = [
         VolunteerViewSet.as_view(
             {
                 "get": "get_all_filtered_opportunities_of_a_volunteer_request",
+            }
+        ),
+        name="volunteer_id_opportunity",
+    ),
+    path(
+        "volunteer/<int:vol_id>/opportunity/<int:opp_id>/",
+        VolunteerViewSet.as_view(
+            {
                 "post": "add_volunteer_to_opportunity_request",
                 "delete": "remove_opportunity_from_a_volunteer_request",
             }
         ),
-        name="volunteers_opportunities",
+        name="volunteer_id_opportunity_id",
     ),
     path(
         "volunteer/<int:vol_id>/change_password/",
@@ -90,12 +98,22 @@ urlpatterns = [
         ),
     ),
     path(
-        "tasks/", TaskViewSet.as_view({"get": "get_all_tasks", "post": "create_task"})
+        "tasks/",
+        TaskViewSet.as_view(
+            {
+                "get": "get_all_tasks",
+                "post": "create_task",
+            }
+        ),
     ),
     path(
         "tasks/<int:pk>/",
         TaskViewSet.as_view(
-            {"get": "get_task", "put": "update_task", "delete": "delete_task"}
+            {
+                "get": "get_task",
+                "put": "update_task",
+                "delete": "delete_task",
+            }
         ),
     ),
 ] + debug_toolbar_urls()

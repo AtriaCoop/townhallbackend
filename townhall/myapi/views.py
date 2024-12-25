@@ -22,7 +22,6 @@ from .serializers import (
 )
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
-from .serializers import ValidIDSerializer
 
 from .types import (
     CreateVolunteerData,
@@ -82,20 +81,12 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # POST (Create) Add volunteer to Opportunity
     @action(detail=True, methods=["post"], url_path="opportunity")
-    def add_volunteer_to_opportunity_request(self, request, vol_id):
+    def add_volunteer_to_opportunity_request(self, request, vol_id, opp_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
-        # Create a serializer to check if the data is valid
-        serializer = ValidIDSerializer(data=request.data)
-
-        # If the data is NOT valid return with message serializers errors
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # Take out the validated data
-        validated_data = serializer.validated_data
-        opportunity_id = validated_data["opportunity_id"]
+        # Get the opportunity id from the url
+        opportunity_id = opp_id
 
         try:
             # Call the service method to add volunteer to opportunity
@@ -262,20 +253,12 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     # DELETE (Remove) An Opportunity from a Volunteer
     @action(detail=True, methods=["delete"], url_path="opportunity")
-    def remove_opportunity_from_a_volunteer_request(self, request, vol_id):
+    def remove_opportunity_from_a_volunteer_request(self, request, vol_id, opp_id):
         # Get the volunteer id from the url
         volunteer_id = vol_id
 
-        # Create a serializer to check if the data is valid
-        serializer = ValidIDSerializer(data=request.data)
-
-        # If the data is NOT valid return with message serializers errors
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # Take out the validated data
-        validated_data = serializer.validated_data
-        opportunity_id = validated_data["opportunity_id"]
+        # Get the opportunity id from the url
+        opportunity_id = opp_id
 
         try:
             # Call the service method to remove the opportunity from the volunteer
