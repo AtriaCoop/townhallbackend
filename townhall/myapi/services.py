@@ -1,10 +1,12 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
-from django.core.mail import send_mail
+
+# from django.core.mail import send_mail
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
-from django.conf import settings
+
+# from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.db.models.query import QuerySet
 from django.core.validators import EmailValidator
@@ -207,12 +209,13 @@ class VolunteerServices:
             )
 
             # Send notification email
-            send_mail(
+            # Commented out as SMTP emailing is not yet setup and was causing errors
+            """send_mail(
                 subject=_("Password Change Notification"),
                 message=_("Your password has been successfully changed."),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[volunteer.email],
-            )
+            )"""
             logger.info(
                 f"Password changed for volunteer ID: {change_vounteer_password_data.id}"
             )

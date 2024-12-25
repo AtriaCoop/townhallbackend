@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
@@ -53,11 +54,19 @@ urlpatterns = [
         VolunteerViewSet.as_view(
             {
                 "get": "get_all_filtered_opportunities_of_a_volunteer_request",
+            }
+        ),
+        name="volunteer_id_opportunity",
+    ),
+    path(
+        "volunteer/<int:vol_id>/opportunity/<int:opp_id>/",
+        VolunteerViewSet.as_view(
+            {
                 "post": "add_volunteer_to_opportunity_request",
                 "delete": "remove_opportunity_from_a_volunteer_request",
             }
         ),
-        name="volunteers_opportunities",
+        name="volunteer_id_opportunity_id",
     ),
     path(
         "volunteer/<int:vol_id>/change_password/",
@@ -89,15 +98,25 @@ urlpatterns = [
         ),
     ),
     path(
-        "tasks/", TaskViewSet.as_view({"get": "get_all_tasks", "post": "create_task"})
+        "tasks/",
+        TaskViewSet.as_view(
+            {
+                "get": "get_all_tasks",
+                "post": "create_task",
+            }
+        ),
     ),
     path(
         "tasks/<int:pk>/",
         TaskViewSet.as_view(
-            {"get": "get_task", "put": "update_task", "delete": "delete_task"}
+            {
+                "get": "get_task",
+                "put": "update_task",
+                "delete": "delete_task",
+            }
         ),
     ),
-]
+] + debug_toolbar_urls()
 
 # Serve media files during development
 if settings.DEBUG:
