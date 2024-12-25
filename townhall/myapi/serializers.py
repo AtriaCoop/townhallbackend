@@ -81,7 +81,7 @@ class FilterVolunteerSerializer(serializers.Serializer):
                 for field in ["first_name", "last_name", "email", "gender", "is_active"]
             ):
                 raise serializers.ValidationError(
-                    {"should_filter": "This field is required."}
+                    {"should_filter": "A field to filter by is required."}
                 )
         return data
 
