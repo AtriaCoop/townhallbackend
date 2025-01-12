@@ -12,12 +12,16 @@ from django.utils import timezone
 
 class TestProjectModel(TestCase):
     def setUp(self):
+        self.community = townhall_models.Community.objects.create(
+            id=1, name="Community1", description="Description1"
+        )
         townhall_models.Project.objects.create(
             id=1,
             title="Project1",
             description="Description1",
             start_date=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             end_date=timezone.make_aware(datetime(2024, 7, 20, 20, 30)),
+            community=self.community,
         )
         townhall_models.Project.objects.create(
             id=2,
@@ -25,6 +29,7 @@ class TestProjectModel(TestCase):
             description="Description2",
             start_date=timezone.make_aware(datetime(2024, 7, 20, 10, 0)),
             end_date=timezone.make_aware(datetime(2024, 7, 20, 20, 30)),
+            community=self.community,
         )
 
     def test_get_project(self):
@@ -38,6 +43,7 @@ class TestProjectModel(TestCase):
         self.assertEqual(
             project.end_date, timezone.make_aware(datetime(2024, 7, 20, 20, 30))
         )
+        self.assertEqual(project.community, self.community)
 
     def test_get_project_not_found(self):
         project = townhall_services.ProjectServices.get_project(id=100)
