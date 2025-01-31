@@ -389,6 +389,10 @@ class CommunityDao:
         except Community.DoesNotExist:
             return None
 
+    @staticmethod
+    def get_community_all() -> QuerySet[Community]:
+        return Community.objects.all()
+
 
 class ProjectDao:
 
