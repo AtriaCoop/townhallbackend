@@ -16,6 +16,11 @@ class TestCommunityModel(TestCase):
             name="Community1",
             description="Description1",
         )
+        townhall_models.Community.objects.create(
+            id=2,
+            name="Community2",
+            description="Description2",
+        )
 
     def test_get_community(self):
         community = townhall_services.CommunityServices.get_community(id=1)
@@ -26,3 +31,11 @@ class TestCommunityModel(TestCase):
     def test_get_community_not_found(self):
         community = townhall_services.CommunityServices.get_community(id=100)
         self.assertIsNone(community)
+
+    def test_get_all_communities(self):
+        community = townhall_services.CommunityServices.get_all_communities()
+        self.assertEqual(len(community), 2)
+        self.assertEqual(community[0].name, "Community1")
+        self.assertEqual(community[0].description, "Description1")
+        self.assertEqual(community[1].name, "Community2")
+        self.assertEqual(community[1].description, "Description2")
