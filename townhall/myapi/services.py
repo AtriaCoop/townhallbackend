@@ -16,6 +16,7 @@ from .dao import OpportunityDao as opportunity_dao
 from .dao import OrganizationDao as organization_dao
 from .dao import TaskDao as task_dao
 from .dao import ChatDao as chat_dao
+from .dao import CommunityDao as community_dao
 from .dao import ProjectDao as project_dao
 
 from .types import CreateVolunteerData
@@ -37,6 +38,7 @@ from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 from .models import Task
+from .models import Community
 from .models import Project
 
 User = get_user_model()
@@ -441,6 +443,13 @@ class chatServices:
             return {"error": str(ve)}
         except Exception as e:
             return {"error": "An unexpected error occurred.", "details": str(e)}
+
+
+class CommunityServices:
+
+    @staticmethod
+    def get_community(id: int) -> typing.Optional[Community]:
+        return community_dao.get_community(id=id)
 
 
 class ProjectServices:
