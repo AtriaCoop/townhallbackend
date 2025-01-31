@@ -31,7 +31,7 @@ urlpatterns = [
         "volunteer/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_all_volunteers_request",
+                "get": "get_all_volunteers_optional_filter_request",
                 "post": "create_volunteer_request",
             }
         ),
@@ -52,7 +52,7 @@ urlpatterns = [
         "volunteer/<int:vol_id>/opportunity/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_all_opportunities_of_a_volunteer_request",
+                "get": "get_all_filtered_opportunities_of_a_volunteer_request",
                 "post": "add_volunteer_to_opportunity_request",
                 "delete": "remove_opportunity_from_a_volunteer_request",
             }
