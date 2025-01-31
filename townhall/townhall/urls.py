@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
@@ -31,7 +32,7 @@ urlpatterns = [
         "volunteer/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_all_volunteers_request",
+                "get": "get_all_volunteers_optional_filter_request",
                 "post": "create_volunteer_request",
             }
         ),
@@ -43,6 +44,7 @@ urlpatterns = [
             {
                 "get": "get_volunteer_request",
                 "delete": "delete_volunteer_request",
+                "patch": "update_volunteer_request",
             }
         ),
         name="volunteer_id",
@@ -51,17 +53,29 @@ urlpatterns = [
         "volunteer/<int:vol_id>/opportunity/",
         VolunteerViewSet.as_view(
             {
-                "get": "get_all_opportunities_of_a_volunteer_request",
+                "get": "get_all_filtered_opportunities_of_a_volunteer_request",
+            }
+        ),
+        name="volunteer_id_opportunity",
+    ),
+    path(
+        "volunteer/<int:vol_id>/opportunity/<int:opp_id>/",
+        VolunteerViewSet.as_view(
+            {
                 "post": "add_volunteer_to_opportunity_request",
                 "delete": "remove_opportunity_from_a_volunteer_request",
             }
         ),
-        name="volunteers_opportunities",
+        name="volunteer_id_opportunity_id",
     ),
     path(
-        "volunteer/<int:pk>/update/",
-        VolunteerViewSet.as_view({"put": "update_volunteer"}),
-        name="update_volunteer",
+        "volunteer/<int:vol_id>/change_password/",
+        VolunteerViewSet.as_view(
+            {
+                "patch": "change_password_volunteer_request",
+            }
+        ),
+        name="volunteer_change_password",
     ),
     path(
         "opportunity/",
@@ -84,15 +98,25 @@ urlpatterns = [
         ),
     ),
     path(
-        "tasks/", TaskViewSet.as_view({"get": "get_all_tasks", "post": "create_task"})
+        "tasks/",
+        TaskViewSet.as_view(
+            {
+                "get": "get_all_tasks",
+                "post": "create_task",
+            }
+        ),
     ),
     path(
         "tasks/<int:pk>/",
         TaskViewSet.as_view(
-            {"get": "get_task", "put": "update_task", "delete": "delete_task"}
+            {
+                "get": "get_task",
+                "put": "update_task",
+                "delete": "delete_task",
+            }
         ),
     ),
-]
+] + debug_toolbar_urls()
 
 # Serve media files during development
 if settings.DEBUG:

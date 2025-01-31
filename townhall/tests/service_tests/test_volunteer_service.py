@@ -6,11 +6,16 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import check_password, make_password
 
-from myapi import models as townhall_models
-from myapi import services as townhall_services
+from myapi.models import Volunteer as vol_mod
+from myapi.models import Opportunity as opp_mod
+from myapi.services import VolunteerServices as vol_serv
 
+from myapi.types import CreateVolunteerData
 from myapi.types import UpdateVolunteerData
+from myapi.types import FilterVolunteerData
 from myapi.types import ChangeVolunteerPasswordData
+
+from myapi.types import FilteredOpportunityData
 
 
 # VOLUNTEER
@@ -25,18 +30,9 @@ class TestVolunteerModel(TestCase):
         call_command("loaddata", "volunteer_fixture.json")
         call_command("loaddata", "opportunity_fixture.json")
 
-    def test_get_all_volunteers(self):
-        # Act
-        volunteers = townhall_services.VolunteerServices.get_volunteers_all()
-
-        # Assert
-        assert len(volunteers) == 2
-        ids = [volunteer.id for volunteer in volunteers]
-        assert set(ids) == {1, 2}
-
     def test_get_volunteer_found(self):
         # Act
-        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer = vol_serv.get_volunteer(id=1)
 
         # Assert
         assert volunteer.first_name == "Zamorak"
@@ -53,12 +49,12 @@ class TestVolunteerModel(TestCase):
     @patch("myapi.dao.VolunteerDao.get_volunteer")
     def test_get_volunteer_failed_not_found(self, mock_get_volunteer):
         # Arrange
-        mock_get_volunteer.side_effect = townhall_models.Volunteer.DoesNotExist
+        mock_get_volunteer.side_effect = vol_mod.DoesNotExist
         volunteer_id = 999  # Assuming this ID does not exist
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.get_volunteer(volunteer_id)
+            vol_serv.get_volunteer(volunteer_id)
 
         # Assert
         assert (
@@ -66,17 +62,18 @@ class TestVolunteerModel(TestCase):
             == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
         )
 
-    def test_get_all_opportunities_of_volunteer_found(self):
+    def test_get_all_opportunities_of_volunteer_found_no_filters(self):
         # Arrange
-        opportunity1 = townhall_models.Opportunity.objects.get(id=1)
-        opportunity2 = townhall_models.Opportunity.objects.get(id=2)
-        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        opportunity1 = opp_mod.objects.get(id=1)
+        opportunity2 = opp_mod.objects.get(id=2)
+        volunteer = vol_serv.get_volunteer(id=1)
         opportunity1.volunteers.add(volunteer)
         opportunity2.volunteers.add(volunteer)
+        filtered_opportunity_data = FilteredOpportunityData(volunteer_id=1)
 
         # Act
-        opportunities = (
-            townhall_services.VolunteerServices.get_all_opportunities_of_a_volunteer(1)
+        opportunities = vol_serv.get_all_filtered_opportunities_of_a_volunteer(
+            filtered_opportunity_data
         )
 
         # Assert
@@ -84,34 +81,98 @@ class TestVolunteerModel(TestCase):
         ids = [opportunity.id for opportunity in opportunities]
         assert set(ids) == {1, 2}
 
-    @patch("myapi.dao.VolunteerDao.get_all_opportunities_of_a_volunteer")
+    def test_get_all_opportunities_of_volunteer_found_one_filter(self):
+        # Arrange
+        opportunity1 = opp_mod.objects.get(id=1)
+        opportunity2 = opp_mod.objects.get(id=2)
+        volunteer = vol_serv.get_volunteer(id=1)
+        opportunity1.volunteers.add(volunteer)
+        opportunity2.volunteers.add(volunteer)
+        filtered_opportunity_data = FilteredOpportunityData(
+            location="Van", volunteer_id=1
+        )
+
+        # Act
+        opportunities = vol_serv.get_all_filtered_opportunities_of_a_volunteer(
+            filtered_opportunity_data
+        )
+
+        # Assert
+        assert len(opportunities) == 2
+        ids = [opportunity.id for opportunity in opportunities]
+        assert set(ids) == {1, 2}
+
+    def test_get_all_opportunities_of_volunteer_found_all_filters(self):
+        # Arrange
+        opportunity1 = opp_mod.objects.get(id=1)
+        opportunity2 = opp_mod.objects.get(id=2)
+        volunteer = vol_serv.get_volunteer(id=1)
+        opportunity1.volunteers.add(volunteer)
+        opportunity2.volunteers.add(volunteer)
+        filtered_opportunity_data = FilteredOpportunityData(
+            title="ygien",
+            starting_start_time="2024-07-19T10:00:00Z",
+            starting_end_time="2024-07-21T10:00:00Z",
+            ending_start_time="2024-07-19T21:45:00Z",
+            ending_end_time="2024-07-21T21:45:00Z",
+            location="Vancouver",
+            organization_id=1,
+            volunteer_id=1,
+        )
+
+        # Act
+        opportunities = vol_serv.get_all_filtered_opportunities_of_a_volunteer(
+            filtered_opportunity_data
+        )
+
+        # Assert
+        assert len(opportunities) == 1
+        ids = [opportunity.id for opportunity in opportunities]
+        assert set(ids) == {2}
+
+    @patch("myapi.dao.VolunteerDao.get_all_filtered_opportunities_of_a_volunteer")
     def test_get_all_opportunities_of_volunteer_not_found(
-        self, mock_get_all_opportunities_of_a_volunteer
+        self, mock_get_all_filtered_opportunities_of_a_volunteer
     ):
         # Arrange
-        mock_get_all_opportunities_of_a_volunteer.side_effect = (
-            townhall_models.Volunteer.DoesNotExist
+        mock_get_all_filtered_opportunities_of_a_volunteer.return_value = (
+            opp_mod.objects.none()
         )
-        volunteer_id = 999  # Assuming this ID does not exist
+        filtered_opportunity_data = FilteredOpportunityData(volunteer_id=1)
+
+        # Act
+        opportunities = vol_serv.get_all_filtered_opportunities_of_a_volunteer(
+            filtered_opportunity_data
+        )
+
+        # Assert
+        assert len(opportunities) == 0
+
+    @patch("myapi.services.VolunteerServices.validate_volunteer")
+    def test_create_volunteer_validation_error(self, mock_validate_volunteer):
+        # Arrange
+        mock_validate_volunteer.side_effect = ValidationError("Random Error Message")
+        create_volunteer_data = CreateVolunteerData(
+            first_name="John",
+            last_name="Doe",
+            gender="F",
+            email="john.doe@example.com",
+            password="JohnDoe987",
+        )
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.get_all_opportunities_of_a_volunteer(
-                volunteer_id
-            )
+            vol_serv.create_volunteer(create_volunteer_data)
 
         # Assert
-        assert (
-            str(context.exception)
-            == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
-        )
+        assert str(context.exception) == "['Random Error Message']"
 
     def test_add_volunteer_to_opportunity_success(self):
         # Act
-        townhall_services.VolunteerServices.add_volunteer_to_opportunity(1, 1)
+        vol_serv.add_volunteer_to_opportunity(1, 1)
 
         # Assert
-        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer = vol_serv.get_volunteer(id=1)
         assert len(volunteer.opportunities.all()) == 1
         ids = [opportunity.id for opportunity in volunteer.opportunities.all()]
         assert set(ids) == {1}
@@ -121,16 +182,12 @@ class TestVolunteerModel(TestCase):
         self, mock_add_volunteer_to_opportunity
     ):
         # Arrange
-        mock_add_volunteer_to_opportunity.side_effect = (
-            townhall_models.Volunteer.DoesNotExist
-        )
+        mock_add_volunteer_to_opportunity.side_effect = vol_mod.DoesNotExist
         volunteer_id = 999  # Assuming this ID does not exist
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.add_volunteer_to_opportunity(
-                volunteer_id, 1
-            )
+            vol_serv.add_volunteer_to_opportunity(volunteer_id, 1)
 
         # Assert
         assert (
@@ -143,16 +200,12 @@ class TestVolunteerModel(TestCase):
         self, mock_add_volunteer_to_opportunity
     ):
         # Arrange
-        mock_add_volunteer_to_opportunity.side_effect = (
-            townhall_models.Opportunity.DoesNotExist
-        )
+        mock_add_volunteer_to_opportunity.side_effect = opp_mod.DoesNotExist
         opportunity_id = 999  # Assuming this ID does not exist
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.add_volunteer_to_opportunity(
-                1, opportunity_id
-            )
+            vol_serv.add_volunteer_to_opportunity(1, opportunity_id)
 
         # Assert
         assert (
@@ -162,17 +215,17 @@ class TestVolunteerModel(TestCase):
 
     def test_remove_volunteer_from_opportunity_success(self):
         # Arrange
-        opportunity1 = townhall_models.Opportunity.objects.get(id=1)
-        opportunity2 = townhall_models.Opportunity.objects.get(id=2)
-        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        opportunity1 = opp_mod.objects.get(id=1)
+        opportunity2 = opp_mod.objects.get(id=2)
+        volunteer = vol_serv.get_volunteer(id=1)
         opportunity1.volunteers.add(volunteer)
         opportunity2.volunteers.add(volunteer)
 
         # Act
-        townhall_services.VolunteerServices.remove_volunteer_from_opportunity(1, 1)
+        vol_serv.remove_volunteer_from_opportunity(1, 1)
 
         # Assert
-        volunteer = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer = vol_serv.get_volunteer(id=1)
         assert len(volunteer.opportunities.all()) == 1
         ids = [opportunity.id for opportunity in volunteer.opportunities.all()]
         assert set(ids) == {2}
@@ -182,16 +235,12 @@ class TestVolunteerModel(TestCase):
         self, mock_remove_volunteer_from_opportunity
     ):
         # Arrange
-        mock_remove_volunteer_from_opportunity.side_effect = (
-            townhall_models.Volunteer.DoesNotExist
-        )
+        mock_remove_volunteer_from_opportunity.side_effect = vol_mod.DoesNotExist
         volunteer_id = 999  # Assuming this ID does not exist
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.remove_volunteer_from_opportunity(
-                volunteer_id, 1
-            )
+            vol_serv.remove_volunteer_from_opportunity(volunteer_id, 1)
 
         # Assert
         assert (
@@ -204,16 +253,12 @@ class TestVolunteerModel(TestCase):
         self, mock_remove_volunteer_from_opportunity
     ):
         # Arrange
-        mock_remove_volunteer_from_opportunity.side_effect = (
-            townhall_models.Opportunity.DoesNotExist
-        )
+        mock_remove_volunteer_from_opportunity.side_effect = opp_mod.DoesNotExist
         opportunity_id = 999  # Assuming this ID does not exist
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.add_volunteer_to_opportunity(
-                1, opportunity_id
-            )
+            vol_serv.add_volunteer_to_opportunity(1, opportunity_id)
 
         # Assert
         assert (
@@ -223,7 +268,7 @@ class TestVolunteerModel(TestCase):
 
     def test_update_volunteer_one_field_success(self):
         # Pre Assert
-        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer_before = vol_serv.get_volunteer(id=1)
         assert volunteer_before.first_name == "Zamorak"
         assert volunteer_before.last_name == "Red"
         assert volunteer_before.email == "zamorak.red@gmail.com"
@@ -239,10 +284,10 @@ class TestVolunteerModel(TestCase):
         update_volunteer_data = UpdateVolunteerData(id=1, first_name="John")
 
         # Act
-        townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+        vol_serv.update_volunteer(update_volunteer_data)
 
         # Assert
-        volunteer_after = townhall_models.Volunteer.objects.get(id=1)
+        volunteer_after = vol_mod.objects.get(id=1)
         assert volunteer_after.first_name == "John"
         assert volunteer_after.last_name == "Red"
         assert volunteer_after.email == "zamorak.red@gmail.com"
@@ -256,7 +301,7 @@ class TestVolunteerModel(TestCase):
 
     def test_update_volunteer_all_fields_success(self):
         # Pre Assert
-        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer_before = vol_serv.get_volunteer(id=1)
         assert volunteer_before.first_name == "Zamorak"
         assert volunteer_before.last_name == "Red"
         assert volunteer_before.email == "zamorak.red@gmail.com"
@@ -279,10 +324,10 @@ class TestVolunteerModel(TestCase):
         )
 
         # Act
-        townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+        vol_serv.update_volunteer(update_volunteer_data)
 
         # Assert
-        volunteer_after = townhall_models.Volunteer.objects.get(id=1)
+        volunteer_after = vol_mod.objects.get(id=1)
         assert volunteer_after.first_name == "John"
         assert volunteer_after.last_name == "Doe"
         assert volunteer_after.email == "john.doe@example.com"
@@ -297,14 +342,14 @@ class TestVolunteerModel(TestCase):
     @patch("myapi.dao.VolunteerDao.update_volunteer")
     def test_update_volunteer_failed_not_found(self, mock_update_volunteer):
         # Arrange
-        mock_update_volunteer.side_effect = townhall_models.Volunteer.DoesNotExist
+        mock_update_volunteer.side_effect = vol_mod.DoesNotExist
         update_volunteer_data = UpdateVolunteerData(
             id=999, first_name="John"  # Assuming this ID does not exist
         )
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.update_volunteer(update_volunteer_data)
+            vol_serv.update_volunteer(update_volunteer_data)
 
         # Assert
         id = update_volunteer_data.id
@@ -315,7 +360,7 @@ class TestVolunteerModel(TestCase):
 
     def test_delete_volunteer_success(self):
         # Pre Assert
-        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=1)
+        volunteer_before = vol_serv.get_volunteer(id=1)
         assert volunteer_before.first_name == "Zamorak"
         assert volunteer_before.last_name == "Red"
         assert volunteer_before.email == "zamorak.red@gmail.com"
@@ -331,27 +376,92 @@ class TestVolunteerModel(TestCase):
         volunteer_id = 1
 
         # Act
-        townhall_services.VolunteerServices.delete_volunteer(volunteer_id)
+        vol_serv.delete_volunteer(volunteer_id)
 
         # Assert
-        with self.assertRaises(townhall_models.Volunteer.DoesNotExist):
-            townhall_models.Volunteer.objects.get(id=1)
+        with self.assertRaises(vol_mod.DoesNotExist):
+            vol_mod.objects.get(id=1)
 
     @patch("myapi.dao.VolunteerDao.delete_volunteer")
     def test_delete_volunteer_failed_not_found(self, mock_delete_volunteer):
         # Arrange
-        mock_delete_volunteer.side_effect = townhall_models.Volunteer.DoesNotExist
+        mock_delete_volunteer.side_effect = vol_mod.DoesNotExist
         volunteer_id = 999  # Assuming this ID does not exist
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.delete_volunteer(volunteer_id)
+            vol_serv.delete_volunteer(volunteer_id)
 
         # Assert
         assert (
             str(context.exception)
             == f"['Volunteer with the given id: {volunteer_id}, does not exist.']"
         )
+
+    def test_get_all_volunteers_all_filters_success_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(
+            first_name="amor",
+            last_name="Re",
+            email="zamorak.red@gmail.com",
+            gender="M",
+            is_active=True,
+        )
+
+        # Act
+        volunteers = vol_serv.get_all_volunteers_optional_filter(filter_volunteer_data)
+
+        # Assert
+        assert len(volunteers) == 1
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1}
+
+    def test_get_all_volunteers_one_filter_success_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(is_active=True)
+
+        # Act
+        volunteers = vol_serv.get_all_volunteers_optional_filter(filter_volunteer_data)
+
+        # Assert
+        assert len(volunteers) == 2
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1, 2}
+
+    def test_get_all_volunteers_all_filters_success_not_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(
+            first_name="amor",
+            last_name="Re",
+            email="zamorak.red@gmail.co",
+            gender="M",
+            is_active=True,
+        )
+
+        # Act
+        volunteers = vol_serv.get_all_volunteers_optional_filter(filter_volunteer_data)
+
+        # Assert
+        assert len(volunteers) == 0
+
+    def test_get_all_volunteers_one_filter_success_not_found(self):
+        # Arrange
+        filter_volunteer_data = FilterVolunteerData(is_active=False)
+
+        # Act
+        volunteers = vol_serv.get_all_volunteers_optional_filter(filter_volunteer_data)
+
+        # Assert
+        assert len(volunteers) == 0
+
+    def test_get_all_volunteers_no_filters_success(self):
+        # Act
+        volunteers = vol_serv.get_all_volunteers_optional_filter(None)
+
+        # Assert
+        assert len(volunteers) == 2
+        ids = [volunteer.id for volunteer in volunteers]
+        assert set(ids) == {1, 2}
 
     @patch("myapi.services.VolunteerServices.authenticate_volunteer")
     @patch("myapi.services.VolunteerServices.validate_volunteer")
@@ -360,7 +470,7 @@ class TestVolunteerModel(TestCase):
     ):
         # Pre Arrange
         # Creating a Volunteer without a fixture to know the password pre hash
-        townhall_models.Volunteer.objects.create(
+        vol_mod.objects.create(
             id=3,
             first_name="Bruce",
             last_name="Wayne",
@@ -370,7 +480,7 @@ class TestVolunteerModel(TestCase):
         )
 
         # Pre Assert
-        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=3)
+        volunteer_before = vol_serv.get_volunteer(id=3)
         assert volunteer_before.first_name == "Bruce"
         assert volunteer_before.last_name == "Wayne"
         assert volunteer_before.email == "batman@gmail.com"
@@ -385,18 +495,14 @@ class TestVolunteerModel(TestCase):
             new_password="BruceWayne00",
         )
         # Ensure that these two methods always succeed and don't cause an error
-        mock_authenticate_volunteer.return_value = (
-            townhall_services.VolunteerServices.get_volunteer(id=3)
-        )
+        mock_authenticate_volunteer.return_value = vol_serv.get_volunteer(id=3)
         mock_validate_volunteer.return_value = None
 
         # Act
-        townhall_services.VolunteerServices.change_volunteers_password(
-            changePasswordData
-        )
+        vol_serv.change_volunteers_password(changePasswordData)
 
         # Assert
-        volunteer_after = townhall_services.VolunteerServices.get_volunteer(id=3)
+        volunteer_after = vol_serv.get_volunteer(id=3)
         assert volunteer_after.first_name == "Bruce"
         assert volunteer_after.last_name == "Wayne"
         assert volunteer_after.email == "batman@gmail.com"
@@ -423,9 +529,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.change_volunteers_password(
-                changePasswordData
-            )
+            vol_serv.change_volunteers_password(changePasswordData)
 
         # Assert
         assert (
@@ -439,9 +543,7 @@ class TestVolunteerModel(TestCase):
         self, mock_validate_volunteer, mock_authenticate_volunteer
     ):
         # Arrange
-        mock_authenticate_volunteer.return_value = (
-            townhall_services.VolunteerServices.get_volunteer(id=2)
-        )
+        mock_authenticate_volunteer.return_value = vol_serv.get_volunteer(id=2)
         mock_validate_volunteer.side_effect = ValidationError("Random Error Message")
 
         changePasswordData = (
@@ -455,9 +557,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.change_volunteers_password(
-                changePasswordData
-            )
+            vol_serv.change_volunteers_password(changePasswordData)
 
         # Assert
         assert str(context.exception) == "['Random Error Message']"
@@ -465,7 +565,7 @@ class TestVolunteerModel(TestCase):
     def test_authenticate_volunteer_success(self):
         # Pre Arrange
         # Creating a Volunteer without a fixture to know the password pre hash
-        townhall_models.Volunteer.objects.create(
+        vol_mod.objects.create(
             id=3,
             first_name="Bruce",
             last_name="Wayne",
@@ -475,7 +575,7 @@ class TestVolunteerModel(TestCase):
         )
 
         # Pre Assert
-        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=3)
+        volunteer_before = vol_serv.get_volunteer(id=3)
         assert volunteer_before.first_name == "Bruce"
         assert volunteer_before.last_name == "Wayne"
         assert volunteer_before.email == "batman@gmail.com"
@@ -487,9 +587,7 @@ class TestVolunteerModel(TestCase):
         password = "ImBatman99"
 
         # Act
-        returned_volunteer = townhall_services.VolunteerServices.authenticate_volunteer(
-            email, password
-        )
+        returned_volunteer = vol_serv.authenticate_volunteer(email, password)
 
         # Assert
         assert returned_volunteer.first_name == "Bruce"
@@ -504,9 +602,7 @@ class TestVolunteerModel(TestCase):
         password = "something_wrong1234"
 
         # Act & Assert
-        volunteer = townhall_services.VolunteerServices.authenticate_volunteer(
-            email, password
-        )
+        volunteer = vol_serv.authenticate_volunteer(email, password)
 
         # Assert
         assert volunteer is None
@@ -514,7 +610,7 @@ class TestVolunteerModel(TestCase):
     def test_authenticate_volunteer_failed_inactive(self):
         # Pre Arrange
         # Creating a Volunteer without a fixture to know the password pre hash
-        townhall_models.Volunteer.objects.create(
+        vol_mod.objects.create(
             id=3,
             first_name="Bruce",
             last_name="Wayne",
@@ -525,7 +621,7 @@ class TestVolunteerModel(TestCase):
         )
 
         # Pre Assert
-        volunteer_before = townhall_services.VolunteerServices.get_volunteer(id=3)
+        volunteer_before = vol_serv.get_volunteer(id=3)
         assert volunteer_before.first_name == "Bruce"
         assert volunteer_before.last_name == "Wayne"
         assert volunteer_before.email == "batman@gmail.com"
@@ -539,7 +635,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.authenticate_volunteer(email, password)
+            vol_serv.authenticate_volunteer(email, password)
 
         # Assert
         assert str(context.exception) == "['Account is inactive.']"
@@ -551,9 +647,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         try:
-            townhall_services.VolunteerServices.validate_volunteer(
-                valid_email, valid_password
-            )
+            vol_serv.validate_volunteer(valid_email, valid_password)
         except ValidationError:
             self.fail("ValidationError raised incorrectly")
 
@@ -564,9 +658,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.validate_volunteer(
-                invalid_email, valid_password
-            )
+            vol_serv.validate_volunteer(invalid_email, valid_password)
 
         # Assert
         assert str(context.exception) == "['Invalid email format.']"
@@ -578,9 +670,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.validate_volunteer(
-                valid_email, invalid_password
-            )
+            vol_serv.validate_volunteer(valid_email, invalid_password)
 
         # Assert
         assert str(context.exception) == "['Invalid password.']"
@@ -592,9 +682,7 @@ class TestVolunteerModel(TestCase):
 
         # Act & Assert
         with self.assertRaises(ValidationError) as context:
-            townhall_services.VolunteerServices.validate_volunteer(
-                invalid_email, invalid_password
-            )
+            vol_serv.validate_volunteer(invalid_email, invalid_password)
 
         # Assert
         assert str(context.exception) == "['Password is too similar to the email.']"
