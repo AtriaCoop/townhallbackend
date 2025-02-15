@@ -4,6 +4,7 @@ from .models import Organization
 from .models import Task
 from .models import Chat
 from .models import Project
+from .models import Comment
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -16,6 +17,7 @@ from .types import FilteredOpportunityData
 from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
+from .types import CreateCommentData
 
 from .types import CreateTaskData, UpdateTaskData
 
@@ -393,3 +395,17 @@ class ProjectDao:
     @staticmethod
     def get_project_all() -> QuerySet[Project]:
         return Project.objects.all()
+
+
+class CommentDao:
+
+    def create_comment(comment_data: CreateCommentData) -> None:
+        comment = Comment.objects.create(
+            comment_id=comment_data.id,
+            user_id=comment_data.user_id,
+            post_id=comment_data.post_id,
+            content=comment_data.content,
+            created_data=comment_data.created_data,
+        )
+
+        return comment
