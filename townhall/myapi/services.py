@@ -19,6 +19,7 @@ from .dao import OrganizationDao as organization_dao
 from .dao import TaskDao as task_dao
 from .dao import ChatDao as chat_dao
 from .dao import ProjectDao as project_dao
+from .dao import CommentDao as comment_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -35,6 +36,8 @@ from .types import FilteredOpportunityData
 from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
+
+from .types import CreateCommentData
 
 from .models import Volunteer
 from .models import Opportunity
@@ -487,3 +490,9 @@ class ProjectServices:
     @staticmethod
     def get_all_projects() -> typing.List[Project]:
         return list(project_dao.get_project_all())
+
+
+class CommentServices:
+    @staticmethod
+    def create_comment(create_comment_data: CreateCommentData) -> None:
+        comment_dao.create_comment(create_comment_data=create_comment_data)
