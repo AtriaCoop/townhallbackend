@@ -126,3 +126,15 @@ class UpdateTaskData:
     status: Optional[str] = None
     assigned_to: Optional[int] = None
     organization_id: Optional[int] = None
+
+
+@dataclass
+class CreatePostData:
+    """
+    Dataclass representing the fields that are needed to create a post
+    """
+
+    id: int
+    user_id: int
+    content: str
+    created_at: datetime
