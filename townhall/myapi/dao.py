@@ -400,7 +400,7 @@ class ProjectDao:
 
 class PostDao:
 
-    def create_post(post_data: CreatePostData) -> None:
+    def create_post(post_data: CreatePostData) -> Post:
         post = Post.objects.create(
             post_id=post_data.id,
             user_id=post_data.user_id,
