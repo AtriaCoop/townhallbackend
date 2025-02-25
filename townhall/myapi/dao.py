@@ -405,7 +405,7 @@ class CommentDao:
             user_id=comment_data.user_id,
             post_id=comment_data.post_id,
             content=comment_data.content,
-            created_data=comment_data.created_data,
+            created_at=comment_data.created_at,
         )
 
         return comment
