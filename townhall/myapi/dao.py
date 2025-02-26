@@ -4,6 +4,7 @@ from .models import Organization
 from .models import Task
 from .models import Chat
 from .models import Project
+from .models import Post
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -18,6 +19,8 @@ from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
 from .types import CreateTaskData, UpdateTaskData
+
+from .types import CreatePostData
 
 import typing
 from typing import Optional, List
@@ -393,3 +396,16 @@ class ProjectDao:
     @staticmethod
     def get_project_all() -> QuerySet[Project]:
         return Project.objects.all()
+
+
+class PostDao:
+
+    def create_post(post_data: CreatePostData) -> Post:
+        post = Post.objects.create(
+            post_id=post_data.id,
+            user_id=post_data.user_id,
+            content=post_data.content,
+            created_data=post_data.created_data,
+        )
+
+        return post
