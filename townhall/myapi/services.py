@@ -451,6 +451,10 @@ class CommunityServices:
     def get_community(id: int) -> typing.Optional[Community]:
         return community_dao.get_community(id=id)
 
+    @staticmethod
+    def get_all_communities() -> typing.List[Community]:
+        return list(community_dao.get_community_all())
+
 
 class ProjectServices:
 
