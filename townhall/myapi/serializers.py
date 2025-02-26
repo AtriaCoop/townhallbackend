@@ -3,6 +3,7 @@ from .models import Opportunity
 from .models import Volunteer
 from .models import Organization
 from .models import Task
+from .models import Comment
 
 
 class OpportunitySerializer(serializers.ModelSerializer):
@@ -82,3 +83,17 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
+
+
+class CreateCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = ["id", "user", "post", "content", "created_at"]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = ["id", "user", "post", "content", "created_at"]
