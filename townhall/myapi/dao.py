@@ -399,13 +399,12 @@ class ProjectDao:
 
 class CommentDao:
 
-    def create_comment(comment_data: CreateCommentData) -> None:
+    def create_comment(create_comment_data: CreateCommentData) -> None:
         comment = Comment.objects.create(
-            comment_id=comment_data.id,
-            user_id=comment_data.user_id,
-            post_id=comment_data.post_id,
-            content=comment_data.content,
-            created_at=comment_data.created_at,
+            user_id=create_comment_data.user_id,
+            post_id=create_comment_data.post_id,
+            content=create_comment_data.content,
+            created_at=create_comment_data.created_at,
         )
 
         return comment

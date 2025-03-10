@@ -495,4 +495,5 @@ class ProjectServices:
 class CommentServices:
     @staticmethod
     def create_comment(create_comment_data: CreateCommentData) -> None:
-        comment_dao.create_comment(create_comment_data=create_comment_data)
+        comment = comment_dao.create_comment(create_comment_data=create_comment_data)
+        return comment
