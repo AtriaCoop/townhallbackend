@@ -19,6 +19,7 @@ from .dao import OrganizationDao as organization_dao
 from .dao import TaskDao as task_dao
 from .dao import ChatDao as chat_dao
 from .dao import ProjectDao as project_dao
+from .dao import PostDao as post_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -36,11 +37,14 @@ from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
+from .types import CreatePostData
+
 from .models import Volunteer
 from .models import Opportunity
 from .models import Organization
 from .models import Task
 from .models import Project
+from .models import Post
 
 User = get_user_model()
 
@@ -487,3 +491,10 @@ class ProjectServices:
     @staticmethod
     def get_all_projects() -> typing.List[Project]:
         return list(project_dao.get_project_all())
+
+
+class PostServices:
+    @staticmethod
+    def create_post(create_post_data: CreatePostData) -> Post:
+        post = post_dao.create_post(post_data=create_post_data)
+        return post
