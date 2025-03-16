@@ -401,10 +401,9 @@ class ProjectDao:
 class PostDao:
 
     def create_post(post_data: CreatePostData) -> Post:
-        volunteer = Volunteer.objects.get(id=post_data.user_id)
         post = Post.objects.create(
             id=post_data.id,
-            volunteer=volunteer,
+            volunteer_id=post_data.user_id,
             content=post_data.content,
             created_at=post_data.created_at,
             image=post_data.image,
