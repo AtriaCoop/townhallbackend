@@ -133,12 +133,20 @@ class Event(models.Model):
         return self.title
 
 
+class Community(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
 class Project(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    # community_id = models.ForeignKey(Community, on_delete=models.CASCADE)
+    community = models.ForeignKey(Community, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
