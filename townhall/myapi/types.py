@@ -138,6 +138,7 @@ class CreatePostData:
     user_id: int
     content: str
     created_at: datetime
+    image: Optional[str] = None
 
 
 @dataclass
