@@ -20,6 +20,7 @@ from .dao import TaskDao as task_dao
 from .dao import ChatDao as chat_dao
 from .dao import ProjectDao as project_dao
 from .dao import PostDao as post_dao
+from .dao import CommentDao as comment_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -38,6 +39,7 @@ from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
 from .types import CreatePostData
+from .types import CreateCommentData
 
 from .models import Volunteer
 from .models import Opportunity
@@ -498,3 +500,9 @@ class PostServices:
     def create_post(create_post_data: CreatePostData) -> Post:
         post = post_dao.create_post(post_data=create_post_data)
         return post
+      
+class CommentServices:
+    @staticmethod
+    def create_comment(create_comment_data: CreateCommentData) -> None:
+        comment = comment_dao.create_comment(create_comment_data=create_comment_data)
+        return comment
