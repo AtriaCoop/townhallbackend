@@ -500,7 +500,8 @@ class PostServices:
     def create_post(create_post_data: CreatePostData) -> Post:
         post = post_dao.create_post(post_data=create_post_data)
         return post
-      
+
+
 class CommentServices:
     @staticmethod
     def create_comment(create_comment_data: CreateCommentData) -> None:
