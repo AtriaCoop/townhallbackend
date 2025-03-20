@@ -17,6 +17,7 @@ from .services import VolunteerServices as volunteer_services
 from .services import OpportunityServices as opportunity_services
 from .services import OrganizationServices as organization_services
 from .services import TaskServices
+from .services import CommentServices as comment_services
 
 from .serializers import OpportunitySerializer, FilteredOpportunitySerializer
 from .serializers import (
@@ -24,6 +25,8 @@ from .serializers import (
     CreateVolunteerSerializer,
     OptionalVolunteerSerializer,
     ChangePasswordVolunteerSerializer,
+    CreateCommentSerializer,
+    CommentSerializer,
 )
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
@@ -33,6 +36,7 @@ from .types import (
     UpdateVolunteerData,
     FilterVolunteerData,
     ChangeVolunteerPasswordData,
+    CreateCommentData,
 )
 
 from .types import FilteredOpportunityData
@@ -608,3 +612,41 @@ class TaskViewSet(viewsets.ViewSet):
 
         TaskServices.delete_task(pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+
+    # POST (Create) Comment
+    @action(detail=False, methods=["post"], url_path="comment")
+    def create_comment_endpoint(self, request):
+        # Transforms requests JSON data into a python dictionary
+        serializer = CreateCommentSerializer(data=request.data)
+
+        # If the data is NOT valid return with a message serializers errors
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        validated_data = serializer.validated_data
+
+        create_comment_data = CreateCommentData(
+            id=validated_data["id"],
+            user_id=validated_data["user_id"],
+            post_id=validated_data["post_id"],
+            content=validated_data["content"],
+            created_at=validated_data["created_at"],
+        )
+
+        try:
+            comment = comment_services.create_comment(create_comment_data)
+
+            response_serializer = CommentSerializer(comment)
+
+            return Response(
+                {
+                    "message": "Comment Created Succesfully",
+                    "comment": response_serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except ValidationError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
