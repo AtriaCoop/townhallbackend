@@ -6,7 +6,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Volunteer
-from .serializers import VolunteerSerializer
 
 # Follows layered architecture pattern of views -> services -> dao
 from rest_framework import viewsets
