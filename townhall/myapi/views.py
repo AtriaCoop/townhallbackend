@@ -1,6 +1,13 @@
 from django.forms import ValidationError
 from .models import Task
 
+from django.contrib.auth.hashers import check_password
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Volunteer
+from .serializers import VolunteerSerializer
+
 # Follows layered architecture pattern of views -> services -> dao
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -36,6 +43,42 @@ from .types import UpdateTaskData
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
+
+    # Volunteer Login
+    @csrf_exempt  # Disable CSRF (only for development)
+    @action(detail=False, methods=["post"])
+    def login_volunteer(self, request):
+        if request.method == "POST":
+            try:
+                data = json.loads(request.body)
+                email = data.get("email")
+                password = data.get("password")
+
+                # Check if the volunteer exists
+                try:
+                    volunteer = Volunteer.objects.get(email=email)
+                except Volunteer.DoesNotExist:
+                    return JsonResponse({"error": "User not found"}, status=404)
+
+                # Validate Password
+                if check_password(password, volunteer.password):
+                    return JsonResponse({
+                        "message": "Login successful",
+                        "user": {
+                            "id": volunteer.id,
+                            "first_name": volunteer.first_name,
+                            "last_name": volunteer.last_name,
+                            "email": volunteer.email,
+                            "gender": volunteer.gender,
+                        }
+                    }, status=200)
+                else:
+                    return JsonResponse({"error": "Invalid password"}, status=400)
+
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
     # POST (Create) Volunteer
     @action(detail=False, methods=["post"], url_path="volunteer")
