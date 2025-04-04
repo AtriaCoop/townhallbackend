@@ -134,8 +134,7 @@ class CreatePostData:
     Dataclass representing the fields that are needed to create a post
     """
 
-    id: int
-    user_id: int
+    volunteer_id: int
     content: str
     created_at: datetime
     image: Optional[str] = None
