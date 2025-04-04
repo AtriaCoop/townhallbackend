@@ -25,6 +25,7 @@ from myapi.views import VolunteerViewSet
 from myapi.views import OpportunityViewSet
 from myapi.views import OrganizationViewSet
 from myapi.views import TaskViewSet
+from myapi.views import PostViewSet
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -115,6 +116,15 @@ urlpatterns = [
                 "delete": "delete_task",
             }
         ),
+    ),
+    path(
+        "post/",
+        PostViewSet.as_view(
+            {
+                "post": "create_post_endpoint",
+            }
+        ),
+        name="post",
     ),
 ] + debug_toolbar_urls()
 
