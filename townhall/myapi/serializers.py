@@ -38,6 +38,10 @@ class VolunteerSerializer(serializers.ModelSerializer):
 
 class CreateVolunteerSerializer(serializers.ModelSerializer):
 
+    first_name = serializers.CharField(required=False, allow_blank=True)
+    last_name = serializers.CharField(required=False, allow_blank=True)
+    gender = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = Volunteer
         fields = [

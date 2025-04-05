@@ -98,12 +98,13 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
         # Convert the validated data into the CreateVolunteerData type
         create_volunteer_data = CreateVolunteerData(
-            first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
+            first_name=validated_data.get("first_name", ""),
+            last_name=validated_data.get("last_name", ""),
             email=validated_data["email"],
             password=validated_data["password"],
-            gender=validated_data["gender"],
+            gender=validated_data.get("gender", ""),
         )
+
 
         try:
             # Call the service method to create the volunteer
