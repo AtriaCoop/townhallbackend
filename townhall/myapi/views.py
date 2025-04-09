@@ -104,8 +104,6 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             password=validated_data["password"],
             gender=validated_data.get("gender", ""),
         )
-
-
         try:
             # Call the service method to create the volunteer
             volunteer = volunteer_services.create_volunteer(create_volunteer_data)

@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      flake8:
+        specifier: ^0.0.1
+        version: 0.0.1
+
+packages:
+
+  flake8@0.0.1:
+    resolution: {integrity: sha512-3uRF+YBAgl7kG1ibE3Roy/nldjEDnF8tHcYsp5LMrWI4V65xY/2r22hwCvX5uFRV0WfQGvzfaJg3lkyCHBIPhQ==}
+
+snapshots:
+
+  flake8@0.0.1: {}

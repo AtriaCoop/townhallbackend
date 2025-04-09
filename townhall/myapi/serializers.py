@@ -41,6 +41,8 @@ class CreateVolunteerSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=False, allow_blank=True)
     last_name = serializers.CharField(required=False, allow_blank=True)
     gender = serializers.CharField(required=False, allow_blank=True)
+    email = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
 
     class Meta:
         model = Volunteer
