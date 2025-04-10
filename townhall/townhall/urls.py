@@ -29,6 +29,11 @@ from myapi.views import TaskViewSet
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
+        "auth/login/",
+        VolunteerViewSet.as_view({"post": "login_volunteer"}),  # Fixed mapping
+        name="login_volunteer",
+    ),
+    path(
         "volunteer/",
         VolunteerViewSet.as_view(
             {

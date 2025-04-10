@@ -346,8 +346,6 @@ class TestEndpointVolunteer(TestCase):
         self.url = "/volunteer/"
         invalid_data = {
             "first_name": "John",
-            # Invalid Data because missing email
-            "email": "john.doe@example.com",
             "password": "ILikePizza9000",
             "gender": "M",
         }
