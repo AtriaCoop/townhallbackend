@@ -4,6 +4,7 @@ from .models import Volunteer
 from .models import Organization
 from .models import Task
 from .models import Comment
+from .models import Post
 
 
 class OpportunitySerializer(serializers.ModelSerializer):
@@ -103,3 +104,12 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "user", "post", "content", "created_at"]
+
+
+class PostSerializer(serializers.ModelSerializer):
+    volunteer = serializers.PrimaryKeyRelatedField(queryset=Volunteer.objects.all())
+
+    class Meta:
+        model = Post
+        fields = ["id", "volunteer", "content", "created_at", "image"]
+        read_only_fields = ["id", "created_at"]

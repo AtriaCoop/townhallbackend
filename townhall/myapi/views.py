@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.forms import ValidationError
 from .models import Task
 
@@ -18,6 +19,7 @@ from .services import OpportunityServices as opportunity_services
 from .services import OrganizationServices as organization_services
 from .services import TaskServices
 from .services import CommentServices as comment_services
+from .services import PostServices as post_services
 
 from .serializers import OpportunitySerializer, FilteredOpportunitySerializer
 from .serializers import (
@@ -27,6 +29,7 @@ from .serializers import (
     ChangePasswordVolunteerSerializer,
     CreateCommentSerializer,
     CommentSerializer,
+    PostSerializer,
 )
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
@@ -37,6 +40,7 @@ from .types import (
     FilterVolunteerData,
     ChangeVolunteerPasswordData,
     CreateCommentData,
+    CreatePostData,
 )
 
 from .types import FilteredOpportunityData
@@ -628,7 +632,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         validated_data = serializer.validated_data
 
         create_comment_data = CreateCommentData(
-            id=validated_data["id"],
             user_id=validated_data["user_id"],
             post_id=validated_data["post_id"],
             content=validated_data["content"],
@@ -644,6 +647,40 @@ class CommentViewSet(viewsets.ModelViewSet):
                 {
                     "message": "Comment Created Succesfully",
                     "comment": response_serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except ValidationError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PostViewSet(viewsets.ModelViewSet):
+
+    # POST (Create) Comment
+    @action(detail=False, methods=["post"], url_path="post")
+    def create_post_endpoint(self, request):
+        serializer = PostSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        validated_data = serializer.validated_data
+
+        create_post_data = CreatePostData(
+            volunteer_id=validated_data["volunteer"].id,
+            content=validated_data["content"],
+            created_at=timezone.now(),
+            image=validated_data["image"],
+        )
+
+        try:
+            post = post_services.create_post(create_post_data)
+            response_serializer = PostSerializer(post)
+            return Response(
+                {
+                    "message": "Post Created Successfully",
+                    "post": response_serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
             )

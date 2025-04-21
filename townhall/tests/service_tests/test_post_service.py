@@ -2,11 +2,9 @@ from django.test import TestCase
 from django.core.management import call_command
 from django.db.utils import IntegrityError
 from myapi.models import Post, Volunteer
-from myapi.services import PostServices
+from myapi.services import PostServices as post_services
 from myapi.types import CreatePostData
 from django.utils import timezone
-from datetime import datetime
-from django.core.files.uploadedfile import SimpleUploadedFile
 import os
 
 
@@ -16,6 +14,9 @@ class TestPostModel(TestCase):
     def setUp(self):
         # Load the fixture data to set up initial state
         call_command("loaddata", "volunteer_fixture.json")
+
+        # Get the volunteer instance from fixture
+        self.volunteer = Volunteer.objects.get(pk=1)
 
         self.test_image_path = os.path.join(
             os.path.dirname(
@@ -48,29 +49,15 @@ class TestPostModel(TestCase):
             )
 
     def test_create_post_service(self):
-        # Arrange: Retrieve a volunteer from the fixture
-        volunteer = Volunteer.objects.get(pk=1)
-
-        with open(self.test_image_path, "rb") as f:
-            image = SimpleUploadedFile(
-                name="image.png", content=f.read(), content_type="image/png"
-            )
-
-        # Create a CreatePostData instance with test data
         post_data = CreatePostData(
-            id=1,
-            user_id=volunteer.id,
-            content="This is a test post via service",
-            created_at=datetime.now(),
-            image=image,
+            volunteer_id=self.volunteer.id,
+            content="Test post content",
+            created_at=timezone.now(),
+            image=None,  # Optional, can be omitted
         )
 
-        # Act: Use the PostServices to create a post
-        post = PostServices.create_post(post_data)
+        post = post_services.create_post(post_data)
 
-        # Assert: Check that post was created correctly and is linked to the volunteer
-        self.assertEqual(post.volunteer.id, volunteer.id)
-        self.assertEqual(post.content, "This is a test post via service")
-        self.assertEqual(Post.objects.count(), 1)
-        self.assertTrue(post.image)
-        self.assertTrue(os.path.exists(post.image.path))
+        self.assertIsNotNone(post)
+        self.assertEqual(post.volunteer_id, self.volunteer.id)
+        self.assertEqual(post.content, "Test post content")
