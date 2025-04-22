@@ -126,7 +126,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
     # POST for completing user's information
     @action(detail=True, methods=["post"], url_path="complete_profile")
     def complete_profile(self, request, pk=None):
@@ -140,7 +140,10 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
         try:
             volunteer_services.update_volunteer(update_data)
-            return Response({"message": "Profile setup completed."}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Profile setup completed."},
+                status=status.HTTP_200_OK,
+            )
         except ValidationError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
