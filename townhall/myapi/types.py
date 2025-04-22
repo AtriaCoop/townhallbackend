@@ -20,6 +20,13 @@ class UpdateVolunteerData:
     gender: Optional[str] = None
     email: Optional[str] = None
     is_active: Optional[bool] = None
+    pronouns: Optional[str] = None
+    title: Optional[str] = None
+    primary_organization: Optional[str] = None
+    other_organizations: Optional[str] = None
+    other_networks: Optional[str] = None
+    about_me: Optional[str] = None
+    skills_interests: Optional[str] = None
 
 
 @dataclass

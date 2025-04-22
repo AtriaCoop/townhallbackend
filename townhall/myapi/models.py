@@ -15,6 +15,13 @@ class Volunteer(models.Model):
         max_length=128, default=make_password("default_password")
     )
     is_active = models.BooleanField(default=True)
+    pronouns = models.CharField(max_length=100, null=True, blank=True)
+    title = models.CharField(max_length=100, null=True, blank=True)
+    primary_organization = models.CharField(max_length=255, null=True, blank=True)
+    other_organizations = models.TextField(null=True, blank=True)
+    other_networks = models.TextField(null=True, blank=True)
+    about_me = models.TextField(null=True, blank=True)
+    skills_interests = models.TextField(null=True, blank=True)
 
     GENDER_CHOICES = (
         ("M", "Male"),

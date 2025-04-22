@@ -69,6 +69,20 @@ class VolunteerDao:
             volunteer.email = update_volunteer_data.email
         if update_volunteer_data.is_active is not None:
             volunteer.is_active = update_volunteer_data.is_active
+        if update_volunteer_data.pronouns:
+            volunteer.pronouns = update_volunteer_data.pronouns
+        if update_volunteer_data.title:
+            volunteer.title = update_volunteer_data.title
+        if update_volunteer_data.primary_organization:
+            volunteer.primary_organization = update_volunteer_data.primary_organization
+        if update_volunteer_data.other_organizations:
+            volunteer.other_organizations = update_volunteer_data.other_organizations
+        if update_volunteer_data.other_networks:
+            volunteer.other_networks = update_volunteer_data.other_networks
+        if update_volunteer_data.about_me:
+            volunteer.about_me = update_volunteer_data.about_me
+        if update_volunteer_data.skills_interests:
+            volunteer.skills_interests = update_volunteer_data.skills_interests
 
         volunteer.save()
 

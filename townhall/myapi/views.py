@@ -126,6 +126,23 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # POST for completing user's information
+    @action(detail=True, methods=["post"], url_path="complete_profile")
+    def complete_profile(self, request, pk=None):
+        serializer = OptionalVolunteerSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        validated_data = serializer.validated_data
+
+        update_data = UpdateVolunteerData(id=pk, **validated_data)
+
+        try:
+            volunteer_services.update_volunteer(update_data)
+            return Response({"message": "Profile setup completed."}, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     # POST (Create) Add volunteer to Opportunity
     @action(detail=True, methods=["post"], url_path="opportunity")

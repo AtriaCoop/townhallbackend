@@ -29,11 +29,19 @@ class VolunteerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
         fields = [
+            "id",
             "first_name",
             "last_name",
             "email",
             "gender",
             "is_active",
+            "pronouns",
+            "title",
+            "primary_organization",
+            "other_organizations",
+            "other_networks",
+            "about_me",
+            "skills_interests",
         ]
 
 
@@ -64,6 +72,13 @@ class OptionalVolunteerSerializer(serializers.Serializer):
         choices=[("M", "Male"), ("F", "Female")], required=False
     )
     is_active = serializers.BooleanField(required=False, allow_null=True)
+    pronouns = serializers.CharField(required=False, allow_blank=True)
+    title = serializers.CharField(required=False, allow_blank=True)
+    primary_organization = serializers.CharField(required=False, allow_blank=True)
+    other_organizations = serializers.CharField(required=False, allow_blank=True)
+    other_networks = serializers.CharField(required=False, allow_blank=True)
+    about_me = serializers.CharField(required=False, allow_blank=True)
+    skills_interests = serializers.CharField(required=False, allow_blank=True)
 
     # Make sure atleast 1 field has a Value
     def validate(self, data):
