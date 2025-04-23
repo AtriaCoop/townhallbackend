@@ -134,17 +134,25 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         try:
             volunteer = Volunteer.objects.get(id=pk)
         except Volunteer.DoesNotExist:
-            return Response({"error": "Volunteer not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Volunteer not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         # Only this line needed — no "files="!
-        serializer = VolunteerProfileSerializer(volunteer, data=request.data, partial=True)
+        serializer = VolunteerProfileSerializer(
+            volunteer, data=request.data, partial=True
+        )
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()  # saves image too if passed
 
-        return Response({"message": "Profile setup completed."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Profile setup completed."},
+            status=status.HTTP_200_OK
+        )
 
     # POST (Create) Add volunteer to Opportunity
     @action(detail=True, methods=["post"], url_path="opportunity")

@@ -87,7 +87,8 @@ class OptionalVolunteerSerializer(serializers.Serializer):
         if all(data.get(field) is None for field in data):
             raise serializers.ValidationError("Atleast 1 field must have a Value")
         return data
-    
+
+
 class VolunteerProfileSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(required=False, allow_null=True)
 
@@ -98,6 +99,7 @@ class VolunteerProfileSerializer(serializers.ModelSerializer):
             "pronouns", "title", "primary_organization", "other_organizations",
             "other_networks", "about_me", "skills_interests", "profile_image"
         ]
+
 
 class ChangePasswordVolunteerSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
@@ -132,6 +134,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ["id", "user", "post", "content", "created_at"]
 
+
 class VolunteerMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
@@ -142,6 +145,7 @@ class VolunteerMiniSerializer(serializers.ModelSerializer):
             "primary_organization",
             "profile_image"
         ]
+
 
 class PostSerializer(serializers.ModelSerializer):
     volunteer = VolunteerMiniSerializer(read_only=True)
