@@ -42,6 +42,7 @@ class VolunteerSerializer(serializers.ModelSerializer):
             "other_networks",
             "about_me",
             "skills_interests",
+            "profile_image",
         ]
 
 
@@ -79,12 +80,24 @@ class OptionalVolunteerSerializer(serializers.Serializer):
     other_networks = serializers.CharField(required=False, allow_blank=True)
     about_me = serializers.CharField(required=False, allow_blank=True)
     skills_interests = serializers.CharField(required=False, allow_blank=True)
+    profile_image = serializers.ImageField(required=False, allow_null=True)
 
     # Make sure atleast 1 field has a Value
     def validate(self, data):
         if all(data.get(field) is None for field in data):
             raise serializers.ValidationError("Atleast 1 field must have a Value")
         return data
+    
+class VolunteerProfileSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = Volunteer
+        fields = [
+            "first_name", "last_name", "email", "gender", "is_active",
+            "pronouns", "title", "primary_organization", "other_organizations",
+            "other_networks", "about_me", "skills_interests", "profile_image"
+        ]
 
 
 class ChangePasswordVolunteerSerializer(serializers.Serializer):
