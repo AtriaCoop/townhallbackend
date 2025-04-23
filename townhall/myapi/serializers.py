@@ -99,7 +99,6 @@ class VolunteerProfileSerializer(serializers.ModelSerializer):
             "other_networks", "about_me", "skills_interests", "profile_image"
         ]
 
-
 class ChangePasswordVolunteerSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     curr_password = serializers.CharField(max_length=128, required=True)
@@ -133,12 +132,29 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ["id", "user", "post", "content", "created_at"]
 
+class VolunteerMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volunteer
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "primary_organization",
+            "profile_image"
+        ]
 
 class PostSerializer(serializers.ModelSerializer):
-    volunteer = serializers.PrimaryKeyRelatedField(queryset=Volunteer.objects.all())
+    volunteer = VolunteerMiniSerializer(read_only=True)
+
+    volunteer_id = serializers.PrimaryKeyRelatedField(
+        queryset=Volunteer.objects.all(),
+        write_only=True,
+        source="volunteer"
+    )
+
     image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post
-        fields = ["id", "volunteer", "content", "created_at", "image"]
+        fields = ["id", "volunteer", "volunteer_id", "content", "created_at", "image"]
         read_only_fields = ["id", "created_at"]
