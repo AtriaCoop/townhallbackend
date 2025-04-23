@@ -675,6 +675,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class PostViewSet(viewsets.ModelViewSet):
+    
+    # GET Post
+    @action(detail=False, methods=["get"], url_path="post")
+    def get_all_posts(self, request):
+        try:
+            posts = post_services.get_all_posts()
+            serializer = PostSerializer(posts, many=True)
+            return Response({
+                "message": "Posts fetched successfully",
+                "posts": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # POST (Create) Comment
     @action(detail=False, methods=["post"], url_path="post")
@@ -691,7 +704,7 @@ class PostViewSet(viewsets.ModelViewSet):
             volunteer_id=validated_data["volunteer"].id,
             content=validated_data["content"],
             created_at=timezone.now(),
-            image=validated_data["image"],
+            image=validated_data.get("image", None),
         )
 
         try:

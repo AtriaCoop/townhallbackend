@@ -131,6 +131,7 @@ urlpatterns = [
         "post/",
         PostViewSet.as_view(
             {
+                "get": "get_all_posts",
                 "post": "create_post_endpoint",
             }
         ),

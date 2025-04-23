@@ -123,6 +123,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     volunteer = serializers.PrimaryKeyRelatedField(queryset=Volunteer.objects.all())
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post

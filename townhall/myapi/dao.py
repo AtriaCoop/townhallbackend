@@ -429,6 +429,9 @@ class CommentDao:
 
 class PostDao:
 
+    def get_all_posts() -> typing.List[Post]:
+        return Post.objects.all()
+
     def create_post(post_data: CreatePostData) -> Post:
         post = Post.objects.create(
             volunteer_id=post_data.volunteer_id,
