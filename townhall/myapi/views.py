@@ -675,7 +675,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    
+
     # GET Post
     @action(detail=False, methods=["get"], url_path="post")
     def get_all_posts(self, request):
@@ -687,7 +687,9 @@ class PostViewSet(viewsets.ModelViewSet):
                 "posts": serializer.data
             }, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                "error": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # POST (Create) Comment
     @action(detail=False, methods=["post"], url_path="post")
