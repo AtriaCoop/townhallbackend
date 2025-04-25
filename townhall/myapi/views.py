@@ -151,7 +151,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
         return Response(
             {"message": "Profile setup completed."},
-            status=status.HTTP_200_OK
+            status=status.HTTP_201_CREATED
         )
 
     # POST (Create) Add volunteer to Opportunity
