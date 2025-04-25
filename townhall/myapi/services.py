@@ -497,6 +497,10 @@ class ProjectServices:
 
 class PostServices:
     @staticmethod
+    def get_all_posts() -> typing.List[Post]:
+        return post_dao.get_all_posts()
+
+    @staticmethod
     def create_post(create_post_data: CreatePostData) -> Post:
         post = post_dao.create_post(post_data=create_post_data)
         return post

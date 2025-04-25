@@ -26,6 +26,7 @@ from .serializers import (
     VolunteerSerializer,
     CreateVolunteerSerializer,
     OptionalVolunteerSerializer,
+    VolunteerProfileSerializer,
     ChangePasswordVolunteerSerializer,
     CreateCommentSerializer,
     CommentSerializer,
@@ -126,6 +127,32 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             # If services method returns an error, return an error Response
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # POST for completing user's information
+    @action(detail=True, methods=["post"], url_path="complete_profile")
+    def complete_profile(self, request, pk=None):
+        try:
+            volunteer = Volunteer.objects.get(id=pk)
+        except Volunteer.DoesNotExist:
+            return Response(
+                {"error": "Volunteer not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Only this line needed — no "files="!
+        serializer = VolunteerProfileSerializer(
+            volunteer, data=request.data, partial=True
+        )
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()  # saves image too if passed
+
+        return Response(
+            {"message": "Profile setup completed."},
+            status=status.HTTP_201_CREATED
+        )
 
     # POST (Create) Add volunteer to Opportunity
     @action(detail=True, methods=["post"], url_path="opportunity")
@@ -656,6 +683,21 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class PostViewSet(viewsets.ModelViewSet):
 
+    # GET Post
+    @action(detail=False, methods=["get"], url_path="post")
+    def get_all_posts(self, request):
+        try:
+            posts = post_services.get_all_posts()
+            serializer = PostSerializer(posts, many=True)
+            return Response({
+                "message": "Posts fetched successfully",
+                "posts": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     # POST (Create) Comment
     @action(detail=False, methods=["post"], url_path="post")
     def create_post_endpoint(self, request):
@@ -671,7 +713,7 @@ class PostViewSet(viewsets.ModelViewSet):
             volunteer_id=validated_data["volunteer"].id,
             content=validated_data["content"],
             created_at=timezone.now(),
-            image=validated_data["image"],
+            image=validated_data.get("image", None),
         )
 
         try:

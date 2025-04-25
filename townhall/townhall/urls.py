@@ -56,6 +56,11 @@ urlpatterns = [
         name="volunteer_id",
     ),
     path(
+        "volunteer/<int:pk>/complete_profile/",
+        VolunteerViewSet.as_view({"post": "complete_profile"}),
+        name="complete_profile",
+    ),
+    path(
         "volunteer/<int:vol_id>/opportunity/",
         VolunteerViewSet.as_view(
             {
@@ -126,6 +131,7 @@ urlpatterns = [
         "post/",
         PostViewSet.as_view(
             {
+                "get": "get_all_posts",
                 "post": "create_post_endpoint",
             }
         ),
