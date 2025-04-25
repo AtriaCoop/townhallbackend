@@ -26,6 +26,7 @@ from .serializers import (
     VolunteerSerializer,
     CreateVolunteerSerializer,
     OptionalVolunteerSerializer,
+    VolunteerProfileSerializer,
     ChangePasswordVolunteerSerializer,
     CreateCommentSerializer,
     CommentSerializer,
@@ -130,22 +131,28 @@ class VolunteerViewSet(viewsets.ModelViewSet):
     # POST for completing user's information
     @action(detail=True, methods=["post"], url_path="complete_profile")
     def complete_profile(self, request, pk=None):
-        serializer = OptionalVolunteerSerializer(data=request.data)
+        try:
+            volunteer = Volunteer.objects.get(id=pk)
+        except Volunteer.DoesNotExist:
+            return Response(
+                {"error": "Volunteer not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Only this line needed — no "files="!
+        serializer = VolunteerProfileSerializer(
+            volunteer, data=request.data, partial=True
+        )
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        validated_data = serializer.validated_data
+        serializer.save()  # saves image too if passed
 
-        update_data = UpdateVolunteerData(id=pk, **validated_data)
-
-        try:
-            volunteer_services.update_volunteer(update_data)
-            return Response(
-                {"message": "Profile setup completed."},
-                status=status.HTTP_200_OK,
-            )
-        except ValidationError as e:
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"message": "Profile setup completed."},
+            status=status.HTTP_201_CREATED
+        )
 
     # POST (Create) Add volunteer to Opportunity
     @action(detail=True, methods=["post"], url_path="opportunity")

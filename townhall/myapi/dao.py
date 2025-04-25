@@ -83,6 +83,8 @@ class VolunteerDao:
             volunteer.about_me = update_volunteer_data.about_me
         if update_volunteer_data.skills_interests:
             volunteer.skills_interests = update_volunteer_data.skills_interests
+        if update_volunteer_data.profile_image:
+            volunteer.profile_image = update_volunteer_data.profile_image
 
         volunteer.save()
 

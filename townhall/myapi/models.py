@@ -22,6 +22,7 @@ class Volunteer(models.Model):
     other_networks = models.TextField(null=True, blank=True)
     about_me = models.TextField(null=True, blank=True)
     skills_interests = models.TextField(null=True, blank=True)
+    profile_image = models.ImageField(upload_to='profile_image', null=True, blank=True)
 
     GENDER_CHOICES = (
         ("M", "Male"),

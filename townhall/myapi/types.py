@@ -27,6 +27,7 @@ class UpdateVolunteerData:
     other_networks: Optional[str] = None
     about_me: Optional[str] = None
     skills_interests: Optional[str] = None
+    profile_image: Optional[str] = None
 
 
 @dataclass

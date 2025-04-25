@@ -42,6 +42,7 @@ class VolunteerSerializer(serializers.ModelSerializer):
             "other_networks",
             "about_me",
             "skills_interests",
+            "profile_image",
         ]
 
 
@@ -79,12 +80,25 @@ class OptionalVolunteerSerializer(serializers.Serializer):
     other_networks = serializers.CharField(required=False, allow_blank=True)
     about_me = serializers.CharField(required=False, allow_blank=True)
     skills_interests = serializers.CharField(required=False, allow_blank=True)
+    profile_image = serializers.ImageField(required=False, allow_null=True)
 
     # Make sure atleast 1 field has a Value
     def validate(self, data):
         if all(data.get(field) is None for field in data):
             raise serializers.ValidationError("Atleast 1 field must have a Value")
         return data
+
+
+class VolunteerProfileSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = Volunteer
+        fields = [
+            "first_name", "last_name", "email", "gender", "is_active",
+            "pronouns", "title", "primary_organization", "other_organizations",
+            "other_networks", "about_me", "skills_interests", "profile_image"
+        ]
 
 
 class ChangePasswordVolunteerSerializer(serializers.Serializer):
@@ -121,11 +135,30 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "post", "content", "created_at"]
 
 
+class VolunteerMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volunteer
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "primary_organization",
+            "profile_image"
+        ]
+
+
 class PostSerializer(serializers.ModelSerializer):
-    volunteer = serializers.PrimaryKeyRelatedField(queryset=Volunteer.objects.all())
+    volunteer = VolunteerMiniSerializer(read_only=True)
+
+    volunteer_id = serializers.PrimaryKeyRelatedField(
+        queryset=Volunteer.objects.all(),
+        write_only=True,
+        source="volunteer"
+    )
+
     image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post
-        fields = ["id", "volunteer", "content", "created_at", "image"]
+        fields = ["id", "volunteer", "volunteer_id", "content", "created_at", "image"]
         read_only_fields = ["id", "created_at"]
