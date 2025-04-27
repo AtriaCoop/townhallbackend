@@ -137,6 +137,17 @@ urlpatterns = [
         ),
         name="post",
     ),
+    path(
+        "post/<int:pk>/",
+        PostViewSet.as_view(
+            {
+                "get": "get_post_request",
+                "patch": "update_post",
+                "delete": "delete_post"
+            }
+        ),
+        name="post_id"
+    )
 ] + debug_toolbar_urls()
 
 # Serve media files during development

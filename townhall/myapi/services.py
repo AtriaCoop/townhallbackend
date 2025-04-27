@@ -38,7 +38,7 @@ from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 
-from .types import CreatePostData
+from .types import CreatePostData, UpdatePostData
 from .types import CreateCommentData
 
 from .models import Volunteer
@@ -497,6 +497,14 @@ class ProjectServices:
 
 class PostServices:
     @staticmethod
+    def get_post(id: int) -> typing.Optional[Post]:
+        try:
+            post = post_dao.get_post(id=id)
+            return post
+        except Post.DoesNotExist:
+            raise ValidationError(f"Post with the given id: {id}, does not exist.")
+
+    @staticmethod
     def get_all_posts() -> typing.List[Post]:
         return post_dao.get_all_posts()
 
@@ -504,6 +512,18 @@ class PostServices:
     def create_post(create_post_data: CreatePostData) -> Post:
         post = post_dao.create_post(post_data=create_post_data)
         return post
+
+    @staticmethod
+    def update_post(id: int, update_post_data: UpdatePostData) -> Post:
+        post = post_dao.update_post(id=id, post_data=update_post_data)
+        return post
+
+    @staticmethod
+    def delete_post(post_id: int) -> None:
+        try:
+            post_dao.delete_post(post_id)
+        except ValueError as e:
+            raise ValidationError(str(e))
 
 
 class CommentServices:

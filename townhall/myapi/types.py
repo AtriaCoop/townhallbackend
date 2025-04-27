@@ -149,6 +149,12 @@ class CreatePostData:
 
 
 @dataclass
+class UpdatePostData:
+    content: str
+    image: Optional[str] = None
+
+
+@dataclass
 class CreateCommentData:
     """
     Dataclass representing the fields that are needed to create a comment
