@@ -760,7 +760,6 @@ class PostViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        from .types import UpdatePostData
         update_post_data = UpdatePostData(
             content=serializer.validated_data.get("content", ""),
             image=serializer.validated_data.get("image", None),
@@ -773,7 +772,7 @@ class PostViewSet(viewsets.ModelViewSet):
             {"message": "Post Updated Successfully"},
             status=status.HTTP_200_OK
         )
-    
+
     # DELETE a Post
     @action(detail=True, methods=["delete"], url_path="post")
     def delete_post(self, request, pk=None):

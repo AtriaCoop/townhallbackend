@@ -147,6 +147,7 @@ class CreatePostData:
     created_at: datetime
     image: Optional[str] = None
 
+
 @dataclass
 class UpdatePostData:
     content: str
@@ -164,4 +165,3 @@ class CreateCommentData:
     post_id: int
     content: str
     created_at: datetime
-

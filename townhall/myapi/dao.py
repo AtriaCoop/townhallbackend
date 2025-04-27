@@ -446,7 +446,7 @@ class PostDao:
         )
 
         return post
-    
+
     def update_post(id: int, post_data: UpdatePostData) -> Post:
         try:
             post = Post.objects.get(id=id)
