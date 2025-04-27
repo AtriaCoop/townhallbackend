@@ -1,12 +1,11 @@
 from django.utils import timezone
 from django.forms import ValidationError
-from .models import Task
+from .models import Task, Volunteer, Post
 
 from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Volunteer
 
 # Follows layered architecture pattern of views -> services -> dao
 from rest_framework import viewsets
@@ -42,6 +41,7 @@ from .types import (
     ChangeVolunteerPasswordData,
     CreateCommentData,
     CreatePostData,
+    UpdatePostData,
 )
 
 from .types import FilteredOpportunityData
@@ -683,7 +683,22 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class PostViewSet(viewsets.ModelViewSet):
 
-    # GET Post
+    # GET a Post
+    @action(detail=True, methods=["get"], url_path="post")
+    def get_post_request(self, request, pk=None):
+        try:
+            post = post_services.get_post(id=pk)
+            serializer = PostSerializer(post)
+            return Response({
+                "message": "Post fetched successfully",
+                "post": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    # GET all Posts
     @action(detail=False, methods=["get"], url_path="post")
     def get_all_posts(self, request):
         try:
@@ -698,7 +713,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 "error": str(e)
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # POST (Create) Comment
+    # POST (Create)
     @action(detail=False, methods=["post"], url_path="post")
     def create_post_endpoint(self, request):
         serializer = PostSerializer(data=request.data)
@@ -728,3 +743,38 @@ class PostViewSet(viewsets.ModelViewSet):
             )
         except ValidationError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # PATCH (Update) Post
+    @action(detail=True, methods=["patch"], url_path="post")
+    def update_post(self, request, pk=None):
+        try:
+            post = Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = PostSerializer(post, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+
+        return Response(
+            {"message": "Post Updated Successfully"},
+            status=status.HTTP_200_OK
+        )
+    
+    # DELETE a Post
+    @action(detail=True, methods=["delete"], url_path="post")
+    def delete_post(self, request, pk=None):
+        try:
+            post_services.delete_post(post_id=pk)
+            return Response(
+                {"message": "Post deleted successfully"},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        except ValidationError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_404_NOT_FOUND
+            )

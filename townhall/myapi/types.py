@@ -147,6 +147,10 @@ class CreatePostData:
     created_at: datetime
     image: Optional[str] = None
 
+@dataclass
+class UpdatePostData:
+    content: str
+    image: Optional[str] = None
 
 @dataclass
 class CreateCommentData:
