@@ -447,11 +447,20 @@ class PostDao:
 
         return post
     
-    def update_post(post_data: UpdatePostData) -> Post:
-        post = Post.objects.update(
-            content=post_data.content,
-            image=post_data.image
-        )
+    def update_post(id: int, post_data: UpdatePostData) -> Post:
+        try:
+            post = Post.objects.get(id=id)
+        except Post.DoesNotExist:
+            raise ValidationError(f"Post with ID {id} does not exist.")
+
+        if post_data.content is not None:
+            post.content = post_data.content
+        if post_data.image is not None:
+            post.image = post_data.image
+
+        post.save()
+
+        return post
 
     def delete_post(post_id):
         try:

@@ -512,12 +512,19 @@ class PostServices:
     def create_post(create_post_data: CreatePostData) -> Post:
         post = post_dao.create_post(post_data=create_post_data)
         return post
-    
+
     @staticmethod
-    def update_post(update_post_data: UpdatePostData) -> Post:
-        post = post_dao.update_post(post_data=update_post_data)
-        return post
-    
+    def update_post(id: int, update_post_data: UpdatePostData) -> None:
+        try:
+            post = Post.objects.get(id=id)
+            if update_post_data.content:
+                post.content = update_post_data.content
+            if update_post_data.image is not None:
+                post.image = update_post_data.image
+            post.save()
+        except Post.DoesNotExist:
+            raise ValidationError(f"Post with id {id} does not exist.")
+
     @staticmethod
     def delete_post(post_id: int) -> None:
         try:

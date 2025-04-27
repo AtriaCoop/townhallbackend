@@ -743,21 +743,31 @@ class PostViewSet(viewsets.ModelViewSet):
             )
         except ValidationError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
     # PATCH (Update) Post
     @action(detail=True, methods=["patch"], url_path="post")
     def update_post(self, request, pk=None):
         try:
             post = Post.objects.get(pk=pk)
         except Post.DoesNotExist:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"error": "Post not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         serializer = PostSerializer(post, data=request.data, partial=True)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
+
+        from .types import UpdatePostData
+        update_post_data = UpdatePostData(
+            content=serializer.validated_data.get("content", ""),
+            image=serializer.validated_data.get("image", None),
+        )
+
+        from .services import PostServices as post_services
+        post_services.update_post(pk, update_post_data)
 
         return Response(
             {"message": "Post Updated Successfully"},
