@@ -147,6 +147,14 @@ urlpatterns = [
             }
         ),
         name="post_id"
+    ),
+    path(
+        "post/<int:pk>/like/",
+        PostViewSet.as_view(
+            {
+                "patch": "like_post"
+            }
+        ),
     )
 ] + debug_toolbar_urls()
 
