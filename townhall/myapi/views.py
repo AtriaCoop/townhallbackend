@@ -822,18 +822,22 @@ class PostViewSet(viewsets.ModelViewSet):
                 post.likes -= 1
                 post.save()
                 return Response(
-                    {"message": "Post unliked",
-                     "likes": post.likes},
-                     status=status.HTTP_200_OK
+                    {
+                        "message": "Post unliked",
+                        "likes": post.likes
+                    },
+                    status=status.HTTP_200_OK
                 )
             else:
                 post.liked_by.add(volunteer)
                 post.likes += 1
                 post.save()
                 return Response(
-                    {"message": "Post liked",
-                     "likes": post.likes},
-                     status=status.HTTP_200_OK
+                    {
+                        "message": "Post liked",
+                        "likes": post.likes
+                    },
+                    status=status.HTTP_200_OK
                 )
 
         except Post.DoesNotExist:
