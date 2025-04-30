@@ -71,8 +71,12 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
                 # Validate Password
                 if check_password(password, volunteer.password):
-                    login(request, volunteer, backend='django.contrib.auth.backends.ModelBackend')
-                    
+                    login(
+                        request,
+                        volunteer,
+                        backend='django.contrib.auth.backends.ModelBackend'
+                    )
+
                     return JsonResponse({
                         "message": "Login successful",
                         "user": {
@@ -800,22 +804,40 @@ class PostViewSet(viewsets.ModelViewSet):
             # Here: fetch user ID from session
             user_id = request.session.get("_auth_user_id")
             if not user_id:
-                return Response({"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(
+                    {"error": "Not authenticated"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
 
-            volunteer = Volunteer.objects.get(id=user_id)
+            try:
+                volunteer = Volunteer.objects.get(id=user_id)
+            except Volunteer.DoesNotExist:
+                return Response(
+                    {"error": "Volunteer not found"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             if volunteer in post.liked_by.all():
                 post.liked_by.remove(volunteer)
                 post.likes -= 1
                 post.save()
-                return Response({"message": "Post unliked", "likes": post.likes}, status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "Post unliked",
+                     "likes": post.likes},
+                     status=status.HTTP_200_OK
+                )
             else:
                 post.liked_by.add(volunteer)
                 post.likes += 1
                 post.save()
-                return Response({"message": "Post liked", "likes": post.likes}, status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "Post liked",
+                     "likes": post.likes},
+                     status=status.HTTP_200_OK
+                )
 
         except Post.DoesNotExist:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Volunteer.DoesNotExist:
-            return Response({"error": "Volunteer not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Post not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
