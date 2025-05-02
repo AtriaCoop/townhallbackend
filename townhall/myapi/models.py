@@ -15,6 +15,7 @@ class Volunteer(models.Model):
         max_length=128, default=make_password("default_password")
     )
     is_active = models.BooleanField(default=True)
+    last_login = models.DateTimeField(default=timezone.now)
     pronouns = models.CharField(max_length=100, null=True, blank=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     primary_organization = models.CharField(max_length=255, null=True, blank=True)
@@ -74,6 +75,8 @@ class Post(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
     image = models.ImageField(upload_to="post_images/", null=True, blank=True)
+    likes = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(Volunteer, blank=True, related_name="liked_posts")
 
     def __str__(self):
         return str(self.id)

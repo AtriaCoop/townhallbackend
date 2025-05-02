@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.forms import ValidationError
+from django.contrib.auth import login
 from .models import Task, Volunteer, Post
 
 from django.contrib.auth.hashers import check_password
@@ -70,6 +71,12 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
                 # Validate Password
                 if check_password(password, volunteer.password):
+                    login(
+                        request,
+                        volunteer,
+                        backend='django.contrib.auth.backends.ModelBackend'
+                    )
+
                     return JsonResponse({
                         "message": "Login successful",
                         "user": {
@@ -659,8 +666,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         validated_data = serializer.validated_data
 
         create_comment_data = CreateCommentData(
-            user_id=validated_data["user_id"],
-            post_id=validated_data["post_id"],
+            user_id=validated_data["user"].id,
+            post_id=validated_data["post"].id,
             content=validated_data["content"],
             created_at=validated_data["created_at"],
         )
@@ -785,5 +792,56 @@ class PostViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             return Response(
                 {"error": str(e)},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    # Like a Post
+    @action(detail=True, methods=["patch"], url_path="like")
+    def like_post(self, request, pk=None):
+        try:
+            post = Post.objects.get(pk=pk)
+
+            # Here: fetch user ID from session
+            user_id = request.session.get("_auth_user_id")
+            if not user_id:
+                return Response(
+                    {"error": "Not authenticated"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            try:
+                volunteer = Volunteer.objects.get(id=user_id)
+            except Volunteer.DoesNotExist:
+                return Response(
+                    {"error": "Volunteer not found"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if volunteer in post.liked_by.all():
+                post.liked_by.remove(volunteer)
+                post.likes -= 1
+                post.save()
+                return Response(
+                    {
+                        "message": "Post unliked",
+                        "likes": post.likes
+                    },
+                    status=status.HTTP_200_OK
+                )
+            else:
+                post.liked_by.add(volunteer)
+                post.likes += 1
+                post.save()
+                return Response(
+                    {
+                        "message": "Post liked",
+                        "likes": post.likes
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+        except Post.DoesNotExist:
+            return Response(
+                {"error": "Post not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
