@@ -128,7 +128,14 @@ class CreateCommentSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "post", "content", "created_at"]
 
 
+class CommentUserMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volunteer
+        fields = ["id", "first_name", "last_name", "profile_image"]
+
+
 class CommentSerializer(serializers.ModelSerializer):
+    user = CommentUserMiniSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -158,9 +165,11 @@ class PostSerializer(serializers.ModelSerializer):
 
     image = serializers.ImageField(required=False, allow_null=True)
 
+    comments = CommentSerializer(many=True, read_only=True, source="comment_set")
+
     class Meta:
         model = Post
         fields = ["id", "volunteer", "volunteer_id",
                   "content", "created_at", "image",
-                  "likes", "liked_by"]
-        read_only_fields = ["id", "created_at", "likes", "liked_by"]
+                  "likes", "liked_by", "comments"]
+        read_only_fields = ["id", "created_at", "likes", "liked_by", "comments"]
