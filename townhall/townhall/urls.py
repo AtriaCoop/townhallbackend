@@ -26,6 +26,7 @@ from myapi.views import OpportunityViewSet
 from myapi.views import OrganizationViewSet
 from myapi.views import TaskViewSet
 from myapi.views import PostViewSet
+from myapi.views import CommentViewSet
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -155,7 +156,14 @@ urlpatterns = [
                 "patch": "like_post"
             }
         ),
-    )
+    ),
+    path(
+        "comment/",
+        CommentViewSet.as_view({
+            "post": "create_comment_endpoint",
+        }),
+        name="comment"
+    ),
 ] + debug_toolbar_urls()
 
 # Serve media files during development

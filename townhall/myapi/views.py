@@ -666,8 +666,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         validated_data = serializer.validated_data
 
         create_comment_data = CreateCommentData(
-            user_id=validated_data["user_id"],
-            post_id=validated_data["post_id"],
+            user_id=validated_data["user"].id,
+            post_id=validated_data["post"].id,
             content=validated_data["content"],
             created_at=validated_data["created_at"],
         )

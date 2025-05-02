@@ -160,7 +160,6 @@ class CreateCommentData:
     Dataclass representing the fields that are needed to create a comment
     """
 
-    id: int
     user_id: int
     post_id: int
     content: str
