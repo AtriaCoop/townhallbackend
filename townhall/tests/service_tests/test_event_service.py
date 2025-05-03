@@ -12,7 +12,7 @@ class TestEventModel(TestCase):
 
     def setUp(self):
 
-        org=Organization.objects.create(
+        org = Organization.objects.create(
             id=1,
             name="Tester",
             location="Location",
@@ -25,8 +25,12 @@ class TestEventModel(TestCase):
             id=1,
             title="event test",
             description="This is a test",
-            start_time=timezone.make_aware(datetime(2025, 5, 2, 8, 0)),
-            end_time=timezone.make_aware(datetime(2025, 5, 2, 15, 0)),
+            start_time=timezone.make_aware(
+                datetime(2025, 5, 2, 8, 0)
+            ),
+            end_time=timezone.make_aware(
+                datetime(2025, 5, 2, 15, 0)
+            ),
             location="test location",
             organization=org
         )
