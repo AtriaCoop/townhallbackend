@@ -544,4 +544,3 @@ class EventServices:
             return event
         except Event.DoesNotExist:
             raise ValidationError(f"Event with the id: {id}, does not exist.")
-        
