@@ -41,8 +41,18 @@ class TestEventModel(TestCase):
         # checks to see if information matches actual event information
         self.assertEqual(event.title, "event test")
         self.assertEqual(event.description, "This is a test")
-        self.assertEqual(event.start_time, timezone.make_aware(datetime(2025, 5, 2, 8, 0)))
-        self.assertEqual(event.end_time, timezone.make_aware(datetime(2025, 5, 2, 15, 0)))
+        self.assertEqual(
+            event.start_time,
+            timezone.make_aware(
+                datetime(2025, 5, 2, 8, 0)
+            )
+        )
+        self.assertEqual(
+            event.end_time,
+            timezone.make_aware(
+                datetime(2025, 5, 2, 15, 0)
+            )
+        )
         self.assertEqual(event.location, "test location")
 
     def test_get_event_failure(self):
