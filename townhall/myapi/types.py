@@ -164,3 +164,14 @@ class CreateCommentData:
     post_id: int
     content: str
     created_at: datetime
+
+
+@dataclass
+class CreateEventData:
+
+    title: str
+    description: str
+    start_time: datetime
+    end_time: datetime
+    location: str
+    organization: int
