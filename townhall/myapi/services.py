@@ -49,6 +49,7 @@ from .models import Organization
 from .models import Task
 from .models import Project
 from .models import Post
+from .models import Event
 
 User = get_user_model()
 
@@ -538,6 +539,6 @@ class CommentServices:
 class EventServices:
 
     @staticmethod
-    def create_event(create_event_data: CreateEventData) -> None:
+    def create_event(create_event_data: CreateEventData) -> Event:
         event = event_dao.create_event(create_event_data=create_event_data)
         return event

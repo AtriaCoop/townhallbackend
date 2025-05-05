@@ -474,7 +474,7 @@ class PostDao:
 
 class EventDao:
 
-    def create_event(create_event_data: CreateEventData) -> None:
+    def create_event(create_event_data: CreateEventData) -> Event:
         event = Event.objects.create(
             title=create_event_data.title,
             description=create_event_data.description,
