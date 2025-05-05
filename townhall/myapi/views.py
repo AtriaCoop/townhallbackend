@@ -705,20 +705,32 @@ class CommentViewSet(viewsets.ModelViewSet):
         try:
             comment = self.get_object()
         except Comment.DoesNotExist:
-            return Response({"error": "Comment not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Comment not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         # Get current user from session
         user_id = request.session.get("_auth_user_id")
         if not user_id:
-            return Response({"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Not authenticated"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         # Allow only the author to delete
         if comment.user.id != int(user_id):
-            return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "Permission denied"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         # Authorized – delete it
         comment.delete()
-        return Response({"message": "Comment deleted"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Comment deleted"},
+            status=status.HTTP_204_NO_CONTEN
+        )
 
 
 class PostViewSet(viewsets.ModelViewSet):
