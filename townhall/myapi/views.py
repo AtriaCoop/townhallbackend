@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.forms import ValidationError
 from django.contrib.auth import login
-from .models import Task, Volunteer, Post
+from .models import Task, Volunteer, Post, Comment
 
 from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
@@ -155,6 +155,9 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()  # saves image too if passed
+
+        # Automatically log the user in after profile is completed (authenticated)
+        login(request, volunteer, backend='django.contrib.auth.backends.ModelBackend')
 
         return Response(
             {"message": "Profile setup completed."},
@@ -373,13 +376,20 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         # Convert the validated data into the UpdateVolunteerData type
         update_volunteer_data = UpdateVolunteerData(
             id=volunteer_id,
-            first_name=validated_data.get("first_name", None),
-            last_name=validated_data.get("last_name", None),
-            email=validated_data.get("email", None),
-            gender=validated_data.get("gender", None),
-            is_active=validated_data.get("is_active", None),
+            first_name=validated_data.get("first_name"),
+            last_name=validated_data.get("last_name"),
+            email=validated_data.get("email"),
+            gender=validated_data.get("gender"),
+            is_active=validated_data.get("is_active"),
+            pronouns=validated_data.get("pronouns"),
+            title=validated_data.get("title"),
+            primary_organization=validated_data.get("primary_organization"),
+            other_organizations=validated_data.get("other_organizations"),
+            other_networks=validated_data.get("other_networks"),
+            about_me=validated_data.get("about_me"),
+            skills_interests=validated_data.get("skills_interests"),
+            profile_image=request.FILES.get("profile_image"),
         )
-
         try:
             # Call the service method to update the volunteer
             volunteer_services.update_volunteer(update_volunteer_data)
@@ -653,6 +663,9 @@ class TaskViewSet(viewsets.ViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
 
+    def get_queryset(self):
+        return Comment.objects.all()
+
     # POST (Create) Comment
     @action(detail=False, methods=["post"], url_path="comment")
     def create_comment_endpoint(self, request):
@@ -686,6 +699,26 @@ class CommentViewSet(viewsets.ModelViewSet):
             )
         except ValidationError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # DELETE (only by author)
+    def destroy(self, request, *args, **kwargs):
+        try:
+            comment = self.get_object()
+        except Comment.DoesNotExist:
+            return Response({"error": "Comment not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get current user from session
+        user_id = request.session.get("_auth_user_id")
+        if not user_id:
+            return Response({"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Allow only the author to delete
+        if comment.user.id != int(user_id):
+            return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Authorized – delete it
+        comment.delete()
+        return Response({"message": "Comment deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class PostViewSet(viewsets.ModelViewSet):

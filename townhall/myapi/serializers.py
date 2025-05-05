@@ -167,6 +167,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     comments = CommentSerializer(many=True, read_only=True, source="comment_set")
 
+    liked_by = VolunteerMiniSerializer(many=True, read_only=True)
+
     class Meta:
         model = Post
         fields = ["id", "volunteer", "volunteer_id",

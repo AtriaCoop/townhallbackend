@@ -77,12 +77,50 @@ class VolunteerServices:
         except ValidationError:
             raise
 
-    def update_volunteer(update_volunteer_data: UpdateVolunteerData) -> None:
-        try:
-            volunteer_dao.update_volunteer(update_volunteer_data=update_volunteer_data)
-        except Volunteer.DoesNotExist:
-            id = update_volunteer_data.id
-            raise ValidationError(f"Volunteer with the given id: {id}, does not exist.")
+    def update_volunteer(update_volunteer_data: UpdateVolunteerData) -> Volunteer:
+        volunteer = Volunteer.objects.get(id=update_volunteer_data.id)
+
+        if update_volunteer_data.first_name is not None:
+            volunteer.first_name = update_volunteer_data.first_name
+
+        if update_volunteer_data.last_name is not None:
+            volunteer.last_name = update_volunteer_data.last_name
+
+        if update_volunteer_data.email is not None:
+            volunteer.email = update_volunteer_data.email
+
+        if update_volunteer_data.gender is not None:
+            volunteer.gender = update_volunteer_data.gender
+
+        if update_volunteer_data.is_active is not None:
+            volunteer.is_active = update_volunteer_data.is_active
+
+        if update_volunteer_data.pronouns is not None:
+            volunteer.pronouns = update_volunteer_data.pronouns
+
+        if update_volunteer_data.title is not None:
+            volunteer.title = update_volunteer_data.title
+
+        if update_volunteer_data.primary_organization is not None:
+            volunteer.primary_organization = update_volunteer_data.primary_organization
+
+        if update_volunteer_data.other_organizations is not None:
+            volunteer.other_organizations = update_volunteer_data.other_organizations
+
+        if update_volunteer_data.other_networks is not None:
+            volunteer.other_networks = update_volunteer_data.other_networks
+
+        if update_volunteer_data.about_me is not None:
+            volunteer.about_me = update_volunteer_data.about_me
+
+        if update_volunteer_data.skills_interests is not None:
+            volunteer.skills_interests = update_volunteer_data.skills_interests
+
+        if update_volunteer_data.profile_image is not None:
+            volunteer.profile_image = update_volunteer_data.profile_image
+
+        volunteer.save()
+        return volunteer
 
     def delete_volunteer(id: int) -> None:
         try:
