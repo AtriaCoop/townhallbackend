@@ -21,6 +21,7 @@ from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 from .types import CreateCommentData
 from .types import CreateEventData
+from .types import CreateProjectData
 
 from .types import CreateTaskData, UpdateTaskData
 
@@ -416,6 +417,18 @@ class ProjectDao:
     @staticmethod
     def get_project_all() -> QuerySet[Project]:
         return Project.objects.all()
+
+    def create_project(create_project_data: CreateProjectData) -> Project:
+        project = Project.objects.create(
+            id=create_project_data.id,
+            title=create_project_data.title,
+            description=create_project_data.description,
+            start_date=create_project_data.start_date,
+            end_date=create_project_data.end_date,
+            community=create_project_data.community,
+        )
+
+        return project
 
 
 class CommentDao:
