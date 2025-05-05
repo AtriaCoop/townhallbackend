@@ -164,6 +164,12 @@ urlpatterns = [
         }),
         name="comment"
     ),
+    path(
+        "comment/<int:pk>/",
+        CommentViewSet.as_view({
+            "delete": "destroy",
+        }),
+    ),
 ] + debug_toolbar_urls()
 
 # Serve media files during development
