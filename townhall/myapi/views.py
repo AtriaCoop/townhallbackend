@@ -729,7 +729,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         comment.delete()
         return Response(
             {"message": "Comment deleted"},
-            status=status.HTTP_204_NO_CONTEN
+            status=status.HTTP_204_NO_CONTENT
         )
 
 
