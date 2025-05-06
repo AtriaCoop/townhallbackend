@@ -6,6 +6,7 @@ from .models import Chat
 from .models import Project
 from .models import Comment
 from .models import Post
+from .models import Event
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -468,3 +469,14 @@ class PostDao:
             post.delete()
         except Post.DoesNotExist:
             raise ValueError(f"Post with ID {post_id} does not exist.")
+
+
+class EventDao:
+
+    @staticmethod
+    def get_event(id: int) -> typing.Optional[Event]:
+        try:
+            event = Event.objects.get(id=id)
+            return event
+        except Project.DoesNotExist:
+            return None

@@ -21,6 +21,7 @@ from .dao import ChatDao as chat_dao
 from .dao import ProjectDao as project_dao
 from .dao import PostDao as post_dao
 from .dao import CommentDao as comment_dao
+from .dao import EventDao as event_dao
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -47,6 +48,7 @@ from .models import Organization
 from .models import Task
 from .models import Project
 from .models import Post
+from .models import Event
 
 User = get_user_model()
 
@@ -569,3 +571,14 @@ class CommentServices:
     def create_comment(create_comment_data: CreateCommentData) -> None:
         comment = comment_dao.create_comment(create_comment_data=create_comment_data)
         return comment
+
+
+class EventServices:
+
+    @staticmethod
+    def get_event(id: int) -> typing.Optional[Event]:
+        try:
+            event = event_dao.get_event(id=id)
+            return event
+        except Event.DoesNotExist:
+            raise ValidationError(f"Event with the id: {id}, does not exist.")
