@@ -42,6 +42,7 @@ from .types import FilteredOrganizationData
 from .types import CreatePostData, UpdatePostData
 from .types import CreateCommentData
 from .types import CreateEventData
+from .types import CreateProjectData
 
 from .models import Volunteer
 from .models import Opportunity
@@ -534,6 +535,11 @@ class ProjectServices:
     @staticmethod
     def get_all_projects() -> typing.List[Project]:
         return list(project_dao.get_project_all())
+
+    @staticmethod
+    def create_project(create_project_data: CreateProjectData) -> Project:
+        project = project_dao.create_project(create_project_data=create_project_data)
+        return project
 
 
 class PostServices:

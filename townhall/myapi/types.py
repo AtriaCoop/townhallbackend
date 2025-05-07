@@ -175,3 +175,14 @@ class CreateEventData:
     end_time: datetime
     location: str
     organization: int
+
+
+@dataclass
+class CreateProjectData:
+
+    id: int
+    title: str
+    description: str
+    start_date: datetime
+    end_date: datetime
+    community: int
