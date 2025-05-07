@@ -6,6 +6,7 @@ from .models import Chat
 from .models import Project
 from .models import Comment
 from .models import Post
+from .models import Event
 
 from .types import CreateVolunteerData
 from .types import UpdateVolunteerData
@@ -19,6 +20,7 @@ from .types import CreateOrganizationData
 from .types import UpdateOrganizationData
 from .types import FilteredOrganizationData
 from .types import CreateCommentData
+from .types import CreateEventData
 
 from .types import CreateTaskData, UpdateTaskData
 
@@ -468,3 +470,18 @@ class PostDao:
             post.delete()
         except Post.DoesNotExist:
             raise ValueError(f"Post with ID {post_id} does not exist.")
+
+
+class EventDao:
+
+    def create_event(create_event_data: CreateEventData) -> Event:
+        event = Event.objects.create(
+            title=create_event_data.title,
+            description=create_event_data.description,
+            start_time=create_event_data.start_time,
+            end_time=create_event_data.end_time,
+            location=create_event_data.location,
+            organization=create_event_data.organization,
+        )
+
+        return event
