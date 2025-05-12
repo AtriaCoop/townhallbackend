@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.forms import ValidationError
 from django.contrib.auth import login
-from .models import Task, Volunteer, Post
+from .models import Task, Volunteer, Post, Event
 
 from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
@@ -20,6 +20,7 @@ from .services import OrganizationServices as organization_services
 from .services import TaskServices
 from .services import CommentServices as comment_services
 from .services import PostServices as post_services
+from .services import EventServices as event_services
 
 from .serializers import OpportunitySerializer, FilteredOpportunitySerializer
 from .serializers import (
@@ -31,6 +32,7 @@ from .serializers import (
     CreateCommentSerializer,
     CommentSerializer,
     PostSerializer,
+    CreateEventSerializer,
 )
 from .serializers import OrganizationSerializer
 from .serializers import TaskSerializer
@@ -43,6 +45,7 @@ from .types import (
     CreateCommentData,
     CreatePostData,
     UpdatePostData,
+    CreateEventData,
 )
 
 from .types import FilteredOpportunityData
@@ -845,3 +848,38 @@ class PostViewSet(viewsets.ModelViewSet):
                 {"error": "Post not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+class EventViewSet(viewsets.ModelViewSet):
+
+    # POST (Create) Event
+    @action(detail=False, methods=["post"], url_path="event")
+    def create_event_endpoint(self, request):
+        serializer = CreateEventSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        validated_data = serializer.validated_data
+        
+        create_event_data = CreateEventData(
+            title= validated_data["title"],
+            description= validated_data["description"],
+            start_time= validated_data["start_time"],
+            end_time= validated_data["end_time"],
+            location= validated_data["location"],
+            organization= validated_data["organization"],
+        )
+
+        try:
+            event = event_services.create_event(create_event_data)
+            response_serializer = CreateEventSerializer(event)
+            return Response(
+                {
+                    "message": "Post Created Successfully",
+                    "event": response_serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except ValidationError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)

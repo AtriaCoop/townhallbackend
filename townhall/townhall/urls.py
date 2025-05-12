@@ -27,6 +27,7 @@ from myapi.views import OrganizationViewSet
 from myapi.views import TaskViewSet
 from myapi.views import PostViewSet
 from myapi.views import CommentViewSet
+from myapi.views import EventViewSet
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -164,6 +165,13 @@ urlpatterns = [
         }),
         name="comment"
     ),
+    path(
+        "event/",
+        EventViewSet.as_view({
+            "post": "create_event_endpoint",
+        }),
+        name="event"
+    )
 ] + debug_toolbar_urls()
 
 # Serve media files during development

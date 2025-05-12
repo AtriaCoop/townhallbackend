@@ -5,7 +5,7 @@ from .models import Organization
 from .models import Task
 from .models import Comment
 from .models import Post
-
+from .models import Event
 
 class OpportunitySerializer(serializers.ModelSerializer):
 
@@ -173,3 +173,11 @@ class PostSerializer(serializers.ModelSerializer):
                   "content", "created_at", "image",
                   "likes", "liked_by", "comments"]
         read_only_fields = ["id", "created_at", "likes", "liked_by", "comments"]
+
+
+class CreateEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ["id", "title", "description", 
+        "start_time", "end_time", "location",
+        "organization"]
